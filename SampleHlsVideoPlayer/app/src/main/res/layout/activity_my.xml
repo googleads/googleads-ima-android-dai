@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyActivity"
+    tools:ignore="MergeRootFrame">
+
+    <RelativeLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/videoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4">
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true" />
+        <FrameLayout
+            android:id="@+id/adUiContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ImageButton
+            android:id="@+id/playButton"
+            android:contentDescription="Play Button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_action_play_over_video"
+            android:background="@null" />
+    </RelativeLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 xmlns:tools="http://schemas.android.com/tools"
+                 android:id="@+id/descriptionLayout"
+                 android:orientation="vertical"
+                 android:layout_width="match_parent"
+                 android:layout_height="0dp"
+                 android:layout_weight="0.6">
+
+        <TextView
+            android:id="@+id/playerDescription"
+            android:text="@string/video_description"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1"
+            android:textSize="@dimen/font_size" />
+    </LinearLayout>
+
+</LinearLayout>

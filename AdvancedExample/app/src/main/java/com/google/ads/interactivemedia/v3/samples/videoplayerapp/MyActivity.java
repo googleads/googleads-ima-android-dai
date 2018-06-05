@@ -30,9 +30,9 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.google.ads.interactivemedia.v3.samples.samplehlsvideoplayer.SampleHlsVideoPlayer;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -40,7 +40,7 @@ import java.net.CookiePolicy;
 import java.util.HashMap;
 
 /**
- * Main Activity that plays media using {@link SampleHlsVideoPlayer}.
+ * Main Activity that plays media using {@link SampleVideoPlayer}.
  */
 public class MyActivity extends AppCompatActivity {
 
@@ -51,7 +51,7 @@ public class MyActivity extends AppCompatActivity {
             "http://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
     private static final String APP_LOG_TAG = "ImaDaiExample";
 
-    private SampleHlsVideoPlayer mVideoPlayer;
+    private SampleVideoPlayer mVideoPlayer;
     private SampleAdsWrapper mSampleAdsWrapper;
     private ImageButton mPlayButton;
 
@@ -142,7 +142,7 @@ public class MyActivity extends AppCompatActivity {
         mCastApplication.onResume();
     }
 
-    public SampleHlsVideoPlayer getVideoPlayer() {
+    public SampleVideoPlayer getVideoPlayer() {
         return mVideoPlayer;
     }
 
@@ -185,17 +185,16 @@ public class MyActivity extends AppCompatActivity {
     private VideoFragmentListener mVideoFragmentListener = new VideoFragmentListener() {
         @Override
         public void onVideoFragmentCreated(View rootView) {
-            SimpleExoPlayerView videoView =
-                    (SimpleExoPlayerView) rootView.findViewById(R.id.videoView);
-            mVideoPlayer = new SampleHlsVideoPlayer(rootView.getContext(), videoView);
+            PlayerView videoView = rootView.findViewById(R.id.videoView);
+            mVideoPlayer = new SampleVideoPlayer(rootView.getContext(), videoView);
             mVideoPlayer.enableControls(false);
             mSampleAdsWrapper = new SampleAdsWrapper(rootView.getContext(),
                     mVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
             mSampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
 
-            final TextView descTextView = (TextView) rootView.findViewById(R.id.playerDescription);
-            final ScrollView scrollView = (ScrollView) rootView.findViewById(R.id.logScroll);
-            final TextView logTextView = (TextView) rootView.findViewById(R.id.logText);
+            final TextView descTextView = rootView.findViewById(R.id.playerDescription);
+            final ScrollView scrollView = rootView.findViewById(R.id.logScroll);
+            final TextView logTextView = rootView.findViewById(R.id.logText);
 
             if (descTextView != null) {
                 descTextView.setText(mVideoListItem.getTitle());

@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import com.google.ads.interactivemedia.v3.samples.samplehlsvideoplayer.SampleHlsVideoPlayer;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoListFragment.VideoListItem;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
@@ -119,7 +119,7 @@ public class CastApplication implements Cast.MessageReceivedCallback,
 
             private void onApplicationDisconnected() {
                 SampleAdsWrapper adsWrapper = mActivity.getAdsWrapper();
-                SampleHlsVideoPlayer videoPlayer = mActivity.getVideoPlayer();
+                SampleVideoPlayer videoPlayer = mActivity.getVideoPlayer();
                 if (videoPlayer == null || adsWrapper == null) {
                     return;
                 }

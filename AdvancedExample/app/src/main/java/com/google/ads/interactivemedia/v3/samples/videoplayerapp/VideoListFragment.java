@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
 
 /**
  * Fragment for displaying a playlist of video thumbnails from which the user can select one to
@@ -38,9 +39,13 @@ public class VideoListFragment extends Fragment {
     public VideoListItem[] getVideoListItems() {
         return new VideoListItem[] {
             new VideoListItem("Live Video - Big Buck Bunny", "sN_IYUG8STe1ZzhIIE_ksA", null, null,
-                    null),
-            new VideoListItem("VOD - Google I/O", null, null, "19463", "googleio-highlights"),
-            new VideoListItem("VOD - Tears of Steel", null, null, "19463", "tears-of-steel"),
+                    null, StreamFormat.HLS),
+            new VideoListItem("VOD - Google I/O", null, null, "19463", "googleio-highlights",
+                    StreamFormat.HLS),
+            new VideoListItem("VOD - Tears of Steel", null, null, "19463", "tears-of-steel",
+                    StreamFormat.HLS),
+            new VideoListItem("VOD - DASH", null, null, "2474148", "bbb-clear",
+                    StreamFormat.DASH),
         };
     }
 
@@ -67,6 +72,7 @@ public class VideoListFragment extends Fragment {
         private final String mApiKey;
         private final String mContentSourceId;
         private final String mVideoId;
+        private final StreamFormat mStreamFormat;
 
         private final String mId;
 
@@ -94,17 +100,22 @@ public class VideoListFragment extends Fragment {
             return mId;
         }
 
+        public StreamFormat getStreamFormat() {
+            return mStreamFormat;
+        }
+
         public boolean isVod() {
             return mAssetKey == null;
         }
 
         public VideoListItem(String title, String assetKey, String apiKey, String contentSourceId,
-                             String videoId) {
+                             String videoId, StreamFormat streamFormat) {
             this.mTitle = title;
             this.mAssetKey = assetKey;
             this.mApiKey = apiKey;
             this.mContentSourceId = contentSourceId;
             this.mVideoId = videoId;
+            this.mStreamFormat = streamFormat;
             this.mId = (assetKey == null) ? contentSourceId + videoId : assetKey;
         }
     }

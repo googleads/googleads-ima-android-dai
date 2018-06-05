@@ -26,11 +26,11 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.ads.interactivemedia.v3.samples.samplehlsvideoplayer.SampleHlsVideoPlayer;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
+import com.google.android.exoplayer2.ui.PlayerView;
 
 /**
- * Main Activity that plays media using {@link SampleHlsVideoPlayer}.
+ * Main Activity that plays media using {@link SampleVideoPlayer}.
  */
 public class MyActivity extends AppCompatActivity {
 
@@ -38,7 +38,7 @@ public class MyActivity extends AppCompatActivity {
             "http://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
     private static final String APP_LOG_TAG = "ImaDaiExample";
 
-    protected SampleHlsVideoPlayer mVideoPlayer;
+    protected SampleVideoPlayer mVideoPlayer;
     protected ImageButton mPlayButton;
 
     @Override
@@ -46,8 +46,8 @@ public class MyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
         View rootView = findViewById(R.id.videoLayout);
-        mVideoPlayer = new SampleHlsVideoPlayer(rootView.getContext(),
-                (SimpleExoPlayerView) rootView.findViewById(R.id.playerView));
+        mVideoPlayer = new SampleVideoPlayer(rootView.getContext(),
+                (PlayerView) rootView.findViewById(R.id.playerView));
         mVideoPlayer.enableControls(false);
         final SampleAdsWrapper sampleAdsWrapper = new SampleAdsWrapper(this, mVideoPlayer,
             (ViewGroup) rootView.findViewById(R.id.adUiContainer));

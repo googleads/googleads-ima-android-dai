@@ -32,7 +32,7 @@ import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
-import com.google.ads.interactivemedia.v3.samples.samplehlsvideoplayer.SampleHlsVideoPlayer;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +59,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     private StreamDisplayContainer mDisplayContainer;
     private List<VideoStreamPlayer.VideoStreamPlayerCallback> mPlayerCallbacks;
 
-    private SampleHlsVideoPlayer mVideoPlayer;
+    private SampleVideoPlayer mVideoPlayer;
     private Context mContext;
     private ViewGroup mAdUiContainer;
 
@@ -75,7 +75,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
      * @param videoPlayer underlying HLS video player.
      * @param adUiContainer ViewGroup in which to display the ad's UI.
      */
-    public SampleAdsWrapper(Context context, SampleHlsVideoPlayer videoPlayer,
+    public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer,
                             ViewGroup adUiContainer) {
         mVideoPlayer = videoPlayer;
         mContext = context;
@@ -87,7 +87,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     }
 
     private void createAdsLoader() {
-        ImaSdkSettings settings = new ImaSdkSettings();
+        ImaSdkSettings settings = ImaSdkFactory.getInstance().createImaSdkSettings();
         // Change any settings as necessary here.
         settings.setPlayerType(PLAYER_TYPE);
         mAdsLoader = mSdkFactory.createAdsLoader(mContext);
@@ -106,8 +106,8 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     private StreamRequest buildStreamRequest(VideoListFragment.VideoListItem videoListItem) {
 
         VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-        mVideoPlayer.setSampleHlsVideoPlayerCallback(
-            new SampleHlsVideoPlayer.SampleHlsVideoPlayerCallback() {
+        mVideoPlayer.setSampleVideoPlayerCallback(
+            new SampleVideoPlayer.SampleVideoPlayerCallback() {
                 @Override
                 public void onUserTextReceived(String userText) {
                     for (VideoStreamPlayer.VideoStreamPlayerCallback callback : mPlayerCallbacks) {
@@ -149,6 +149,8 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
             request = mSdkFactory.createVodStreamRequest(videoListItem.getContentSourceId(),
                     videoListItem.getVideoId(), null, mDisplayContainer);
         }
+        // Set the stream format (HLS or DASH).
+        request.setFormat(videoListItem.getStreamFormat());
 
         return request;
     }

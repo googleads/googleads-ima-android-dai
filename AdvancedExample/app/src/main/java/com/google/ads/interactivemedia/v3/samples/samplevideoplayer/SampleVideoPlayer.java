@@ -14,44 +14,48 @@
  * limitations under the License.
  */
 
-package com.google.ads.interactivemedia.v3.samples.samplehlsvideoplayer;
+package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.util.Log;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataRenderer.Output;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.ui.PlaybackControlView.ControlDispatcher;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 /**
- * A video player that plays HLS streams; uses ExoPlayer.
+ * A video player that plays HLS or DASH streams using ExoPlayer.
  */
-public class SampleHlsVideoPlayer {
+public class SampleVideoPlayer {
 
-    private static final String LOG_TAG = "HlsPlayer";
-    private static final String USER_AGENT = "ImaSampleHlsPlayer (Linux;Android "
+    private static final String LOG_TAG = "SampleVideoPlayer";
+    private static final String USER_AGENT = "ImaSamplePlayer (Linux;Android "
             + Build.VERSION.RELEASE + ") ImaSample/1.0";
 
     /**
      * Video player callback to be called when TXXX ID3 tag is received or seeking occurs.
      */
-    public interface SampleHlsVideoPlayerCallback {
+    public interface SampleVideoPlayerCallback {
         void onUserTextReceived(String userText);
         void onSeek(int windowIndex, long positionMs);
     }
@@ -59,16 +63,16 @@ public class SampleHlsVideoPlayer {
     private Context mContext;
 
     private SimpleExoPlayer mPlayer;
-    private SimpleExoPlayerView mPlayerView;
-    private SampleHlsVideoPlayerCallback mPlayerCallback;
+    private PlayerView mPlayerView;
+    private SampleVideoPlayerCallback mPlayerCallback;
 
-    private Timeline.Period mPeriod = new Timeline.Period();
+    private Timeline.Period mPeriod = new Period();
 
     private String mStreamUrl;
     private Boolean mIsStreamRequested;
     private boolean mCanSeek;
 
-    public SampleHlsVideoPlayer(Context context, SimpleExoPlayerView playerView) {
+    public SampleVideoPlayer(Context context, PlayerView playerView) {
         mContext = context;
         mPlayerView = playerView;
         mIsStreamRequested = false;
@@ -80,22 +84,21 @@ public class SampleHlsVideoPlayer {
 
         DefaultTrackSelector trackSelector = new DefaultTrackSelector();
         DefaultTrackSelector.Parameters params =
-                new DefaultTrackSelector.Parameters().withPreferredTextLanguage("en");
+                new DefaultTrackSelector.ParametersBuilder().setPreferredTextLanguage("en").build();
         trackSelector.setParameters(params);
-
 
         mPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(mContext),
                 trackSelector, new DefaultLoadControl());
         mPlayerView.setPlayer(mPlayer);
         mPlayerView.setControlDispatcher(new ControlDispatcher() {
             @Override
-            public boolean dispatchSetPlayWhenReady(ExoPlayer player, boolean playWhenReady) {
+            public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
                 player.setPlayWhenReady(playWhenReady);
                 return true;
             }
 
             @Override
-            public boolean dispatchSeekTo(ExoPlayer player, int windowIndex, long positionMs) {
+            public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
                 if (mCanSeek) {
                     if (mPlayerCallback != null) {
                         mPlayerCallback.onSeek(windowIndex, positionMs);
@@ -104,6 +107,22 @@ public class SampleHlsVideoPlayer {
                     }
                 }
                 return true;
+            }
+
+            @Override
+            public boolean dispatchSetRepeatMode(Player player, int repeatMode) {
+                return false;
+            }
+
+            @Override
+            public boolean dispatchSetShuffleModeEnabled(
+                    Player player, boolean shuffleModeEnabled) {
+                return false;
+            }
+
+            @Override
+            public boolean dispatchStop(Player player, boolean reset) {
+                return false;
             }
         });
     }
@@ -117,12 +136,27 @@ public class SampleHlsVideoPlayer {
         initPlayer();
 
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, USER_AGENT);
-        MediaSource hlsSource =
-                new HlsMediaSource(Uri.parse(mStreamUrl), dataSourceFactory, new Handler(), null);
-        mPlayer.prepare(hlsSource);
+        int type = Util.inferContentType(Uri.parse(mStreamUrl), null);
+        MediaSource mediaSource;
+        switch (type) {
+            case C.TYPE_HLS:
+                mediaSource = new HlsMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(Uri.parse(mStreamUrl));
+                break;
+            case C.TYPE_DASH:
+                mediaSource = new DashMediaSource.Factory(
+                        new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
+                        .createMediaSource(Uri.parse(mStreamUrl));
+                break;
+            default:
+                Log.e(LOG_TAG, "Error! Invalid Media Source, exiting");
+                return;
+        }
+
+        mPlayer.prepare(mediaSource);
 
         // Register for ID3 events.
-        mPlayer.setMetadataOutput(new Output() {
+        mPlayer.addMetadataOutput(new MetadataOutput() {
             @Override
             public void onMetadata(Metadata metadata) {
                 for (int i = 0; i < metadata.length(); i++) {
@@ -175,6 +209,7 @@ public class SampleHlsVideoPlayer {
         } else {
             mPlayerView.hideController();
         }
+        mCanSeek = doEnable;
     }
 
     public void setCanSeek(boolean canSeek) {
@@ -194,7 +229,7 @@ public class SampleHlsVideoPlayer {
     }
 
     // Methods for exposing player information.
-    public void setSampleHlsVideoPlayerCallback(SampleHlsVideoPlayerCallback callback) {
+    public void setSampleVideoPlayerCallback(SampleVideoPlayerCallback callback) {
         mPlayerCallback = callback;
     }
 

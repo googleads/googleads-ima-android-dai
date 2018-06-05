@@ -32,10 +32,12 @@ import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.StreamDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
+import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
-import com.google.ads.interactivemedia.v3.samples.samplehlsvideoplayer.SampleHlsVideoPlayer;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer.SampleVideoPlayerCallback;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +51,25 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     // Live stream asset key.
     private static final String TEST_ASSET_KEY = "sN_IYUG8STe1ZzhIIE_ksA";
 
-    // VOD content source and video IDs.
-    private static final String TEST_CONTENT_SOURCE_ID = "19463";
-    private static final String TEST_VIDEO_ID = "googleio-highlights";
+    // VOD HLS content source and video IDs.
+    private static final String TEST_HLS_CONTENT_SOURCE_ID = "19463";
+    private static final String TEST_HLS_VIDEO_ID = "googleio-highlights";
+
+    // VOD DASH content source and video IDs.
+    private static final String TEST_DASH_CONTENT_SOURCE_ID = "2474148";
+    private static final String TEST_DASH_VIDEO_ID = "bbb-clear";
 
     private static final String PLAYER_TYPE = "DAISamplePlayer";
+
+    private enum ContentType {
+        LIVE_HLS,
+        VOD_HLS,
+        VOD_DASH,
+    }
+
+    // Select a LIVE HLS stream. To play a VOD HLS stream or a VOD DASH stream, set CONTENT_TYPE to
+    // the associated enum.
+    private static final ContentType CONTENT_TYPE = ContentType.LIVE_HLS;
 
     /**
      * Log interface, so we can output the log commands to the UI or similar.
@@ -68,7 +84,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     private StreamManager mStreamManager;
     private List<VideoStreamPlayer.VideoStreamPlayerCallback> mPlayerCallbacks;
 
-    private SampleHlsVideoPlayer mVideoPlayer;
+    private SampleVideoPlayer mVideoPlayer;
     private Context mContext;
     private ViewGroup mAdUiContainer;
 
@@ -81,7 +97,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
      * @param videoPlayer underlying HLS video player.
      * @param adUiContainer ViewGroup in which to display the ad's UI.
      */
-    public SampleAdsWrapper(Context context, SampleHlsVideoPlayer videoPlayer,
+    public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer,
                             ViewGroup adUiContainer) {
         mVideoPlayer = videoPlayer;
         mContext = context;
@@ -100,7 +116,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     }
 
     private void createAdsLoader() {
-        ImaSdkSettings settings = new ImaSdkSettings();
+        ImaSdkSettings settings = ImaSdkFactory.getInstance().createImaSdkSettings();
         // Change any settings as necessary here.
         settings.setPlayerType(PLAYER_TYPE);
         enableWebViewDebugging();
@@ -116,8 +132,8 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     private StreamRequest buildStreamRequest() {
 
         VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-        mVideoPlayer.setSampleHlsVideoPlayerCallback(
-            new SampleHlsVideoPlayer.SampleHlsVideoPlayerCallback() {
+        mVideoPlayer.setSampleVideoPlayerCallback(
+            new SampleVideoPlayerCallback() {
                 @Override
                 public void onUserTextReceived(String userText) {
                     for (VideoStreamPlayer.VideoStreamPlayerCallback callback :
@@ -142,19 +158,34 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         mDisplayContainer.setVideoStreamPlayer(videoStreamPlayer);
         mDisplayContainer.setAdContainer(mAdUiContainer);
 
-        // Live stream request.
-        StreamRequest request = mSdkFactory.createLiveStreamRequest(
-                TEST_ASSET_KEY, null, mDisplayContainer);
-
-        // VOD request. Comment the createLiveStreamRequest() line above and uncomment this
-        // createVodStreamRequest() below to switch from a live stream to a VOD stream.
-        //StreamRequest request = mSdkFactory.createVodStreamRequest(TEST_CONTENT_SOURCE_ID,
-        //        TEST_VIDEO_ID, null, mDisplayContainer);
-        return request;
+        StreamRequest request;
+        switch (CONTENT_TYPE) {
+            case LIVE_HLS:
+                // Live HLS stream request.
+                return mSdkFactory.createLiveStreamRequest(
+                        TEST_ASSET_KEY, null, mDisplayContainer);
+            case VOD_HLS:
+                // VOD HLS request.
+                request = mSdkFactory.createVodStreamRequest(
+                        TEST_HLS_CONTENT_SOURCE_ID,
+                        TEST_HLS_VIDEO_ID, null, mDisplayContainer);
+                request.setFormat(StreamFormat.HLS);
+                return request;
+            case VOD_DASH:
+                // VOD DASH request.
+                request = mSdkFactory.createVodStreamRequest(
+                        TEST_DASH_CONTENT_SOURCE_ID,
+                        TEST_DASH_VIDEO_ID, null, mDisplayContainer);
+                request.setFormat(StreamFormat.DASH);
+                return request;
+            default:
+                // Content type not selected.
+                return null;
+        }
     }
 
     private VideoStreamPlayer createVideoStreamPlayer() {
-        VideoStreamPlayer player = new VideoStreamPlayer() {
+        return new VideoStreamPlayer() {
             @Override
             public void loadUrl(String url, List<HashMap<String, String>> subtitles) {
                 mVideoPlayer.setStreamUrl(url);
@@ -191,7 +222,6 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                         mVideoPlayer.getDuration());
             }
         };
-        return player;
     }
 
     /** AdErrorListener implementation **/

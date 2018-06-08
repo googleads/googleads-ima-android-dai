@@ -147,7 +147,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                     videoListItem.getApiKey(), mDisplayContainer);
         } else { // VOD request.
             request = mSdkFactory.createVodStreamRequest(videoListItem.getContentSourceId(),
-                    videoListItem.getVideoId(), null, mDisplayContainer);
+                    videoListItem.getVideoId(), videoListItem.getApiKey(), mDisplayContainer);
         }
         // Set the stream format (HLS or DASH).
         request.setFormat(videoListItem.getStreamFormat());

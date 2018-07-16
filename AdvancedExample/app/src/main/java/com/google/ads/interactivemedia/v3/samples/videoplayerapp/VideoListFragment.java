@@ -39,13 +39,16 @@ public class VideoListFragment extends Fragment {
     public VideoListItem[] getVideoListItems() {
         return new VideoListItem[] {
             new VideoListItem("Live Video - Big Buck Bunny", "sN_IYUG8STe1ZzhIIE_ksA", null, null,
-                    null, StreamFormat.HLS),
+                    null, StreamFormat.HLS, null),
             new VideoListItem("VOD - Google I/O", null, null, "19463", "googleio-highlights",
-                    StreamFormat.HLS),
+                    StreamFormat.HLS, null),
             new VideoListItem("VOD - Tears of Steel", null, null, "19463", "tears-of-steel",
-                    StreamFormat.HLS),
+                    StreamFormat.HLS, null),
             new VideoListItem("VOD - DASH", null, null, "2474148", "bbb-clear",
-                    StreamFormat.DASH),
+                    StreamFormat.DASH, null),
+            new VideoListItem("BBB-widevine", null, null,
+                   "2474148", "bbb-widevine", StreamFormat.DASH,
+                    "https://proxy.uat.widevine.com/proxy"),
         };
     }
 
@@ -73,6 +76,7 @@ public class VideoListFragment extends Fragment {
         private final String mContentSourceId;
         private final String mVideoId;
         private final StreamFormat mStreamFormat;
+        private final String mLicenseUrl;
 
         private final String mId;
 
@@ -104,18 +108,23 @@ public class VideoListFragment extends Fragment {
             return mStreamFormat;
         }
 
+        public String getLicenseUrl() {
+            return mLicenseUrl;
+        }
+
         public boolean isVod() {
             return mAssetKey == null;
         }
 
         public VideoListItem(String title, String assetKey, String apiKey, String contentSourceId,
-                             String videoId, StreamFormat streamFormat) {
+                             String videoId, StreamFormat streamFormat, String licenseUrl) {
             this.mTitle = title;
             this.mAssetKey = assetKey;
             this.mApiKey = apiKey;
             this.mContentSourceId = contentSourceId;
             this.mVideoId = videoId;
             this.mStreamFormat = streamFormat;
+            this.mLicenseUrl = licenseUrl;
             this.mId = (assetKey == null) ? contentSourceId + videoId : assetKey;
         }
     }

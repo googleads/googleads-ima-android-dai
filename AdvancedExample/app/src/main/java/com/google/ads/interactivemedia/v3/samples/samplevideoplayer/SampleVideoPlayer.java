@@ -30,6 +30,11 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
+import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
@@ -41,7 +46,9 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import java.util.UUID;
 
 /**
  * A video player that plays HLS or DASH streams using ExoPlayer.
@@ -51,6 +58,9 @@ public class SampleVideoPlayer {
     private static final String LOG_TAG = "SampleVideoPlayer";
     private static final String USER_AGENT = "ImaSamplePlayer (Linux;Android "
             + Build.VERSION.RELEASE + ") ImaSample/1.0";
+
+    // The UUID uniquely identifying the Widevine DRM scheme.
+    private static final String WIDEVINE_UUID = "edef8ba9-79d6-4ace-a3c8-27dcd51d21ed";
 
     /**
      * Video player callback to be called when TXXX ID3 tag is received or seeking occurs.
@@ -71,6 +81,7 @@ public class SampleVideoPlayer {
     private String mStreamUrl;
     private Boolean mIsStreamRequested;
     private boolean mCanSeek;
+    private String mLicenseUrl;
 
     public SampleVideoPlayer(Context context, PlayerView playerView) {
         mContext = context;
@@ -87,8 +98,13 @@ public class SampleVideoPlayer {
                 new DefaultTrackSelector.ParametersBuilder().setPreferredTextLanguage("en").build();
         trackSelector.setParameters(params);
 
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+        if (mLicenseUrl != null) {
+            drmSessionManager = createDrmSessionManager();
+        }
+
         mPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(mContext),
-                trackSelector, new DefaultLoadControl());
+                trackSelector, new DefaultLoadControl(), drmSessionManager);
         mPlayerView.setPlayer(mPlayer);
         mPlayerView.setControlDispatcher(new ControlDispatcher() {
             @Override
@@ -247,5 +263,30 @@ public class SampleVideoPlayer {
 
     public long getDuration() {
         return mPlayer.getDuration();
+    }
+
+    public void setLicenseUrl(String licenseUrl) {
+        mLicenseUrl = licenseUrl;
+    }
+
+    /**
+     * Creates a DrmSessionManager corresponding to the available license URL using the Widevine DRM
+     * scheme.
+     * @return the created DrmSessionManager or null if the DRM callback fails.
+     */
+    private DrmSessionManager<FrameworkMediaCrypto> createDrmSessionManager() {
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+        try {
+            HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(
+                    mLicenseUrl, new DefaultHttpDataSourceFactory(
+                            Util.getUserAgent(mContext, "SampleVideoPlayer")));
+            UUID uuid = UUID.fromString(WIDEVINE_UUID);
+            drmSessionManager =
+                    new DefaultDrmSessionManager<>(
+                            uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Can't create DRM Session Manager, exiting with error: " + e.toString());
+        }
+        return drmSessionManager;
     }
 }

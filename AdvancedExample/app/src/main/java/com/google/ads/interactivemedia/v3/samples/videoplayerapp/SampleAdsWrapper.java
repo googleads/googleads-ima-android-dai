@@ -106,6 +106,10 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     private StreamRequest buildStreamRequest(VideoListFragment.VideoListItem videoListItem) {
 
         VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
+
+        // Set the license URL.
+        mVideoPlayer.setLicenseUrl(videoListItem.getLicenseUrl());
+
         mVideoPlayer.setSampleVideoPlayerCallback(
             new SampleVideoPlayer.SampleVideoPlayerCallback() {
                 @Override
@@ -147,7 +151,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                     videoListItem.getApiKey(), mDisplayContainer);
         } else { // VOD request.
             request = mSdkFactory.createVodStreamRequest(videoListItem.getContentSourceId(),
-                    videoListItem.getVideoId(), null, mDisplayContainer);
+                    videoListItem.getVideoId(), videoListItem.getApiKey(), mDisplayContainer);
         }
         // Set the stream format (HLS or DASH).
         request.setFormat(videoListItem.getStreamFormat());

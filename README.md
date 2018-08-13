@@ -1,23 +1,28 @@
 Google Ads Android IMA SDK for DAI
 --------------------------
 
-This project hosts samples for the [Android IMA SDK for DAI](https://developers.google.com/interactive-media-ads/docs/sdks/android/dai-quickstart/).
+This project hosts samples for the [Android IMA SDK for DAI](/interactive-media-ads/docs/sdks/android/dai-quickstart/).
 
 ### Requirements
-  * Android Studio 1.0 or newer
-  * IMA Android SDK .jar (see our [Download page](https://developers.google.com/interactive-media-ads/docs/sdks/android/download))
+
+*   Android Studio 1.0 or newer
+*   IMA Android SDK .jar (see our
+    [Download page](//developers.google.com/interactive-media-ads/docs/sdks/android/dai/download)
 
 ### Installation Instructions
-Installation instructions can be found in our [online documentation](https://developers.google.com/interactive-media-ads/docs/sdks/android/dai-quickstart).
+Installation instructions can be found in our [online documentation](/interactive-media-ads/docs/sdks/android/dai-quickstart).
 
 ### Downloads
-Check out the [releases section](https://github.com/googleads/googleads-ima-android/releases) for downloadable zips of the source.
+
+Check out the
+[releases section](//github.com/googleads/googleads-ima-android-dai/releases)
+for downloadable zips of the source.
 
 ### More Info
-For more information, see the [get started guide](https://developers.google.com/interactive-media-ads/docs/sdks/android/dai-quickstart).
+For more information, see the [get started guide](/interactive-media-ads/docs/sdks/android/dai-quickstart).
 
 ### Announcements and Updates
-For API and client library updates and news, please follow our [Google+ Ads Developers page](https://plus.google.com/+GoogleAdsDevelopers/posts) and our [Google Ads Developers blog](http://googleadsdeveloper.blogspot.com/)
+For API and client library updates and news, please follow our [Google+ Ads Developers page](//plus.google.com/+GoogleAdsDevelopers/posts) and our [Google Ads Developers blog](//ads-developers.googleblog.com)
 
 Copyright 2018 Google LLC
 

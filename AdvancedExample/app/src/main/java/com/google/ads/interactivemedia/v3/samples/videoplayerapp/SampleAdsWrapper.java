@@ -180,7 +180,6 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                     return (int) (mVideoPlayer.getVolume() * 100);
                 }
                 return 0;
-
             }
 
             @Override

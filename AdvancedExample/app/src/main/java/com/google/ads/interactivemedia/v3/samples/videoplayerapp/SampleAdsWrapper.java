@@ -90,7 +90,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         ImaSdkSettings settings = ImaSdkFactory.getInstance().createImaSdkSettings();
         // Change any settings as necessary here.
         settings.setPlayerType(PLAYER_TYPE);
-        mAdsLoader = mSdkFactory.createAdsLoader(mContext);
+        mAdsLoader = mSdkFactory.createAdsLoader(mContext, settings);
     }
 
     public void requestAndPlayAds(VideoListFragment.VideoListItem videoListItem,
@@ -172,6 +172,15 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                             mStreamManager.getStreamTimeForContentTime(mBookMarkContentTime);
                     mVideoPlayer.seekTo((long) (streamTime * 1000.0)); // s to ms.
                 }
+            }
+
+            @Override
+            public int getVolume() {
+                if (mVideoPlayer != null) {
+                    return (int) (mVideoPlayer.getVolume() * 100);
+                }
+                return 0;
+
             }
 
             @Override

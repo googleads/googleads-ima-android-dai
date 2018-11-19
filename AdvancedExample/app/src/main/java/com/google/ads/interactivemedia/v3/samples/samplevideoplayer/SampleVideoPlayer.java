@@ -143,6 +143,13 @@ public class SampleVideoPlayer {
         });
     }
 
+    public float getVolume() {
+        if (mPlayer != null) {
+            return mPlayer.getVolume();
+        }
+        return 0;
+    }
+
     public void play() {
         if (mIsStreamRequested) {
             // Stream requested, just resume.

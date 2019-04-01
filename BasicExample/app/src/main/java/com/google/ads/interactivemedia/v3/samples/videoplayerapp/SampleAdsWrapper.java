@@ -36,8 +36,8 @@ import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer.SampleVideoPlayerCallback;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,8 +93,9 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
 
     /**
      * Creates a new SampleAdsWrapper that implements IMA direct-ad-insertion.
-     * @param context the app's context.
-     * @param videoPlayer underlying HLS video player.
+     *
+     * @param context       the app's context.
+     * @param videoPlayer   underlying HLS video player.
      * @param adUiContainer ViewGroup in which to display the ad's UI.
      */
     public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer,
@@ -105,7 +106,6 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         mSdkFactory = ImaSdkFactory.getInstance();
         mPlayerCallbacks = new ArrayList<>();
         createAdsLoader();
-        mDisplayContainer = mSdkFactory.createStreamDisplayContainer();
     }
 
     @TargetApi(19)
@@ -120,7 +120,35 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         // Change any settings as necessary here.
         settings.setPlayerType(PLAYER_TYPE);
         enableWebViewDebugging();
-        mAdsLoader = mSdkFactory.createAdsLoader(mContext);
+        mDisplayContainer = mSdkFactory.createStreamDisplayContainer();
+        VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
+        mVideoPlayer.setSampleVideoPlayerCallback(
+                new SampleVideoPlayerCallback() {
+                    @Override
+                    public void onUserTextReceived(String userText) {
+                        for (VideoStreamPlayer.VideoStreamPlayerCallback callback :
+                                mPlayerCallbacks) {
+                            callback.onUserTextReceived(userText);
+                        }
+                    }
+
+                    @Override
+                    public void onSeek(int windowIndex, long positionMs) {
+                        // See if we would seek past an ad, and if so, jump back to it.
+                        long newSeekPositionMs = positionMs;
+                        if (mStreamManager != null) {
+                            CuePoint prevCuePoint = mStreamManager.getPreviousCuePointForStreamTime(
+                                    positionMs / 1000);
+                            if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
+                                newSeekPositionMs = (long) (prevCuePoint.getStartTime() * 1000);
+                            }
+                        }
+                        mVideoPlayer.seekTo(windowIndex, newSeekPositionMs);
+                    }
+                });
+        mDisplayContainer.setVideoStreamPlayer(videoStreamPlayer);
+        mDisplayContainer.setAdContainer(mAdUiContainer);
+        mAdsLoader = mSdkFactory.createAdsLoader(mContext, settings, mDisplayContainer);
     }
 
     public void requestAndPlayAds() {
@@ -130,52 +158,25 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
     }
 
     private StreamRequest buildStreamRequest() {
-
-        VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-        mVideoPlayer.setSampleVideoPlayerCallback(
-            new SampleVideoPlayerCallback() {
-                @Override
-                public void onUserTextReceived(String userText) {
-                    for (VideoStreamPlayer.VideoStreamPlayerCallback callback :
-                        mPlayerCallbacks) {
-                        callback.onUserTextReceived(userText);
-                    }
-                }
-                @Override
-                public void onSeek(int windowIndex, long positionMs) {
-                    // See if we would seek past an ad, and if so, jump back to it.
-                    long newSeekPositionMs = positionMs;
-                    if (mStreamManager != null) {
-                        CuePoint prevCuePoint  =
-                                mStreamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
-                        if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
-                            newSeekPositionMs = (long) (prevCuePoint.getStartTime() * 1000);
-                        }
-                    }
-                    mVideoPlayer.seekTo(windowIndex, newSeekPositionMs);
-                }
-            });
-        mDisplayContainer.setVideoStreamPlayer(videoStreamPlayer);
-        mDisplayContainer.setAdContainer(mAdUiContainer);
-
         StreamRequest request;
         switch (CONTENT_TYPE) {
             case LIVE_HLS:
                 // Live HLS stream request.
-                return mSdkFactory.createLiveStreamRequest(
-                        TEST_ASSET_KEY, null, mDisplayContainer);
+                return mSdkFactory.createLiveStreamRequest(TEST_ASSET_KEY, null);
             case VOD_HLS:
                 // VOD HLS request.
                 request = mSdkFactory.createVodStreamRequest(
                         TEST_HLS_CONTENT_SOURCE_ID,
-                        TEST_HLS_VIDEO_ID, null, mDisplayContainer);
+                        TEST_HLS_VIDEO_ID,
+                        null); // apiKey
                 request.setFormat(StreamFormat.HLS);
                 return request;
             case VOD_DASH:
                 // VOD DASH request.
                 request = mSdkFactory.createVodStreamRequest(
                         TEST_DASH_CONTENT_SOURCE_ID,
-                        TEST_DASH_VIDEO_ID, null, mDisplayContainer);
+                        TEST_DASH_VIDEO_ID,
+                        null); // apiKey
                 request.setFormat(StreamFormat.DASH);
                 return request;
             default:
@@ -190,6 +191,12 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
             public void loadUrl(String url, List<HashMap<String, String>> subtitles) {
                 mVideoPlayer.setStreamUrl(url);
                 mVideoPlayer.play();
+            }
+
+            @Override
+            public int getVolume() {
+                // Make the video player play at the current device volume.
+                return 100;
             }
 
             @Override
@@ -217,14 +224,33 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
             }
 
             @Override
+            public void onAdPeriodStarted() {
+                log("Ad Period Started\n");
+            }
+
+            @Override
+            public void onAdPeriodEnded() {
+                log("Ad Period Ended\n");
+            }
+
+            @Override
+            public void seek(long timeMs) {
+                // An ad was skipped. Skip to the content time.
+                mVideoPlayer.seekTo(timeMs);
+                log("seek");
+            }
+
+            @Override
             public VideoProgressUpdate getContentProgress() {
-                return new VideoProgressUpdate(mVideoPlayer.getCurrentPositionPeriod(),
-                        mVideoPlayer.getDuration());
+                return new VideoProgressUpdate(
+                        mVideoPlayer.getCurrentPositionPeriod(), mVideoPlayer.getDuration());
             }
         };
     }
 
-    /** AdErrorListener implementation **/
+    /**
+     * AdErrorListener implementation
+     **/
     @Override
     public void onAdError(AdErrorEvent event) {
         log(String.format("Error: %s\n", event.getError().getMessage()));
@@ -235,7 +261,9 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         mVideoPlayer.play();
     }
 
-    /** AdEventListener implementation **/
+    /**
+     * AdEventListener implementation
+     **/
     @Override
     public void onAdEvent(AdEvent event) {
         switch (event.getType()) {
@@ -248,7 +276,9 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         }
     }
 
-    /** AdsLoadedListener implementation **/
+    /**
+     * AdsLoadedListener implementation
+     **/
     @Override
     public void onAdsManagerLoaded(AdsManagerLoadedEvent event) {
         mStreamManager = event.getStreamManager();
@@ -257,12 +287,16 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         mStreamManager.init();
     }
 
-    /** Sets fallback URL in case ads stream fails. **/
+    /**
+     * Sets fallback URL in case ads stream fails.
+     **/
     void setFallbackUrl(String url) {
         mFallbackUrl = url;
     }
 
-    /** Sets logger for displaying events to screen. Optional. **/
+    /**
+     * Sets logger for displaying events to screen. Optional.
+     **/
     void setLogger(Logger logger) {
         mLogger = logger;
     }

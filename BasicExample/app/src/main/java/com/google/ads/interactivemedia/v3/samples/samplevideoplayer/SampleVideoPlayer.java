@@ -182,6 +182,10 @@ public class SampleVideoPlayer {
         mPlayer.setPlayWhenReady(false);
     }
 
+    public void seekTo(long positionMs) {
+        mPlayer.seekTo(positionMs);
+    }
+
     public void seekTo(int windowIndex, long positionMs) {
         mPlayer.seekTo(windowIndex, positionMs);
     }

@@ -87,8 +87,7 @@ public class SampleVideoPlayer {
                 new DefaultTrackSelector.ParametersBuilder().setPreferredTextLanguage("en").build();
         trackSelector.setParameters(params);
 
-        mPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(mContext),
-                trackSelector, new DefaultLoadControl());
+        mPlayer = ExoPlayerFactory.newSimpleInstance(mContext,trackSelector, new DefaultLoadControl());
         mPlayerView.setPlayer(mPlayer);
         mPlayerView.setControlDispatcher(new ControlDispatcher() {
             @Override

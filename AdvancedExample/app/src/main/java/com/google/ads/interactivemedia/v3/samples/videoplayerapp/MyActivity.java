@@ -18,8 +18,6 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,9 +27,9 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import java.net.CookieHandler;
@@ -47,8 +45,8 @@ public class MyActivity extends AppCompatActivity {
     private static final String PLAYLIST_FRAGMENT_TAG = "video_playlist_fragment_tag";
     private static final String VIDEO_FRAGMENT_TAG = "video_example_fragment_tag";
 
-    private static final String FALLBACK_STREAM_URL =
-            "http://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
+  private static final String FALLBACK_STREAM_URL =
+      "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
     private static final String APP_LOG_TAG = "ImaDaiExample";
 
     private SampleVideoPlayer mVideoPlayer;

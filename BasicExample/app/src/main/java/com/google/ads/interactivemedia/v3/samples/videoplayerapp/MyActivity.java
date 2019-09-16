@@ -18,14 +18,13 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
 
@@ -34,8 +33,8 @@ import com.google.android.exoplayer2.ui.PlayerView;
  */
 public class MyActivity extends AppCompatActivity {
 
-    private static final String DEFAULT_STREAM_URL =
-            "http://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
+  private static final String DEFAULT_STREAM_URL =
+      "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
     private static final String APP_LOG_TAG = "ImaDaiExample";
 
     protected SampleVideoPlayer mVideoPlayer;

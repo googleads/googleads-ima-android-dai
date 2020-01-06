@@ -18,6 +18,7 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,6 +29,8 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -186,74 +189,83 @@ public class MyActivity extends AppCompatActivity {
             PlayerView videoView = rootView.findViewById(R.id.videoView);
             mVideoPlayer = new SampleVideoPlayer(rootView.getContext(), videoView);
             mVideoPlayer.enableControls(false);
-            mSampleAdsWrapper = new SampleAdsWrapper(rootView.getContext(),
-                    mVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
+            mSampleAdsWrapper =
+                new SampleAdsWrapper(
+                    rootView.getContext(),
+                    mVideoPlayer,
+                    (ViewGroup) rootView.findViewById(R.id.adUiContainer));
             mSampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
 
             final TextView descTextView = rootView.findViewById(R.id.playerDescription);
-            final ScrollView scrollView = rootView.findViewById(R.id.logScroll);
             final TextView logTextView = rootView.findViewById(R.id.logText);
 
             if (descTextView != null) {
-                descTextView.setText(mVideoListItem.getTitle());
+              descTextView.setText(mVideoListItem.getTitle());
             }
 
-            mSampleAdsWrapper.setLogger(new SampleAdsWrapper.Logger() {
-                @Override
-                public void log(String logMessage) {
+            ScrollView container = rootView.findViewById(R.id.container);
+            container.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+            container.setSmoothScrollingEnabled(true);
+
+            // Make the dummyScrollContent height the size of the screen height.
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            MyActivity.this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            ConstraintLayout constraintLayout = rootView.findViewById(R.id.constraintLayout);
+            ConstraintSet forceHeight = new ConstraintSet();
+            forceHeight.clone(constraintLayout);
+            forceHeight.constrainHeight(R.id.dummyScrollContent, displayMetrics.heightPixels);
+            forceHeight.applyTo(constraintLayout);
+
+            mSampleAdsWrapper.setLogger(
+                new SampleAdsWrapper.Logger() {
+                  @Override
+                  public void log(String logMessage) {
                     Log.i(APP_LOG_TAG, logMessage);
                     if (logTextView != null) {
-                        logTextView.append(logMessage);
+                      logTextView.append(logMessage);
                     }
-                    if (scrollView != null) {
-                        scrollView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                scrollView.fullScroll(View.FOCUS_DOWN);
-                            }
-                        });
-                    }
-                }
-            });
+                  }
+                });
 
             mPlayButton = (ImageButton) rootView.findViewById(R.id.playButton);
             // Set up play button listener to play video then hide play button.
-            mPlayButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            mPlayButton.setOnClickListener(
+                new View.OnClickListener() {
+                  @Override
+                  public void onClick(View view) {
                     double bookMarkTime = 0;
                     if (mBookmarks.containsKey(mVideoListItem.getId())) {
-                        bookMarkTime = mBookmarks.get(mVideoListItem.getId());
+                      bookMarkTime = mBookmarks.get(mVideoListItem.getId());
                     }
                     mVideoPlayer.enableControls(true);
                     mVideoPlayer.setCanSeek(true);
                     mSampleAdsWrapper.requestAndPlayAds(mVideoListItem, bookMarkTime);
                     mPlayButton.setVisibility(View.GONE);
-                }
-            });
+                  }
+                });
 
             orientVideoDescription(getResources().getConfiguration().orientation);
             mSeekBar = (SeekBar) rootView.findViewById(R.id.cast_seekbar);
             mCastApplication.autoplayOnCast();
-        }
+          }
 
         @Override
         public void onVideoFragmentDestroyed() {
-            if (mCastApplication != null) {
-                mCastApplication.setVideoListItem(null);
-            }
-            mSampleAdsWrapper.release();
-            mSampleAdsWrapper = null;
-            mVideoPlayer = null;
-            mSeekBar = null;
+          if (mCastApplication != null) {
+            mCastApplication.setVideoListItem(null);
+          }
+          mSampleAdsWrapper.release();
+          mSampleAdsWrapper = null;
+          mVideoPlayer = null;
+          mSeekBar = null;
         }
 
         @Override
         public void onVideoFragmentPaused() {
-            // Store content time for bookmarking feature.
-            if (mSampleAdsWrapper != null) {
-                mBookmarks.put(mVideoListItem.getId(), mSampleAdsWrapper.getContentTime());
-            }
+          // Store content time for bookmarking feature.
+          if (mSampleAdsWrapper != null) {
+            mBookmarks.put(mVideoListItem.getId(), mSampleAdsWrapper.getContentTime());
+          }
         }
     };
 

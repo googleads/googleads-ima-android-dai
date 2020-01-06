@@ -1,4 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
@@ -7,90 +9,96 @@
     tools:context=".MyActivity"
     tools:ignore="MergeRootFrame">
 
-    <RelativeLayout
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/videoLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.4">
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/videoView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true" />
-        <FrameLayout
-            android:id="@+id/adUiContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        <ImageButton
-            android:id="@+id/playButton"
-            android:contentDescription="Play Button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_action_play_over_video"
-            android:background="@null" />
-    </RelativeLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                 xmlns:tools="http://schemas.android.com/tools"
-                 android:id="@+id/descriptionLayout"
-                 android:orientation="vertical"
-                 android:layout_width="match_parent"
-                 android:layout_height="0dp"
-                 android:layout_weight="0.6">
-
-        <TextView
-            android:id="@+id/playerDescription"
-            android:text="@string/video_description"
-            android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/videoLayout"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:textSize="@dimen/font_size" />
-
-        <!-- UI element for viewing SDK event log -->
-        <ScrollView
-            android:id="@+id/logScroll"
-            android:layout_width="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="16:9">
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/videoView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true" />
+            <FrameLayout
+                android:id="@+id/adUiContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+            <ImageButton
+                android:id="@+id/playButton"
+                android:contentDescription="Play Button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_action_play_over_video"
+                android:background="@null" />
+        </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/descriptionLayout"
+            android:orientation="vertical"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="0.5"
-            android:padding="5dp"
-            android:background="#DDDDDD">
+            app:layout_constraintTop_toBottomOf="@id/videoLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/dummyScrollContent"
+            app:layout_constraintHeight_default="wrap">
+            <TextView
+                android:id="@+id/playerDescription"
+                android:text="@string/video_description"
+                android:textAlignment="center"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:textSize="@dimen/font_size" />
 
             <TextView
                 android:id="@+id/logText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
             </TextView>
-        </ScrollView>
-        <LinearLayout
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:visibility="gone"
-          android:orientation="vertical" >
-            <SeekBar
-              android:id="@+id/cast_seekbar"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content" />
-            <RelativeLayout
+            <LinearLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_gravity="center">
-                <TextView
-                  android:id="@+id/time_start"
-                  android:paddingLeft="10dp"
-                  android:layout_width="wrap_content"
+              android:visibility="gone"
+              android:orientation="vertical" >
+                <SeekBar
+                  android:id="@+id/cast_seekbar"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content" />
-                <TextView
-                  android:id="@+id/time_end"
-                  android:layout_width="wrap_content"
+                <RelativeLayout
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_alignParentRight="true"
-                  android:paddingRight="10dp" />
-            </RelativeLayout>
+                  android:layout_gravity="center">
+                    <TextView
+                      android:id="@+id/time_start"
+                      android:paddingLeft="10dp"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content" />
+                    <TextView
+                      android:id="@+id/time_end"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentRight="true"
+                      android:paddingRight="10dp" />
+                </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-</LinearLayout>
+        <!-- Dummy view to force the scroll view to allow scrolling down. -->
+        <View
+            android:id="@+id/dummyScrollContent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/descriptionLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

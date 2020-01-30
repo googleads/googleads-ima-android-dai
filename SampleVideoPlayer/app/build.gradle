@@ -3,6 +3,12 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
 
+    // Java 1.8 required by androidx.browser:browser:1.2.0
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         applicationId "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
         minSdkVersion 16
@@ -25,5 +31,5 @@ repositories {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.exoplayer:exoplayer:2.10.8'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
 }

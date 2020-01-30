@@ -23,9 +23,6 @@ import android.util.Log;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -37,7 +34,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -82,13 +78,7 @@ public class SampleVideoPlayer {
     private void initPlayer() {
         release();
 
-        DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-        DefaultTrackSelector.Parameters params =
-                new DefaultTrackSelector.ParametersBuilder().setPreferredTextLanguage("en").build();
-        trackSelector.setParameters(params);
-
-        mPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(mContext),
-                trackSelector, new DefaultLoadControl());
+        mPlayer = new SimpleExoPlayer.Builder(mContext).build();
         mPlayerView.setPlayer(mPlayer);
         mPlayerView.setControlDispatcher(new ControlDispatcher() {
             @Override

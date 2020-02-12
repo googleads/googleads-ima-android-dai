@@ -84,7 +84,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         mSdkFactory = ImaSdkFactory.getInstance();
         mPlayerCallbacks = new ArrayList<>();
         createAdsLoader();
-        mDisplayContainer = mSdkFactory.createStreamDisplayContainer();
+        mDisplayContainer = mSdkFactory.createStreamDisplayContainer(mAdUiContainer, mVideoPlayer);
     }
 
     private void createAdsLoader() {
@@ -126,8 +126,6 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                         mVideoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
                     }
                 });
-        mDisplayContainer.setVideoStreamPlayer(videoStreamPlayer);
-        mDisplayContainer.setAdContainer(mAdUiContainer);
         mAdsLoader = mSdkFactory.createAdsLoader(mContext, settings, mDisplayContainer);
     }
 

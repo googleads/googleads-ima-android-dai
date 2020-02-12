@@ -120,7 +120,7 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         // Change any settings as necessary here.
         settings.setPlayerType(PLAYER_TYPE);
         enableWebViewDebugging();
-        mDisplayContainer = mSdkFactory.createStreamDisplayContainer();
+        mDisplayContainer = mSdkFactory.createStreamDisplayContainer(mAdUiContainer, mVideoPlayer);
         VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
         mVideoPlayer.setSampleVideoPlayerCallback(
                 new SampleVideoPlayerCallback() {
@@ -146,8 +146,6 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
                         mVideoPlayer.seekTo(windowIndex, newSeekPositionMs);
                     }
                 });
-        mDisplayContainer.setVideoStreamPlayer(videoStreamPlayer);
-        mDisplayContainer.setAdContainer(mAdUiContainer);
         mAdsLoader = mSdkFactory.createAdsLoader(mContext, settings, mDisplayContainer);
     }
 

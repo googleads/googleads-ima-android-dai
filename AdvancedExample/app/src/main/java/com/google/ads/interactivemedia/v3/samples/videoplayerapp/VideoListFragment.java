@@ -34,150 +34,164 @@ import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
  */
 public class VideoListFragment extends Fragment {
 
-    private OnVideoSelectedListener mListener;
+  private OnVideoSelectedListener mListener;
 
-    public VideoListItem[] getVideoListItems() {
-        return new VideoListItem[] {
-            new VideoListItem("Live Video - Big Buck Bunny", "sN_IYUG8STe1ZzhIIE_ksA", null, null,
-                    null, StreamFormat.HLS, null),
-            new VideoListItem("VOD - Google I/O", null, null, "19463", "googleio-highlights",
-                    StreamFormat.HLS, null),
-            new VideoListItem("VOD - Tears of Steel", null, null, "19463", "tears-of-steel",
-                    StreamFormat.HLS, null),
-            new VideoListItem("VOD - DASH", null, null, "2474148", "bbb-clear",
-                    StreamFormat.DASH, null),
-            new VideoListItem("BBB-widevine", null, null,
-                   "2474148", "bbb-widevine", StreamFormat.DASH,
-                    "https://proxy.uat.widevine.com/proxy"),
-        };
+  public VideoListItem[] getVideoListItems() {
+    return new VideoListItem[] {
+      new VideoListItem(
+          "Live Video - Big Buck Bunny",
+          "sN_IYUG8STe1ZzhIIE_ksA",
+          null,
+          null,
+          null,
+          StreamFormat.HLS,
+          null),
+      new VideoListItem(
+          "VOD - Google I/O", null, null, "19463", "googleio-highlights", StreamFormat.HLS, null),
+      new VideoListItem(
+          "VOD - Tears of Steel", null, null, "19463", "tears-of-steel", StreamFormat.HLS, null),
+      new VideoListItem("VOD - DASH", null, null, "2474148", "bbb-clear", StreamFormat.DASH, null),
+      new VideoListItem(
+          "BBB-widevine",
+          null,
+          null,
+          "2474148",
+          "bbb-widevine",
+          StreamFormat.DASH,
+          "https://proxy.uat.widevine.com/proxy"),
+    };
+  }
+
+  public void setOnVideoSelectedListener(OnVideoSelectedListener listener) {
+    mListener = listener;
+  }
+
+  /**
+   * Listener called when the user selects a video from the list. Container activity must implement
+   * this interface.
+   */
+  public interface OnVideoSelectedListener {
+    void onVideoSelected(VideoListItem videoListItem);
+  }
+
+  /**
+   * Information about a video playlist item that the user will select in a playlist. Has info for
+   * both VOD and live stream items.
+   */
+  public static class VideoListItem {
+
+    private final String mTitle;
+    private final String mAssetKey;
+    private final String mApiKey;
+    private final String mContentSourceId;
+    private final String mVideoId;
+    private final StreamFormat mStreamFormat;
+    private final String mLicenseUrl;
+
+    private final String mId;
+
+    public String getTitle() {
+      return mTitle;
     }
 
-    public void setOnVideoSelectedListener(OnVideoSelectedListener listener) {
-        mListener = listener;
+    public String getAssetKey() {
+      return mAssetKey;
     }
 
-    /**
-     * Listener called when the user selects a video from the list.
-     * Container activity must implement this interface.
-     */
-    public interface OnVideoSelectedListener {
-        void onVideoSelected(VideoListItem videoListItem);
+    public String getApiKey() {
+      return mApiKey;
     }
 
-    /**
-     * Information about a video playlist item that the user will select in a playlist.
-     * Has info for both VOD and live stream items.
-     */
-    public static class VideoListItem {
+    public String getContentSourceId() {
+      return mContentSourceId;
+    }
 
-        private final String mTitle;
-        private final String mAssetKey;
-        private final String mApiKey;
-        private final String mContentSourceId;
-        private final String mVideoId;
-        private final StreamFormat mStreamFormat;
-        private final String mLicenseUrl;
+    public String getVideoId() {
+      return mVideoId;
+    }
 
-        private final String mId;
+    public String getId() {
+      return mId;
+    }
 
-        public String getTitle() {
-            return mTitle;
-        }
+    public StreamFormat getStreamFormat() {
+      return mStreamFormat;
+    }
 
-        public String getAssetKey() {
-            return mAssetKey;
-        }
+    public String getLicenseUrl() {
+      return mLicenseUrl;
+    }
 
-        public String getApiKey() {
-            return mApiKey;
-        }
+    public boolean isVod() {
+      return mAssetKey == null;
+    }
 
-        public String getContentSourceId() {
-            return mContentSourceId;
-        }
+    public VideoListItem(
+        String title,
+        String assetKey,
+        String apiKey,
+        String contentSourceId,
+        String videoId,
+        StreamFormat streamFormat,
+        String licenseUrl) {
+      this.mTitle = title;
+      this.mAssetKey = assetKey;
+      this.mApiKey = apiKey;
+      this.mContentSourceId = contentSourceId;
+      this.mVideoId = videoId;
+      this.mStreamFormat = streamFormat;
+      this.mLicenseUrl = licenseUrl;
+      this.mId = (assetKey == null) ? contentSourceId + videoId : assetKey;
+    }
+  }
 
-        public String getVideoId() {
-            return mVideoId;
-        }
+  @Override
+  public View onCreateView(
+      LayoutInflater layoutInflater, final ViewGroup viewGroup, Bundle bundle) {
+    View rootView = layoutInflater.inflate(R.layout.fragment_video_list, viewGroup, false);
 
-        public String getId() {
-            return mId;
-        }
+    final ListView listView = (ListView) rootView.findViewById(R.id.videoListView);
+    VideoListAdapter videoListAdapter =
+        new VideoListAdapter(rootView.getContext(), R.layout.video_item, getVideoListItems());
+    listView.setAdapter(videoListAdapter);
 
-        public StreamFormat getStreamFormat() {
-            return mStreamFormat;
-        }
+    listView.setOnItemClickListener(
+        new AdapterView.OnItemClickListener() {
+          @Override
+          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            VideoListItem item = (VideoListItem) listView.getItemAtPosition(position);
+            if (mListener != null && item != null) {
+              mListener.onVideoSelected(item);
+            }
+          }
+        });
 
-        public String getLicenseUrl() {
-            return mLicenseUrl;
-        }
+    return rootView;
+  }
 
-        public boolean isVod() {
-            return mAssetKey == null;
-        }
+  /** Adapter for a list of video items. */
+  public static class VideoListAdapter extends ArrayAdapter<VideoListItem> {
 
-        public VideoListItem(String title, String assetKey, String apiKey, String contentSourceId,
-                             String videoId, StreamFormat streamFormat, String licenseUrl) {
-            this.mTitle = title;
-            this.mAssetKey = assetKey;
-            this.mApiKey = apiKey;
-            this.mContentSourceId = contentSourceId;
-            this.mVideoId = videoId;
-            this.mStreamFormat = streamFormat;
-            this.mLicenseUrl = licenseUrl;
-            this.mId = (assetKey == null) ? contentSourceId + videoId : assetKey;
-        }
+    public VideoListAdapter(Context context, int resource, VideoListItem[] objects) {
+      super(context, resource, objects);
     }
 
     @Override
-    public View onCreateView(LayoutInflater layoutInflater, final ViewGroup viewGroup,
-                             Bundle bundle) {
-        View rootView = layoutInflater.inflate(R.layout.fragment_video_list, viewGroup, false);
+    public View getView(int position, View convertView, ViewGroup parent) {
+      // Get the data item for this position
+      VideoListItem videoListItem = getItem(position);
+      // Check if an existing view is being reused, otherwise inflate the view
+      if (convertView == null) {
+        convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
+      }
+      // Lookup view for data population
+      TextView title = (TextView) convertView.findViewById(R.id.videoItemText);
 
-        final ListView listView = (ListView) rootView.findViewById(R.id.videoListView);
-        VideoListAdapter videoListAdapter = new VideoListAdapter(rootView.getContext(),
-                R.layout.video_item, getVideoListItems());
-        listView.setAdapter(videoListAdapter);
+      // Populate the data into the template view using the data object
+      title.setText(videoListItem.mTitle);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                VideoListItem item = (VideoListItem) listView.getItemAtPosition(position);
-                if (mListener != null && item != null) {
-                    mListener.onVideoSelected(item);
-                }
-            }
-        });
-
-        return rootView;
+      // Return the completed view to render on screen
+      return convertView;
     }
-
-    /**
-     * Adapter for a list of video items.
-     */
-    public static class VideoListAdapter extends ArrayAdapter<VideoListItem> {
-
-        public VideoListAdapter(Context context, int resource, VideoListItem[] objects) {
-            super(context, resource, objects);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // Get the data item for this position
-            VideoListItem videoListItem = getItem(position);
-            // Check if an existing view is being reused, otherwise inflate the view
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent,
-                        false);
-            }
-            // Lookup view for data population
-            TextView title = (TextView) convertView.findViewById(R.id.videoItemText);
-
-            // Populate the data into the template view using the data object
-            title.setText(videoListItem.mTitle);
-
-            // Return the completed view to render on screen
-            return convertView;
-        }
-    }
+  }
 }

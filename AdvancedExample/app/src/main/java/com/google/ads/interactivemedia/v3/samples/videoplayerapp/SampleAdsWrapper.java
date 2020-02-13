@@ -84,15 +84,17 @@ public class SampleAdsWrapper implements AdEvent.AdEventListener, AdErrorEvent.A
         mSdkFactory = ImaSdkFactory.getInstance();
         mPlayerCallbacks = new ArrayList<>();
         createAdsLoader();
-        mDisplayContainer = mSdkFactory.createStreamDisplayContainer(mAdUiContainer, mVideoPlayer);
     }
 
     private void createAdsLoader() {
-        ImaSdkSettings settings = ImaSdkFactory.getInstance().createImaSdkSettings();
+        ImaSdkSettings settings = mSdkFactory.createImaSdkSettings();
         // Change any settings as necessary here.
         settings.setPlayerType(PLAYER_TYPE);
-        mDisplayContainer = mSdkFactory.createStreamDisplayContainer();
         VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
+        mDisplayContainer = ImaSdkFactory.createStreamDisplayContainer(
+            mAdUiContainer,
+            videoStreamPlayer
+        );
         mVideoPlayer.setSampleVideoPlayerCallback(
                 new SampleVideoPlayer.SampleVideoPlayerCallback() {
                     @Override

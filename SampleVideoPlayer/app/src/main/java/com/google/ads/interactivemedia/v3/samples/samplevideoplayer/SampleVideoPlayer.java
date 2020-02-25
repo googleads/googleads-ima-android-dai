@@ -156,6 +156,13 @@ public class SampleVideoPlayer {
                     mPlayerCallback.onUserTextReceived(textFrame.value);
                   }
                 }
+              } else if (entry instanceof EventMessage) {
+                EventMessage eventMessage = (EventMessage) entry;
+                String eventMessageValue = new String(eventMessage.messageData);
+                Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
+                if (mPlayerCallback != null) {
+                  mPlayerCallback.onUserTextReceived(eventMessageValue);
+                }
               }
             }
           }

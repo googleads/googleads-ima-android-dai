@@ -192,7 +192,11 @@ public class CastApplication
 
     RemoteMediaClient remoteMediaClient = mCastSession.getRemoteMediaClient();
     remoteMediaClient.addProgressListener(this, 1000); // 1 sec period.
-    remoteMediaClient.load(mediaInfo, true, 0);
+
+    MediaLoadRequestData mediaLoadRequestData =
+        new MediaLoadRequestData.Builder().setMediaInfo(mediaInfo).setAutoplay(true).build();
+
+    remoteMediaClient.load(mediaLoadRequestData);
 
     SeekBar seekBar = mActivity.getSeekBar();
     if (seekBar != null) {

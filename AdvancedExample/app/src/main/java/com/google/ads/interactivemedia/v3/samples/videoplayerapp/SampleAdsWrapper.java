@@ -170,6 +170,18 @@ public class SampleAdsWrapper
       }
 
       @Override
+      public void pause() {
+        // Pause player.
+        mVideoPlayer.pause();
+      }
+
+      @Override
+      public void resume() {
+        // Resume player.
+        mVideoPlayer.play();
+      }
+
+      @Override
       public int getVolume() {
         // Make the video player play at the current device volume.
         return 100;

@@ -16,6 +16,7 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,12 +25,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
-public class MyActivity extends AppCompatActivity {
+public class MyActivity extends Activity {
 
   private static final String DEFAULT_STREAM_URL =
       "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";

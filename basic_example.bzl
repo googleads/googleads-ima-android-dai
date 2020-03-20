@@ -2,7 +2,7 @@
 Provides a build rule for building the BasicExample from Blaze.
 """
 
-load(":build_defs.bzl", "build_sample_package")
+load("//java/com/google/ads/interactivemedia/v3/samples:build_defs.bzl", "build_sample_package")
 
 COMMON_DEPS = [
     "//third_party/java/android_libs/exoplayer:exoplayer2_core",

@@ -48,8 +48,8 @@ public class SampleAdsWrapper
   private static final String TEST_ASSET_KEY = "sN_IYUG8STe1ZzhIIE_ksA";
 
   // VOD HLS content source and video IDs.
-  private static final String TEST_HLS_CONTENT_SOURCE_ID = "19463";
-  private static final String TEST_HLS_VIDEO_ID = "googleio-highlights";
+  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2528370";
+  private static final String TEST_HLS_VIDEO_ID = "tears-of-steel";
 
   // VOD DASH content source and video IDs.
   private static final String TEST_DASH_CONTENT_SOURCE_ID = "2474148";

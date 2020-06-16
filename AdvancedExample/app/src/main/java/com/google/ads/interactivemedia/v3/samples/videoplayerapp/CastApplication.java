@@ -174,6 +174,7 @@ public class CastApplication
     // turn off pre-roll for LIVE.
     streamRequest.put("attemptPreroll", mVideoListItem.isVod());
     streamRequest.put("startTime", position);
+    streamRequest.put("format", mVideoListItem.getStreamFormat().toString().toLowerCase());
 
     MediaMetadata mediaMetadata = new MediaMetadata();
     mediaMetadata.addImage(new WebImage(Uri.parse("https://www.example.com")));
@@ -187,7 +188,10 @@ public class CastApplication
         new MediaInfo.Builder("https://www.example.com")
             .setCustomData(streamRequest)
             .setMetadata(mediaMetadata)
-            .setContentType("application/x-mpegurl")
+            .setContentType(
+                mVideoListItem.getStreamFormat().equals(StreamRequest.StreamFormat.HLS)
+                    ? "application/x-mpegurl"
+                    : "application/dash+xml")
             .setStreamType(streamTypeId)
             .build();
 

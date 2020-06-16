@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -97,6 +96,36 @@ public class SampleVideoPlayer {
           }
 
           @Override
+          public boolean isRewindEnabled() {
+            return false;
+          }
+
+          @Override
+          public boolean isFastForwardEnabled() {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchFastForward(Player p) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchRewind(Player p) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchNext(Player p) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchPrevious(Player p) {
+            return false;
+          }
+
+          @Override
           public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
             if (mCanSeek) {
               if (mPlayerCallback != null) {
@@ -152,37 +181,39 @@ public class SampleVideoPlayer {
         return;
     }
 
-    mPlayer.prepare(mediaSource);
-
     // Register for ID3 events.
-    mPlayer.addMetadataOutput(
-        new MetadataOutput() {
-          @Override
-          public void onMetadata(Metadata metadata) {
-            for (int i = 0; i < metadata.length(); i++) {
-              Metadata.Entry entry = metadata.get(i);
-              if (entry instanceof TextInformationFrame) {
-                TextInformationFrame textFrame = (TextInformationFrame) entry;
-                if ("TXXX".equals(textFrame.id)) {
-                  Log.d(LOG_TAG, "Received user text: " + textFrame.value);
-                  if (mPlayerCallback != null) {
-                    mPlayerCallback.onUserTextReceived(textFrame.value);
+    mPlayer
+        .getMetadataComponent()
+        .addMetadataOutput(
+            new MetadataOutput() {
+              @Override
+              public void onMetadata(Metadata metadata) {
+                for (int i = 0; i < metadata.length(); i++) {
+                  Metadata.Entry entry = metadata.get(i);
+                  if (entry instanceof TextInformationFrame) {
+                    TextInformationFrame textFrame = (TextInformationFrame) entry;
+                    if ("TXXX".equals(textFrame.id)) {
+                      Log.d(LOG_TAG, "Received user text: " + textFrame.value);
+                      if (mPlayerCallback != null) {
+                        mPlayerCallback.onUserTextReceived(textFrame.value);
+                      }
+                    }
+                  } else if (entry instanceof EventMessage) {
+                    EventMessage eventMessage = (EventMessage) entry;
+                    String eventMessageValue = new String(eventMessage.messageData);
+                    Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
+                    if (mPlayerCallback != null) {
+                      mPlayerCallback.onUserTextReceived(eventMessageValue);
+                    }
                   }
                 }
-              } else if (entry instanceof EventMessage) {
-                EventMessage eventMessage = (EventMessage) entry;
-                String eventMessageValue = new String(eventMessage.messageData);
-                Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
-                if (mPlayerCallback != null) {
-                  mPlayerCallback.onUserTextReceived(eventMessageValue);
-                }
               }
-            }
-          }
-        });
+            });
 
     mPlayer.setPlayWhenReady(true);
     mIsStreamRequested = true;
+    mPlayer.setMediaSource(mediaSource);
+    mPlayer.prepare();
   }
 
   public void pause() {
@@ -268,8 +299,8 @@ public class SampleVideoPlayer {
    *
    * @return the created DrmSessionManager or null if the DRM callback fails.
    */
-  private DrmSessionManager<FrameworkMediaCrypto> createDrmSessionManager() {
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+  private DrmSessionManager createDrmSessionManager() {
+    DrmSessionManager drmSessionManager = null;
     try {
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(
@@ -277,8 +308,9 @@ public class SampleVideoPlayer {
               new DefaultHttpDataSourceFactory(Util.getUserAgent(mContext, "SampleVideoPlayer")));
       UUID uuid = UUID.fromString(WIDEVINE_UUID);
       drmSessionManager =
-          new DefaultDrmSessionManager<>(
-              uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null);
+          new DefaultDrmSessionManager.Builder()
+              .setUuidAndExoMediaDrmProvider(uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+              .build(drmCallback);
     } catch (Exception e) {
       Log.e(LOG_TAG, "Can't create DRM Session Manager, exiting with error: " + e.toString());
     }

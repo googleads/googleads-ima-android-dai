@@ -14,8 +14,7 @@ COMMON_DEPS = [
     "//third_party/java/androidx/annotation",
     "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v4",
     "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v7/appcompat",
-    # Add this once we have visibility approval.
-    # "//third_party/java/androidx/constraintlayout",
+    "//third_party/java/androidx/constraintlayout",
     "//java/com/google/android/gmscore/integ/client/base",
     "//java/com/google/android/gmscore/integ/client/cast/framework",
     "//java/com/google/android/gmscore/integ/client/cast",

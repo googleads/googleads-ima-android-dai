@@ -68,7 +68,7 @@ public class SampleVideoPlayer {
   private PlayerView mPlayerView;
   private SampleVideoPlayerCallback mPlayerCallback;
 
-  private Timeline.Period mPeriod = new Period();
+  private int mCurrentlyPlayingStreamType = C.TYPE_OTHER;
 
   private String mStreamUrl;
   private Boolean mIsStreamRequested;
@@ -163,9 +163,9 @@ public class SampleVideoPlayer {
     initPlayer();
 
     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, USER_AGENT);
-    int type = Util.inferContentType(Uri.parse(mStreamUrl), null);
     MediaSource mediaSource;
-    switch (type) {
+    mCurrentlyPlayingStreamType = Util.inferContentType(Uri.parse(mStreamUrl));
+    switch (mCurrentlyPlayingStreamType) {
       case C.TYPE_HLS:
         mediaSource =
             new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(mStreamUrl));
@@ -173,12 +173,11 @@ public class SampleVideoPlayer {
       case C.TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
-                    new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-                .createMediaSource(Uri.parse(mStreamUrl));
+                new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
+                    .createMediaSource(Uri.parse(mStreamUrl));
         break;
       default:
-        Log.e(LOG_TAG, "Error! Invalid Media Source, exiting");
-        return;
+        throw new UnsupportedOperationException("Unknown stream type.");
     }
 
     // Register for ID3 events.
@@ -271,18 +270,34 @@ public class SampleVideoPlayer {
     mPlayerCallback = callback;
   }
 
-  public long getCurrentPositionPeriod() {
-    // Adjust position to be relative to start of period rather than window, to account for DVR
-    // window.
-    long position = mPlayer.getCurrentPosition();
-    Timeline currentTimeline = mPlayer.getCurrentTimeline();
-    if (!currentTimeline.isEmpty()) {
-      position -=
-          currentTimeline
-              .getPeriod(mPlayer.getCurrentPeriodIndex(), mPeriod)
-              .getPositionInWindowMs();
+  /**
+   * @return current offset position of the playhead in milliseconds for DASH and HLS stream.
+   */
+  public long getCurrentOffsetPositionMs() {
+    long positionMs = mPlayer.getCurrentPosition();
+    if (mCurrentlyPlayingStreamType == C.TYPE_OTHER) {
+      return positionMs;
     }
-    return position;
+    Timeline currentTimeline = mPlayer.getCurrentTimeline();
+    if (currentTimeline.isEmpty()) {
+      return positionMs;
+    }
+    Timeline.Window window = new Timeline.Window();
+    mPlayer.getCurrentTimeline().getWindow(mPlayer.getCurrentWindowIndex(), window);
+    if (window.isLive && mCurrentlyPlayingStreamType == C.TYPE_DASH) {
+      if (window.presentationStartTimeMs == C.TIME_UNSET
+          || window.windowStartTimeMs == C.TIME_UNSET) {
+        return positionMs;
+      }
+      positionMs += window.windowStartTimeMs - window.presentationStartTimeMs;
+    } else {
+      // Adjust position to be relative to start of period rather than window, to account for DVR
+      // window.
+      Timeline.Period period =
+          currentTimeline.getPeriod(mPlayer.getCurrentPeriodIndex(), new Period());
+      positionMs -= period.getPositionInWindowMs();
+    }
+    return positionMs;
   }
 
   public long getDuration() {

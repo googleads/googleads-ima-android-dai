@@ -31,29 +31,29 @@ public class MyActivity extends AppCompatActivity {
       "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
 
-  protected SampleVideoPlayer mVideoPlayer;
-  protected ImageButton mPlayButton;
+  protected SampleVideoPlayer sampleVideoPlayer;
+  protected ImageButton playButton;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
     View rootView = findViewById(R.id.videoLayout);
-    mVideoPlayer =
+    sampleVideoPlayer =
         new SampleVideoPlayer(
             rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
-    mVideoPlayer.enableControls(false);
-    mVideoPlayer.setStreamUrl(DEFAULT_STREAM_URL);
+    sampleVideoPlayer.enableControls(false);
+    sampleVideoPlayer.setStreamUrl(DEFAULT_STREAM_URL);
 
-    mPlayButton = rootView.findViewById(R.id.playButton);
+    playButton = rootView.findViewById(R.id.playButton);
     // Set up play button listener to play video then hide play button.
-    mPlayButton.setOnClickListener(
+    playButton.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            mVideoPlayer.enableControls(true);
-            mVideoPlayer.play();
-            mPlayButton.setVisibility(View.GONE);
+            sampleVideoPlayer.enableControls(true);
+            sampleVideoPlayer.play();
+            playButton.setVisibility(View.GONE);
           }
         });
     orientVideoDescription(getResources().getConfiguration().orientation);
@@ -78,16 +78,16 @@ public class MyActivity extends AppCompatActivity {
   @Override
   public void onPause() {
     super.onPause();
-    if (mVideoPlayer != null && mVideoPlayer.isStreamRequested()) {
-      mVideoPlayer.pause();
+    if (sampleVideoPlayer != null && sampleVideoPlayer.isStreamRequested()) {
+      sampleVideoPlayer.pause();
     }
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    if (mVideoPlayer != null && mVideoPlayer.isStreamRequested()) {
-      mVideoPlayer.play();
+    if (sampleVideoPlayer != null && sampleVideoPlayer.isStreamRequested()) {
+      sampleVideoPlayer.play();
     }
   }
 }

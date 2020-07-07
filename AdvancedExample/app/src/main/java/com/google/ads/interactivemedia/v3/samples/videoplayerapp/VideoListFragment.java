@@ -34,7 +34,7 @@ import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
  */
 public class VideoListFragment extends Fragment {
 
-  private OnVideoSelectedListener mListener;
+  private OnVideoSelectedListener listener;
 
   public VideoListItem[] getVideoListItems() {
     return new VideoListItem[] {
@@ -61,7 +61,7 @@ public class VideoListFragment extends Fragment {
   }
 
   public void setOnVideoSelectedListener(OnVideoSelectedListener listener) {
-    mListener = listener;
+    this.listener = listener;
   }
 
   /**
@@ -78,50 +78,50 @@ public class VideoListFragment extends Fragment {
    */
   public static class VideoListItem {
 
-    private final String mTitle;
-    private final String mAssetKey;
-    private final String mApiKey;
-    private final String mContentSourceId;
-    private final String mVideoId;
-    private final StreamFormat mStreamFormat;
-    private final String mLicenseUrl;
+    private final String title;
+    private final String assetKey;
+    private final String apiKey;
+    private final String contentSourceId;
+    private final String videoId;
+    private final StreamFormat streamFormat;
+    private final String licenseUrl;
 
-    private final String mId;
+    private final String id;
 
     public String getTitle() {
-      return mTitle;
+      return title;
     }
 
     public String getAssetKey() {
-      return mAssetKey;
+      return assetKey;
     }
 
     public String getApiKey() {
-      return mApiKey;
+      return apiKey;
     }
 
     public String getContentSourceId() {
-      return mContentSourceId;
+      return contentSourceId;
     }
 
     public String getVideoId() {
-      return mVideoId;
+      return videoId;
     }
 
     public String getId() {
-      return mId;
+      return id;
     }
 
     public StreamFormat getStreamFormat() {
-      return mStreamFormat;
+      return streamFormat;
     }
 
     public String getLicenseUrl() {
-      return mLicenseUrl;
+      return licenseUrl;
     }
 
     public boolean isVod() {
-      return mAssetKey == null;
+      return assetKey == null;
     }
 
     public VideoListItem(
@@ -132,14 +132,14 @@ public class VideoListFragment extends Fragment {
         String videoId,
         StreamFormat streamFormat,
         String licenseUrl) {
-      this.mTitle = title;
-      this.mAssetKey = assetKey;
-      this.mApiKey = apiKey;
-      this.mContentSourceId = contentSourceId;
-      this.mVideoId = videoId;
-      this.mStreamFormat = streamFormat;
-      this.mLicenseUrl = licenseUrl;
-      this.mId = (assetKey == null) ? contentSourceId + videoId : assetKey;
+      this.title = title;
+      this.assetKey = assetKey;
+      this.apiKey = apiKey;
+      this.contentSourceId = contentSourceId;
+      this.videoId = videoId;
+      this.streamFormat = streamFormat;
+      this.licenseUrl = licenseUrl;
+      this.id = (assetKey == null) ? contentSourceId + videoId : assetKey;
     }
   }
 
@@ -158,8 +158,8 @@ public class VideoListFragment extends Fragment {
           @Override
           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             VideoListItem item = (VideoListItem) listView.getItemAtPosition(position);
-            if (mListener != null && item != null) {
-              mListener.onVideoSelected(item);
+            if (listener != null && item != null) {
+              listener.onVideoSelected(item);
             }
           }
         });
@@ -183,10 +183,10 @@ public class VideoListFragment extends Fragment {
         convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
       }
       // Lookup view for data population
-      TextView title = (TextView) convertView.findViewById(R.id.videoItemText);
+      TextView titleText = (TextView) convertView.findViewById(R.id.videoItemText);
 
       // Populate the data into the template view using the data object
-      title.setText(videoListItem.mTitle);
+      titleText.setText(videoListItem.title);
 
       // Return the completed view to render on screen
       return convertView;

@@ -35,21 +35,21 @@ public class MyActivity extends Activity {
       "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
 
-  protected SampleVideoPlayer mVideoPlayer;
-  protected ImageButton mPlayButton;
+  protected SampleVideoPlayer sampleVideoPlayer;
+  protected ImageButton playButton;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
     View rootView = findViewById(R.id.videoLayout);
-    mVideoPlayer =
+    sampleVideoPlayer =
         new SampleVideoPlayer(
             rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
-    mVideoPlayer.enableControls(false);
+    sampleVideoPlayer.enableControls(false);
     final SampleAdsWrapper sampleAdsWrapper =
         new SampleAdsWrapper(
-            this, mVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
+            this, sampleVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
     sampleAdsWrapper.setFallbackUrl(DEFAULT_STREAM_URL);
 
     final ScrollView scrollView = (ScrollView) findViewById(R.id.logScroll);
@@ -75,15 +75,15 @@ public class MyActivity extends Activity {
           }
         });
 
-    mPlayButton = (ImageButton) rootView.findViewById(R.id.playButton);
+    playButton = (ImageButton) rootView.findViewById(R.id.playButton);
     // Set up play button listener to play video then hide play button.
-    mPlayButton.setOnClickListener(
+    playButton.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            mVideoPlayer.enableControls(true);
+            sampleVideoPlayer.enableControls(true);
             sampleAdsWrapper.requestAndPlayAds();
-            mPlayButton.setVisibility(View.GONE);
+            playButton.setVisibility(View.GONE);
           }
         });
     orientVideoDescription(getResources().getConfiguration().orientation);
@@ -108,16 +108,16 @@ public class MyActivity extends Activity {
   @Override
   public void onPause() {
     super.onPause();
-    if (mVideoPlayer != null && mVideoPlayer.isStreamRequested()) {
-      mVideoPlayer.pause();
+    if (sampleVideoPlayer != null && sampleVideoPlayer.isStreamRequested()) {
+      sampleVideoPlayer.pause();
     }
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    if (mVideoPlayer != null && mVideoPlayer.isStreamRequested()) {
-      mVideoPlayer.play();
+    if (sampleVideoPlayer != null && sampleVideoPlayer.isStreamRequested()) {
+      sampleVideoPlayer.play();
     }
   }
 }

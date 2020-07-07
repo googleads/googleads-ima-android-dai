@@ -30,26 +30,26 @@ import org.json.JSONObject;
 public class CastApplication
     implements Cast.MessageReceivedCallback, RemoteMediaClient.ProgressListener {
 
-  private CastSession mCastSession;
-  private SessionManager mSessionManager;
-  private SessionManagerListener<CastSession> mSessionManagerListener;
+  private CastSession castSession;
+  private SessionManager sessionManager;
+  private SessionManagerListener<CastSession> sessionManagerListener;
 
-  private VideoListItem mVideoListItem;
-  private MyActivity mActivity;
+  private VideoListItem videoListItem;
+  private MyActivity activity;
 
-  private double mPosition; // content time in secs.
+  private double position; // content time in secs.
 
   private static final String NAMESPACE = "urn:x-cast:com.google.ads.interactivemedia.dai.cast";
   private static final String TAG = "IMA Cast Example";
 
-  private TextView mTimeStart;
-  private TextView mTimeEnd;
+  private TextView timeStart;
+  private TextView timeEnd;
 
   public CastApplication(final MyActivity activity) {
-    mActivity = activity;
-    mSessionManager = CastContext.getSharedInstance(activity).getSessionManager();
+    this.activity = activity;
+    sessionManager = CastContext.getSharedInstance(activity).getSessionManager();
 
-    mSessionManagerListener =
+    sessionManagerListener =
         new SessionManagerListener<CastSession>() {
           @Override
           public void onSessionStarted(CastSession castSession, String s) {
@@ -91,73 +91,73 @@ public class CastApplication
           }
 
           private void onApplicationConnected(CastSession castSession) {
-            mCastSession = castSession;
+            this.castSession = castSession;
             try {
-              mCastSession.setMessageReceivedCallbacks(NAMESPACE, CastApplication.this);
+              this.castSession.setMessageReceivedCallbacks(NAMESPACE, CastApplication.this);
             } catch (IOException e) {
               Log.e(TAG, "Exception when creating channel", e);
             }
-            if (mVideoListItem != null) {
+            if (videoListItem != null) {
               try {
-                loadMedia((long) mActivity.getAdsWrapper().getContentTime());
+                loadMedia((long) activity.getAdsWrapper().getContentTime());
 
-                mActivity.getVideoPlayer().pause();
-                mActivity.hidePlayButton();
+                activity.getVideoPlayer().pause();
+                activity.hidePlayButton();
               } catch (JSONException e) {
                 Log.e(TAG, "JSONException " + e.getLocalizedMessage());
               }
             }
-            mActivity.invalidateOptionsMenu();
+            activity.invalidateOptionsMenu();
           }
 
           private void onApplicationDisconnected() {
-            SampleAdsWrapper adsWrapper = mActivity.getAdsWrapper();
-            SampleVideoPlayer videoPlayer = mActivity.getVideoPlayer();
+            SampleAdsWrapper adsWrapper = activity.getAdsWrapper();
+            SampleVideoPlayer videoPlayer = activity.getVideoPlayer();
             if (videoPlayer == null || adsWrapper == null) {
               return;
             }
             if (!adsWrapper.getAdsRequested()) {
-              adsWrapper.requestAndPlayAds(mVideoListItem, mPosition);
-              mActivity.hidePlayButton();
+              adsWrapper.requestAndPlayAds(videoListItem, position);
+              activity.hidePlayButton();
             } else {
-              double streamTime = adsWrapper.getStreamTimeForContentTime(mPosition);
+              double streamTime = adsWrapper.getStreamTimeForContentTime(position);
               if (videoPlayer.getCanSeek()) {
                 videoPlayer.seekTo(Math.round(streamTime * 1000));
               } else {
                 adsWrapper.setSnapBackTime(streamTime);
               }
               videoPlayer.play();
-              mActivity.invalidateOptionsMenu();
+              activity.invalidateOptionsMenu();
             }
-            SeekBar seekBar = mActivity.getSeekBar();
+            SeekBar seekBar = activity.getSeekBar();
             if (seekBar != null) {
               View parentView = (View) seekBar.getParent();
               parentView.setVisibility(View.GONE);
             }
-            mCastSession = null;
+            this.castSession = null;
           }
         };
   }
 
   public void onResume() {
-    mCastSession = mSessionManager.getCurrentCastSession();
-    mSessionManager.addSessionManagerListener(mSessionManagerListener, CastSession.class);
+    castSession = sessionManager.getCurrentCastSession();
+    sessionManager.addSessionManagerListener(sessionManagerListener, CastSession.class);
   }
 
   public void onPause() {
-    mSessionManager.removeSessionManagerListener(mSessionManagerListener, CastSession.class);
-    mCastSession = null;
+    sessionManager.removeSessionManagerListener(sessionManagerListener, CastSession.class);
+    castSession = null;
   }
 
   public void setVideoListItem(VideoListItem videoListItem) {
-    mVideoListItem = videoListItem;
+    this.videoListItem = videoListItem;
   }
 
   public void autoplayOnCast() {
-    if (mCastSession != null && mCastSession.getRemoteMediaClient() != null) {
+    if (castSession != null && castSession.getRemoteMediaClient() != null) {
       try {
         loadMedia(0);
-        mActivity.hidePlayButton();
+        activity.hidePlayButton();
       } catch (JSONException e) {
         Log.e(TAG, "JSONException " + e.getLocalizedMessage());
       }
@@ -167,20 +167,20 @@ public class CastApplication
   public void loadMedia(long position) throws JSONException {
 
     JSONObject streamRequest = new JSONObject();
-    streamRequest.put("assetKey", mVideoListItem.getAssetKey());
-    streamRequest.put("contentSourceId", mVideoListItem.getContentSourceId());
-    streamRequest.put("videoId", mVideoListItem.getVideoId());
-    streamRequest.put("apiKey", mVideoListItem.getApiKey());
+    streamRequest.put("assetKey", videoListItem.getAssetKey());
+    streamRequest.put("contentSourceId", videoListItem.getContentSourceId());
+    streamRequest.put("videoId", videoListItem.getVideoId());
+    streamRequest.put("apiKey", videoListItem.getApiKey());
     // turn off pre-roll for LIVE.
-    streamRequest.put("attemptPreroll", mVideoListItem.isVod());
+    streamRequest.put("attemptPreroll", videoListItem.isVod());
     streamRequest.put("startTime", position);
-    streamRequest.put("format", mVideoListItem.getStreamFormat().toString().toLowerCase());
+    streamRequest.put("format", videoListItem.getStreamFormat().toString().toLowerCase());
 
     MediaMetadata mediaMetadata = new MediaMetadata();
     mediaMetadata.addImage(new WebImage(Uri.parse("https://www.example.com")));
 
     int streamTypeId =
-        mVideoListItem.getAssetKey() != null
+        videoListItem.getAssetKey() != null
             ? MediaInfo.STREAM_TYPE_LIVE
             : MediaInfo.STREAM_TYPE_BUFFERED;
 
@@ -189,13 +189,13 @@ public class CastApplication
             .setCustomData(streamRequest)
             .setMetadata(mediaMetadata)
             .setContentType(
-                mVideoListItem.getStreamFormat().equals(StreamRequest.StreamFormat.HLS)
+                videoListItem.getStreamFormat().equals(StreamRequest.StreamFormat.HLS)
                     ? "application/x-mpegurl"
                     : "application/dash+xml")
             .setStreamType(streamTypeId)
             .build();
 
-    RemoteMediaClient remoteMediaClient = mCastSession.getRemoteMediaClient();
+    RemoteMediaClient remoteMediaClient = castSession.getRemoteMediaClient();
     remoteMediaClient.addProgressListener(this, 1000); // 1 sec period.
 
     MediaLoadRequestData mediaLoadRequestData =
@@ -203,18 +203,18 @@ public class CastApplication
 
     remoteMediaClient.load(mediaLoadRequestData);
 
-    SeekBar seekBar = mActivity.getSeekBar();
+    SeekBar seekBar = activity.getSeekBar();
     if (seekBar != null) {
       View parentView = (View) seekBar.getParent();
       parentView.setVisibility(View.VISIBLE);
-      mTimeStart = (TextView) parentView.findViewById(R.id.time_start);
-      mTimeEnd = (TextView) parentView.findViewById(R.id.time_end);
+      timeStart = (TextView) parentView.findViewById(R.id.time_start);
+      timeEnd = (TextView) parentView.findViewById(R.id.time_end);
       seekBar.setOnSeekBarChangeListener(
           new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
               if (fromUser) {
-                mCastSession.getRemoteMediaClient().seek(progress);
+                castSession.getRemoteMediaClient().seek(progress);
               }
             }
 
@@ -233,7 +233,7 @@ public class CastApplication
     if (message.startsWith("contentTime,")) {
       String timeString = message.substring("contentTime,".length());
       try {
-        mPosition = Double.valueOf(timeString);
+        position = Double.valueOf(timeString);
       } catch (NumberFormatException e) {
         Log.e(TAG, "can't parse content time" + e);
       }
@@ -242,7 +242,7 @@ public class CastApplication
 
   private void sendMessage(String message) {
     try {
-      mCastSession.sendMessage(NAMESPACE, message);
+      castSession.sendMessage(NAMESPACE, message);
     } catch (Exception e) {
       Log.e(TAG, "Exception while sending message", e);
     }
@@ -250,16 +250,16 @@ public class CastApplication
 
   @Override
   public void onProgressUpdated(long progressMs, long durationMs) {
-    if (mCastSession == null) {
+    if (castSession == null) {
       return;
     }
-    SeekBar seekBar = mActivity.getSeekBar();
+    SeekBar seekBar = activity.getSeekBar();
     if (seekBar != null) {
       Log.i(TAG, "SeekBar: " + progressMs + ":" + durationMs);
       seekBar.setMax((int) durationMs);
-      mTimeEnd.setText(millisToTimeString(durationMs));
+      timeEnd.setText(millisToTimeString(durationMs));
       seekBar.setProgress((int) progressMs);
-      mTimeStart.setText(millisToTimeString(progressMs));
+      timeStart.setText(millisToTimeString(progressMs));
     }
 
     sendMessage("getContentTime,");

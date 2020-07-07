@@ -50,15 +50,15 @@ public class MyActivity extends AppCompatActivity {
       "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
 
-  private SampleVideoPlayer mVideoPlayer;
-  private SampleAdsWrapper mSampleAdsWrapper;
-  private ImageButton mPlayButton;
+  private SampleVideoPlayer videoPlayer;
+  private SampleAdsWrapper sampleAdsWrapper;
+  private ImageButton playButton;
 
-  private HashMap<String, Double> mBookmarks = new HashMap<>();
-  private VideoListFragment.VideoListItem mVideoListItem;
+  private HashMap<String, Double> bookmarks = new HashMap<>();
+  private VideoListFragment.VideoListItem videoListItem;
 
-  private CastApplication mCastApplication;
-  private SeekBar mSeekBar;
+  private CastApplication castApplication;
+  private SeekBar seekBar;
 
   // Set up a default CookieManager to handle streams that requir cookies to be passed along to
   // subsequent requests.
@@ -85,7 +85,7 @@ public class MyActivity extends AppCompatActivity {
         .commit();
     videoListFragment.setOnVideoSelectedListener(mVideoSelectedListener);
 
-    mCastApplication = new CastApplication(this);
+    castApplication = new CastApplication(this);
   }
 
   @Override
@@ -127,27 +127,27 @@ public class MyActivity extends AppCompatActivity {
   @Override
   public void onPause() {
     super.onPause();
-    if (mVideoPlayer != null && mVideoPlayer.isPlaying()) {
-      mVideoPlayer.pause();
+    if (videoPlayer != null && videoPlayer.isPlaying()) {
+      videoPlayer.pause();
     }
-    mCastApplication.onPause();
+    castApplication.onPause();
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    if (mVideoPlayer != null && mVideoPlayer.isStreamRequested() && !mVideoPlayer.isPlaying()) {
-      mVideoPlayer.play();
+    if (videoPlayer != null && videoPlayer.isStreamRequested() && !videoPlayer.isPlaying()) {
+      videoPlayer.play();
     }
-    mCastApplication.onResume();
+    castApplication.onResume();
   }
 
   public SampleVideoPlayer getVideoPlayer() {
-    return mVideoPlayer;
+    return videoPlayer;
   }
 
   public SampleAdsWrapper getAdsWrapper() {
-    return mSampleAdsWrapper;
+    return sampleAdsWrapper;
   }
 
   public void hidePlayButton() {
@@ -158,7 +158,7 @@ public class MyActivity extends AppCompatActivity {
   }
 
   public SeekBar getSeekBar() {
-    return mSeekBar;
+    return seekBar;
   }
 
   private final VideoListFragment.OnVideoSelectedListener mVideoSelectedListener =
@@ -177,8 +177,8 @@ public class MyActivity extends AppCompatActivity {
               .addToBackStack(null)
               .commit();
           videoFragment.setVideoFragmentListener(mVideoFragmentListener);
-          mVideoListItem = videoListItem;
-          mCastApplication.setVideoListItem(mVideoListItem);
+          this.videoListItem = videoListItem;
+          castApplication.setVideoListItem(this.videoListItem);
         }
       };
 
@@ -187,20 +187,20 @@ public class MyActivity extends AppCompatActivity {
         @Override
         public void onVideoFragmentCreated(View rootView) {
           PlayerView videoView = rootView.findViewById(R.id.videoView);
-          mVideoPlayer = new SampleVideoPlayer(rootView.getContext(), videoView);
-          mVideoPlayer.enableControls(false);
-          mSampleAdsWrapper =
+          videoPlayer = new SampleVideoPlayer(rootView.getContext(), videoView);
+          videoPlayer.enableControls(false);
+          sampleAdsWrapper =
               new SampleAdsWrapper(
                   rootView.getContext(),
-                  mVideoPlayer,
+                  videoPlayer,
                   (ViewGroup) rootView.findViewById(R.id.adUiContainer));
-          mSampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
+          sampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
 
           final TextView descTextView = rootView.findViewById(R.id.playerDescription);
           final TextView logTextView = rootView.findViewById(R.id.logText);
 
           if (descTextView != null) {
-            descTextView.setText(mVideoListItem.getTitle());
+            descTextView.setText(videoListItem.getTitle());
           }
 
           ScrollView container = rootView.findViewById(R.id.container);
@@ -216,7 +216,7 @@ public class MyActivity extends AppCompatActivity {
           forceHeight.constrainHeight(R.id.dummyScrollContent, displayMetrics.heightPixels);
           forceHeight.applyTo(constraintLayout);
 
-          mSampleAdsWrapper.setLogger(
+          sampleAdsWrapper.setLogger(
               new SampleAdsWrapper.Logger() {
                 @Override
                 public void log(String logMessage) {
@@ -227,44 +227,44 @@ public class MyActivity extends AppCompatActivity {
                 }
               });
 
-          mPlayButton = (ImageButton) rootView.findViewById(R.id.playButton);
+          playButton = (ImageButton) rootView.findViewById(R.id.playButton);
           // Set up play button listener to play video then hide play button.
-          mPlayButton.setOnClickListener(
+          playButton.setOnClickListener(
               new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                   double bookMarkTime = 0;
-                  if (mBookmarks.containsKey(mVideoListItem.getId())) {
-                    bookMarkTime = mBookmarks.get(mVideoListItem.getId());
+                  if (bookmarks.containsKey(videoListItem.getId())) {
+                    bookMarkTime = bookmarks.get(videoListItem.getId());
                   }
-                  mVideoPlayer.enableControls(true);
-                  mVideoPlayer.setCanSeek(true);
-                  mSampleAdsWrapper.requestAndPlayAds(mVideoListItem, bookMarkTime);
-                  mPlayButton.setVisibility(View.GONE);
+                  videoPlayer.enableControls(true);
+                  videoPlayer.setCanSeek(true);
+                  sampleAdsWrapper.requestAndPlayAds(videoListItem, bookMarkTime);
+                  playButton.setVisibility(View.GONE);
                 }
               });
 
           orientVideoDescription(getResources().getConfiguration().orientation);
-          mSeekBar = (SeekBar) rootView.findViewById(R.id.cast_seekbar);
-          mCastApplication.autoplayOnCast();
+          seekBar = (SeekBar) rootView.findViewById(R.id.cast_seekbar);
+          castApplication.autoplayOnCast();
         }
 
         @Override
         public void onVideoFragmentDestroyed() {
-          if (mCastApplication != null) {
-            mCastApplication.setVideoListItem(null);
+          if (castApplication != null) {
+            castApplication.setVideoListItem(null);
           }
-          mSampleAdsWrapper.release();
-          mSampleAdsWrapper = null;
-          mVideoPlayer = null;
-          mSeekBar = null;
+          sampleAdsWrapper.release();
+          sampleAdsWrapper = null;
+          videoPlayer = null;
+          seekBar = null;
         }
 
         @Override
         public void onVideoFragmentPaused() {
           // Store content time for bookmarking feature.
-          if (mSampleAdsWrapper != null) {
-            mBookmarks.put(mVideoListItem.getId(), mSampleAdsWrapper.getContentTime());
+          if (sampleAdsWrapper != null) {
+            bookmarks.put(videoListItem.getId(), sampleAdsWrapper.getContentTime());
           }
         }
       };

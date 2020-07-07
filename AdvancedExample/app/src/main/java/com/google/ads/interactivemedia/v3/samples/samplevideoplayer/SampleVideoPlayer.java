@@ -62,32 +62,32 @@ public class SampleVideoPlayer {
     void onSeek(int windowIndex, long positionMs);
   }
 
-  private Context mContext;
+  private Context context;
 
-  private SimpleExoPlayer mPlayer;
-  private PlayerView mPlayerView;
-  private SampleVideoPlayerCallback mPlayerCallback;
+  private SimpleExoPlayer simpleExoPlayer;
+  private PlayerView playerView;
+  private SampleVideoPlayerCallback playerCallback;
 
-  private int mCurrentlyPlayingStreamType = C.TYPE_OTHER;
+  private int currentlyPlayingStreamType = C.TYPE_OTHER;
 
-  private String mStreamUrl;
-  private Boolean mIsStreamRequested;
-  private boolean mCanSeek;
-  private String mLicenseUrl;
+  private String streamUrl;
+  private Boolean streamRequested;
+  private boolean canSeek;
+  private String licenseUrl;
 
   public SampleVideoPlayer(Context context, PlayerView playerView) {
-    mContext = context;
-    mPlayerView = playerView;
-    mIsStreamRequested = false;
-    mCanSeek = true;
+    this.context = context;
+    this.playerView = playerView;
+    streamRequested = false;
+    canSeek = true;
   }
 
   private void initPlayer() {
     release();
 
-    mPlayer = new SimpleExoPlayer.Builder(mContext).build();
-    mPlayerView.setPlayer(mPlayer);
-    mPlayerView.setControlDispatcher(
+    simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
+    playerView.setPlayer(simpleExoPlayer);
+    playerView.setControlDispatcher(
         new ControlDispatcher() {
           @Override
           public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
@@ -127,9 +127,9 @@ public class SampleVideoPlayer {
 
           @Override
           public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
-            if (mCanSeek) {
-              if (mPlayerCallback != null) {
-                mPlayerCallback.onSeek(windowIndex, positionMs);
+            if (canSeek) {
+              if (playerCallback != null) {
+                playerCallback.onSeek(windowIndex, positionMs);
               } else {
                 player.seekTo(windowIndex, positionMs);
               }
@@ -155,33 +155,33 @@ public class SampleVideoPlayer {
   }
 
   public void play() {
-    if (mIsStreamRequested) {
+    if (streamRequested) {
       // Stream requested, just resume.
-      mPlayer.setPlayWhenReady(true);
+      simpleExoPlayer.setPlayWhenReady(true);
       return;
     }
     initPlayer();
 
-    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, USER_AGENT);
+    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context, USER_AGENT);
     MediaSource mediaSource;
-    mCurrentlyPlayingStreamType = Util.inferContentType(Uri.parse(mStreamUrl));
-    switch (mCurrentlyPlayingStreamType) {
+    currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
+    switch (currentlyPlayingStreamType) {
       case C.TYPE_HLS:
         mediaSource =
-            new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(mStreamUrl));
+            new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(streamUrl));
         break;
       case C.TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
                 new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-                    .createMediaSource(Uri.parse(mStreamUrl));
+                    .createMediaSource(Uri.parse(streamUrl));
         break;
       default:
         throw new UnsupportedOperationException("Unknown stream type.");
     }
 
     // Register for ID3 events.
-    mPlayer
+    simpleExoPlayer
         .getMetadataComponent()
         .addMetadataOutput(
             new MetadataOutput() {
@@ -193,98 +193,98 @@ public class SampleVideoPlayer {
                     TextInformationFrame textFrame = (TextInformationFrame) entry;
                     if ("TXXX".equals(textFrame.id)) {
                       Log.d(LOG_TAG, "Received user text: " + textFrame.value);
-                      if (mPlayerCallback != null) {
-                        mPlayerCallback.onUserTextReceived(textFrame.value);
+                      if (playerCallback != null) {
+                        playerCallback.onUserTextReceived(textFrame.value);
                       }
                     }
                   } else if (entry instanceof EventMessage) {
                     EventMessage eventMessage = (EventMessage) entry;
                     String eventMessageValue = new String(eventMessage.messageData);
                     Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
-                    if (mPlayerCallback != null) {
-                      mPlayerCallback.onUserTextReceived(eventMessageValue);
+                    if (playerCallback != null) {
+                      playerCallback.onUserTextReceived(eventMessageValue);
                     }
                   }
                 }
               }
             });
 
-    mPlayer.setPlayWhenReady(true);
-    mIsStreamRequested = true;
-    mPlayer.setMediaSource(mediaSource);
-    mPlayer.prepare();
+    simpleExoPlayer.setPlayWhenReady(true);
+    streamRequested = true;
+    simpleExoPlayer.setMediaSource(mediaSource);
+    simpleExoPlayer.prepare();
   }
 
   public void pause() {
-    mPlayer.setPlayWhenReady(false);
+    simpleExoPlayer.setPlayWhenReady(false);
   }
 
   public void seekTo(long positionMs) {
-    mPlayer.seekTo(positionMs);
+    simpleExoPlayer.seekTo(positionMs);
   }
 
   public void seekTo(int windowIndex, long positionMs) {
-    mPlayer.seekTo(windowIndex, positionMs);
+    simpleExoPlayer.seekTo(windowIndex, positionMs);
   }
 
   public void release() {
-    if (mPlayer != null) {
-      mPlayer.release();
-      mPlayer = null;
-      mIsStreamRequested = false;
+    if (simpleExoPlayer != null) {
+      simpleExoPlayer.release();
+      simpleExoPlayer = null;
+      streamRequested = false;
     }
   }
 
   public void setStreamUrl(String streamUrl) {
-    mStreamUrl = streamUrl;
-    mIsStreamRequested = false; // request new stream on play
+    this.streamUrl = streamUrl;
+    streamRequested = false; // request new stream on play
   }
 
   public void enableControls(boolean doEnable) {
     if (doEnable) {
-      mPlayerView.showController();
+      playerView.showController();
     } else {
-      mPlayerView.hideController();
+      playerView.hideController();
     }
-    mCanSeek = doEnable;
+    canSeek = doEnable;
   }
 
   public void setCanSeek(boolean canSeek) {
-    mCanSeek = canSeek;
+    this.canSeek = canSeek;
   }
 
   public boolean getCanSeek() {
-    return mCanSeek;
+    return canSeek;
   }
 
   public boolean isPlaying() {
-    return mPlayer.getPlayWhenReady();
+    return simpleExoPlayer.getPlayWhenReady();
   }
 
   public boolean isStreamRequested() {
-    return mIsStreamRequested;
+    return streamRequested;
   }
 
   // Methods for exposing player information.
   public void setSampleVideoPlayerCallback(SampleVideoPlayerCallback callback) {
-    mPlayerCallback = callback;
+    playerCallback = callback;
   }
 
   /**
    * @return current offset position of the playhead in milliseconds for DASH and HLS stream.
    */
   public long getCurrentOffsetPositionMs() {
-    long positionMs = mPlayer.getCurrentPosition();
-    if (mCurrentlyPlayingStreamType == C.TYPE_OTHER) {
+    long positionMs = simpleExoPlayer.getCurrentPosition();
+    if (currentlyPlayingStreamType == C.TYPE_OTHER) {
       return positionMs;
     }
-    Timeline currentTimeline = mPlayer.getCurrentTimeline();
+    Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
     if (currentTimeline.isEmpty()) {
       return positionMs;
     }
     Timeline.Window window = new Timeline.Window();
-    mPlayer.getCurrentTimeline().getWindow(mPlayer.getCurrentWindowIndex(), window);
-    if (window.isLive && mCurrentlyPlayingStreamType == C.TYPE_DASH) {
+    simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
+    if (window.isLive && currentlyPlayingStreamType == C.TYPE_DASH) {
       if (window.presentationStartTimeMs == C.TIME_UNSET
           || window.windowStartTimeMs == C.TIME_UNSET) {
         return positionMs;
@@ -294,18 +294,18 @@ public class SampleVideoPlayer {
       // Adjust position to be relative to start of period rather than window, to account for DVR
       // window.
       Timeline.Period period =
-          currentTimeline.getPeriod(mPlayer.getCurrentPeriodIndex(), new Period());
+          currentTimeline.getPeriod(simpleExoPlayer.getCurrentPeriodIndex(), new Period());
       positionMs -= period.getPositionInWindowMs();
     }
     return positionMs;
   }
 
   public long getDuration() {
-    return mPlayer.getDuration();
+    return simpleExoPlayer.getDuration();
   }
 
   public void setLicenseUrl(String licenseUrl) {
-    mLicenseUrl = licenseUrl;
+    this.licenseUrl = licenseUrl;
   }
 
   /**
@@ -319,8 +319,8 @@ public class SampleVideoPlayer {
     try {
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(
-              mLicenseUrl,
-              new DefaultHttpDataSourceFactory(Util.getUserAgent(mContext, "SampleVideoPlayer")));
+              licenseUrl,
+              new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "SampleVideoPlayer")));
       UUID uuid = UUID.fromString(WIDEVINE_UUID);
       drmSessionManager =
           new DefaultDrmSessionManager.Builder()

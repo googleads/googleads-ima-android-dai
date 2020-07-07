@@ -47,21 +47,21 @@ public class SampleAdsWrapper
     void log(String logMessage);
   }
 
-  private ImaSdkFactory mSdkFactory;
-  private AdsLoader mAdsLoader;
-  private StreamManager mStreamManager;
-  private StreamDisplayContainer mDisplayContainer;
-  private List<VideoStreamPlayer.VideoStreamPlayerCallback> mPlayerCallbacks;
+  private ImaSdkFactory sdkFactory;
+  private AdsLoader adsLoader;
+  private StreamManager streamManager;
+  private StreamDisplayContainer displayContainer;
+  private List<VideoStreamPlayer.VideoStreamPlayerCallback> playerCallbacks;
 
-  private SampleVideoPlayer mVideoPlayer;
-  private Context mContext;
-  private ViewGroup mAdUiContainer;
+  private SampleVideoPlayer videoPlayer;
+  private Context context;
+  private ViewGroup adUiContainer;
 
-  private double mBookMarkContentTime; // Bookmarked content time, in seconds.
-  private double mSnapBackTime; // Stream time to snap back to, in seconds.
-  private boolean mAdsRequested;
-  private String mFallbackUrl;
-  private Logger mLogger;
+  private double bookMarkContentTime; // Bookmarked content time, in seconds.
+  private double snapBackTime; // Stream time to snap back to, in seconds.
+  private boolean adsRequested;
+  private String fallbackUrl;
+  private Logger logger;
 
   /**
    * Creates a new SampleAdsWrapper that implements IMA direct-ad-insertion.
@@ -71,26 +71,26 @@ public class SampleAdsWrapper
    * @param adUiContainer ViewGroup in which to display the ad's UI.
    */
   public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer, ViewGroup adUiContainer) {
-    mVideoPlayer = videoPlayer;
-    mContext = context;
-    mAdUiContainer = adUiContainer;
-    mSdkFactory = ImaSdkFactory.getInstance();
-    mPlayerCallbacks = new ArrayList<>();
+    this.videoPlayer = videoPlayer;
+    this.context = context;
+    this.adUiContainer = adUiContainer;
+    sdkFactory = ImaSdkFactory.getInstance();
+    playerCallbacks = new ArrayList<>();
     createAdsLoader();
   }
 
   private void createAdsLoader() {
-    ImaSdkSettings settings = mSdkFactory.createImaSdkSettings();
+    ImaSdkSettings settings = sdkFactory.createImaSdkSettings();
     // Change any settings as necessary here.
     settings.setPlayerType(PLAYER_TYPE);
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-    mDisplayContainer =
-        ImaSdkFactory.createStreamDisplayContainer(mAdUiContainer, videoStreamPlayer);
-    mVideoPlayer.setSampleVideoPlayerCallback(
+    displayContainer =
+        ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
+    videoPlayer.setSampleVideoPlayerCallback(
         new SampleVideoPlayer.SampleVideoPlayerCallback() {
           @Override
           public void onUserTextReceived(String userText) {
-            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : mPlayerCallbacks) {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
               callback.onUserTextReceived(userText);
             }
           }
@@ -98,53 +98,53 @@ public class SampleAdsWrapper
           @Override
           public void onSeek(int windowIndex, long positionMs) {
             double timeToSeek = positionMs;
-            if (mStreamManager != null) {
+            if (streamManager != null) {
               CuePoint cuePoint =
-                  mStreamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
+                  streamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
               double bookMarkStreamTime =
-                  mStreamManager.getStreamTimeForContentTime(mBookMarkContentTime);
+                  streamManager.getStreamTimeForContentTime(bookMarkContentTime);
               if (cuePoint != null
                   && !cuePoint.isPlayed()
                   && cuePoint.getEndTime() > bookMarkStreamTime) {
-                mSnapBackTime = timeToSeek / 1000.0; // Update snap back time.
+                snapBackTime = timeToSeek / 1000.0; // Update snap back time.
                 // Missed cue point, so snap back to the beginning of cue point.
                 timeToSeek = cuePoint.getStartTime() * 1000;
                 Log.i("IMA", "SnapBack to " + timeToSeek);
-                mVideoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
-                mVideoPlayer.setCanSeek(false);
+                videoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
+                videoPlayer.setCanSeek(false);
 
                 return;
               }
             }
-            mVideoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
+            videoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
           }
         });
-    mAdsLoader = mSdkFactory.createAdsLoader(mContext, settings, mDisplayContainer);
+    adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);
   }
 
   public void requestAndPlayAds(
       VideoListFragment.VideoListItem videoListItem, double bookMarkTime) {
 
-    mBookMarkContentTime = bookMarkTime;
-    mAdsLoader.addAdErrorListener(this);
-    mAdsLoader.addAdsLoadedListener(this);
-    mAdsLoader.requestStream(buildStreamRequest(videoListItem));
-    mAdsRequested = true;
+    bookMarkContentTime = bookMarkTime;
+    adsLoader.addAdErrorListener(this);
+    adsLoader.addAdsLoadedListener(this);
+    adsLoader.requestStream(buildStreamRequest(videoListItem));
+    adsRequested = true;
   }
 
   private StreamRequest buildStreamRequest(VideoListFragment.VideoListItem videoListItem) {
     // Set the license URL.
-    mVideoPlayer.setLicenseUrl(videoListItem.getLicenseUrl());
+    videoPlayer.setLicenseUrl(videoListItem.getLicenseUrl());
 
     StreamRequest request;
     // Live stream request.
     if (videoListItem.getAssetKey() != null) {
       request =
-          mSdkFactory.createLiveStreamRequest(
+          sdkFactory.createLiveStreamRequest(
               videoListItem.getAssetKey(), videoListItem.getApiKey());
     } else { // VOD request.
       request =
-          mSdkFactory.createVodStreamRequest(
+          sdkFactory.createVodStreamRequest(
               videoListItem.getContentSourceId(),
               videoListItem.getVideoId(),
               videoListItem.getApiKey());
@@ -159,26 +159,26 @@ public class SampleAdsWrapper
     return new VideoStreamPlayer() {
       @Override
       public void loadUrl(String url, List<HashMap<String, String>> subtitles) {
-        mVideoPlayer.setStreamUrl(url);
-        mVideoPlayer.play();
+        videoPlayer.setStreamUrl(url);
+        videoPlayer.play();
 
         // Bookmarking
-        if (mBookMarkContentTime > 0) {
-          double streamTime = mStreamManager.getStreamTimeForContentTime(mBookMarkContentTime);
-          mVideoPlayer.seekTo((long) (streamTime * 1000.0)); // s to ms.
+        if (bookMarkContentTime > 0) {
+          double streamTime = streamManager.getStreamTimeForContentTime(bookMarkContentTime);
+          videoPlayer.seekTo((long) (streamTime * 1000.0)); // s to ms.
         }
       }
 
       @Override
       public void pause() {
         // Pause player.
-        mVideoPlayer.pause();
+        videoPlayer.pause();
       }
 
       @Override
       public void resume() {
         // Resume player.
-        mVideoPlayer.play();
+        videoPlayer.play();
       }
 
       @Override
@@ -189,32 +189,32 @@ public class SampleAdsWrapper
 
       @Override
       public void addCallback(VideoStreamPlayerCallback videoStreamPlayerCallback) {
-        mPlayerCallbacks.add(videoStreamPlayerCallback);
+        playerCallbacks.add(videoStreamPlayerCallback);
       }
 
       @Override
       public void removeCallback(VideoStreamPlayerCallback videoStreamPlayerCallback) {
-        mPlayerCallbacks.remove(videoStreamPlayerCallback);
+        playerCallbacks.remove(videoStreamPlayerCallback);
       }
 
       @Override
       public void onAdBreakStarted() {
         // Disable player controls.
-        mVideoPlayer.setCanSeek(false);
-        mVideoPlayer.enableControls(false);
+        videoPlayer.setCanSeek(false);
+        videoPlayer.enableControls(false);
         log("Ad Break Started\n");
       }
 
       @Override
       public void onAdBreakEnded() {
         // Re-enable player controls.
-        mVideoPlayer.setCanSeek(true);
-        mVideoPlayer.enableControls(true);
-        if (mSnapBackTime > 0) {
-          Log.i("IMA", "SampleAdsWrapper seeking " + mSnapBackTime);
-          mVideoPlayer.seekTo(Math.round(mSnapBackTime * 1000));
+        videoPlayer.setCanSeek(true);
+        videoPlayer.enableControls(true);
+        if (snapBackTime > 0) {
+          Log.i("IMA", "SampleAdsWrapper seeking " + snapBackTime);
+          videoPlayer.seekTo(Math.round(snapBackTime * 1000));
         }
-        mSnapBackTime = 0;
+        snapBackTime = 0;
         log("Ad Break Ended\n");
       }
 
@@ -232,41 +232,41 @@ public class SampleAdsWrapper
       public void seek(long timeMs) {
         // An ad was skipped. Skip to the content time.
         log("Seek\n");
-        mVideoPlayer.seekTo(timeMs);
+        videoPlayer.seekTo(timeMs);
       }
 
       @Override
       public VideoProgressUpdate getContentProgress() {
-        if (mVideoPlayer == null) {
+        if (videoPlayer == null) {
           return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
         }
         return new VideoProgressUpdate(
-            mVideoPlayer.getCurrentOffsetPositionMs(), mVideoPlayer.getDuration());
+            videoPlayer.getCurrentOffsetPositionMs(), videoPlayer.getDuration());
       }
     };
   }
 
   public double getContentTime() {
-    if (mStreamManager != null) {
-      return mStreamManager.getContentTimeForStreamTime(
-          mVideoPlayer.getCurrentOffsetPositionMs() / 1000.0);
+    if (streamManager != null) {
+      return streamManager.getContentTimeForStreamTime(
+          videoPlayer.getCurrentOffsetPositionMs() / 1000.0);
     }
     return 0.0;
   }
 
   public double getStreamTimeForContentTime(double contentTime) {
-    if (mStreamManager != null) {
-      return mStreamManager.getStreamTimeForContentTime(contentTime);
+    if (streamManager != null) {
+      return streamManager.getStreamTimeForContentTime(contentTime);
     }
     return 0.0;
   }
 
   public void setSnapBackTime(double snapBackTime) {
-    mSnapBackTime = snapBackTime;
+    this.snapBackTime = snapBackTime;
   }
 
   public boolean getAdsRequested() {
-    return mAdsRequested;
+    return adsRequested;
   }
 
   /** AdErrorListener implementation */
@@ -275,8 +275,8 @@ public class SampleAdsWrapper
     log(String.format("Error: %s\n", event.getError().getMessage()));
     // play fallback URL.
     log("Playing fallback Url\n");
-    mVideoPlayer.setStreamUrl(mFallbackUrl);
-    mVideoPlayer.play();
+    videoPlayer.setStreamUrl(fallbackUrl);
+    videoPlayer.play();
   }
 
   /** AdEventListener implementation */
@@ -294,44 +294,44 @@ public class SampleAdsWrapper
   /** AdsLoadedListener implementation */
   @Override
   public void onAdsManagerLoaded(AdsManagerLoadedEvent event) {
-    mStreamManager = event.getStreamManager();
-    mStreamManager.addAdErrorListener(this);
-    mStreamManager.addAdEventListener(this);
-    mStreamManager.init();
+    streamManager = event.getStreamManager();
+    streamManager.addAdErrorListener(this);
+    streamManager.addAdEventListener(this);
+    streamManager.init();
   }
 
   /** Sets fallback URL in case ads stream fails. */
   public void setFallbackUrl(String url) {
-    mFallbackUrl = url;
+    fallbackUrl = url;
   }
 
   /** Sets logger for displaying events to screen. Optional. */
   public void setLogger(Logger logger) {
-    mLogger = logger;
+    this.logger = logger;
   }
 
   private void log(String message) {
-    if (mLogger != null) {
-      mLogger.log(message);
+    if (logger != null) {
+      logger.log(message);
     }
   }
 
   public void release() {
-    if (mStreamManager != null) {
-      mStreamManager.destroy();
-      mStreamManager = null;
+    if (streamManager != null) {
+      streamManager.destroy();
+      streamManager = null;
     }
 
-    if (mVideoPlayer != null) {
-      mVideoPlayer.release();
-      mVideoPlayer = null;
+    if (videoPlayer != null) {
+      videoPlayer.release();
+      videoPlayer = null;
     }
 
-    if (mDisplayContainer != null) {
-      mDisplayContainer.destroy();
-      mDisplayContainer = null;
+    if (displayContainer != null) {
+      displayContainer.destroy();
+      displayContainer = null;
     }
 
-    mAdsRequested = false;
+    adsRequested = false;
   }
 }

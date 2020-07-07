@@ -80,39 +80,33 @@ public class SampleVideoPlayer {
     playerView.setControlDispatcher(
         new ControlDispatcher() {
           @Override
+          public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
+            player.setPlayWhenReady(playWhenReady);
+            return true;
+          }
+
           public boolean isRewindEnabled() {
             return false;
           }
 
-          @Override
           public boolean isFastForwardEnabled() {
             return false;
           }
 
-          @Override
           public boolean dispatchFastForward(Player p) {
             return false;
           }
 
-          @Override
           public boolean dispatchRewind(Player p) {
             return false;
           }
 
-          @Override
           public boolean dispatchNext(Player p) {
             return false;
           }
 
-          @Override
           public boolean dispatchPrevious(Player p) {
             return false;
-          }
-
-          @Override
-          public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
-            player.setPlayWhenReady(playWhenReady);
-            return true;
           }
 
           @Override

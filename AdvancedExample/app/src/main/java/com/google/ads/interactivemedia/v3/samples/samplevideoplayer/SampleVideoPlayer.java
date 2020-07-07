@@ -95,32 +95,26 @@ public class SampleVideoPlayer {
             return true;
           }
 
-          @Override
           public boolean isRewindEnabled() {
             return false;
           }
 
-          @Override
           public boolean isFastForwardEnabled() {
             return false;
           }
 
-          @Override
           public boolean dispatchFastForward(Player p) {
             return false;
           }
 
-          @Override
           public boolean dispatchRewind(Player p) {
             return false;
           }
 
-          @Override
           public boolean dispatchNext(Player p) {
             return false;
           }
 
-          @Override
           public boolean dispatchPrevious(Player p) {
             return false;
           }
@@ -211,8 +205,7 @@ public class SampleVideoPlayer {
 
     simpleExoPlayer.setPlayWhenReady(true);
     streamRequested = true;
-    simpleExoPlayer.setMediaSource(mediaSource);
-    simpleExoPlayer.prepare();
+    simpleExoPlayer.prepare(mediaSource);
   }
 
   public void pause() {

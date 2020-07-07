@@ -18,8 +18,6 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,8 +28,10 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.fragment.app.Fragment;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -164,7 +164,7 @@ public class MyActivity extends AppCompatActivity {
   private final VideoListFragment.OnVideoSelectedListener mVideoSelectedListener =
       new VideoListFragment.OnVideoSelectedListener() {
         @Override
-        public void onVideoSelected(VideoListFragment.VideoListItem videoListItem) {
+        public void onVideoSelected(VideoListFragment.VideoListItem videoItem) {
           VideoListFragment videoListFragment =
               (VideoListFragment)
                   getSupportFragmentManager().findFragmentByTag(PLAYLIST_FRAGMENT_TAG);
@@ -177,8 +177,8 @@ public class MyActivity extends AppCompatActivity {
               .addToBackStack(null)
               .commit();
           videoFragment.setVideoFragmentListener(mVideoFragmentListener);
-          this.videoListItem = videoListItem;
-          castApplication.setVideoListItem(this.videoListItem);
+          videoListItem = videoItem;
+          castApplication.setVideoListItem(videoListItem);
         }
       };
 

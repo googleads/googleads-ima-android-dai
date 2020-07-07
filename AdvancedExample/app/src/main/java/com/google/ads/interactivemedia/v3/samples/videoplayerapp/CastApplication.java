@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import com.google.ads.interactivemedia.v3.api.StreamRequest;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoListFragment.VideoListItem;
 import com.google.android.gms.cast.Cast;
@@ -13,6 +14,7 @@ import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaLoadRequestData;
 import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaSeekOptions;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.SessionManager;
@@ -90,10 +92,10 @@ public class CastApplication
             castSession.getRemoteMediaClient().removeProgressListener(CastApplication.this);
           }
 
-          private void onApplicationConnected(CastSession castSession) {
-            this.castSession = castSession;
+          private void onApplicationConnected(CastSession session) {
+            castSession = session;
             try {
-              this.castSession.setMessageReceivedCallbacks(NAMESPACE, CastApplication.this);
+              castSession.setMessageReceivedCallbacks(NAMESPACE, CastApplication.this);
             } catch (IOException e) {
               Log.e(TAG, "Exception when creating channel", e);
             }
@@ -134,7 +136,7 @@ public class CastApplication
               View parentView = (View) seekBar.getParent();
               parentView.setVisibility(View.GONE);
             }
-            this.castSession = null;
+            castSession = null;
           }
         };
   }
@@ -214,7 +216,9 @@ public class CastApplication
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
               if (fromUser) {
-                castSession.getRemoteMediaClient().seek(progress);
+                MediaSeekOptions options =
+                    new MediaSeekOptions.Builder().setPosition(progress).build();
+                castSession.getRemoteMediaClient().seek(options);
               }
             }
 
@@ -233,7 +237,7 @@ public class CastApplication
     if (message.startsWith("contentTime,")) {
       String timeString = message.substring("contentTime,".length());
       try {
-        position = Double.valueOf(timeString);
+        position = Double.parseDouble(timeString);
       } catch (NumberFormatException e) {
         Log.e(TAG, "can't parse content time" + e);
       }

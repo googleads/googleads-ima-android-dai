@@ -7,7 +7,7 @@ This project hosts samples for the [Android IMA SDK for DAI](/interactive-media-
 
 *   Android Studio 1.0 or newer
 *   IMA Android SDK .jar (see our
-    [Download page](//developers.google.com/interactive-media-ads/docs/sdks/android/dai/download)
+    [Download page](//developers.google.com/interactive-media-ads/docs/sdks/android/dai/download))
 
 ### Installation Instructions
 Installation instructions can be found in our [online documentation](/interactive-media-ads/docs/sdks/android/dai-quickstart).

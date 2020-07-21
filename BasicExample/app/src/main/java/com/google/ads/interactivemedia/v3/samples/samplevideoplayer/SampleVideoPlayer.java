@@ -59,7 +59,7 @@ public class SampleVideoPlayer {
   private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
-  private final Timeline.Period period = new Period();
+  @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
 
   private String streamUrl;
   private Boolean streamRequested;
@@ -147,9 +147,9 @@ public class SampleVideoPlayer {
     initPlayer();
 
     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context, USER_AGENT);
-    int type = Util.inferContentType(Uri.parse(streamUrl), null);
     MediaSource mediaSource;
-    switch (type) {
+    currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
+    switch (currentlyPlayingStreamType) {
       case C.TYPE_HLS:
         mediaSource =
             new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(streamUrl));
@@ -161,8 +161,7 @@ public class SampleVideoPlayer {
                 .createMediaSource(Uri.parse(streamUrl));
         break;
       default:
-        Log.e(LOG_TAG, "Error! Invalid Media Source, exiting");
-        return;
+        throw new UnsupportedOperationException("Unknown stream type.");
     }
 
     simpleExoPlayer.prepare(mediaSource);
@@ -241,18 +240,29 @@ public class SampleVideoPlayer {
     playerCallback = callback;
   }
 
-  public long getCurrentPositionPeriod() {
-    // Adjust position to be relative to start of period rather than window, to account for DVR
-    // window.
-    long position = simpleExoPlayer.getCurrentPosition();
+  /** Returns current offset position of the playhead in milliseconds for DASH and HLS stream. */
+  public long getCurrentOffsetPositionMs() {
     Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
-    if (!currentTimeline.isEmpty()) {
-      position -=
-          currentTimeline
-              .getPeriod(simpleExoPlayer.getCurrentPeriodIndex(), period)
-              .getPositionInWindowMs();
+    if (currentTimeline.isEmpty()) {
+      return simpleExoPlayer.getCurrentPosition();
     }
-    return position;
+    Timeline.Window window = new Timeline.Window();
+    simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
+    if (window.isLive && currentlyPlayingStreamType == C.TYPE_DASH) {
+      // This case is when the dash stream has a format of non-sliding window.
+      if (window.presentationStartTimeMs == C.TIME_UNSET
+          || window.windowStartTimeMs == C.TIME_UNSET) {
+        return simpleExoPlayer.getCurrentPosition();
+      }
+      return simpleExoPlayer.getCurrentPosition()
+          + window.windowStartTimeMs - window.presentationStartTimeMs;
+    } else {
+      // Adjust position to be relative to start of period rather than window, to account for DVR
+      // window.
+      Timeline.Period period =
+          currentTimeline.getPeriod(simpleExoPlayer.getCurrentPeriodIndex(), new Period());
+      return simpleExoPlayer.getCurrentPosition() - period.getPositionInWindowMs();
+    }
   }
 
   public long getDuration() {

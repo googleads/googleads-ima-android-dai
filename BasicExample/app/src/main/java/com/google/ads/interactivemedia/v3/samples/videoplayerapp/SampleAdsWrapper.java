@@ -244,7 +244,7 @@ public class SampleAdsWrapper
       @Override
       public VideoProgressUpdate getContentProgress() {
         return new VideoProgressUpdate(
-            videoPlayer.getCurrentPositionPeriod(), videoPlayer.getDuration());
+            videoPlayer.getCurrentOffsetPositionMs(), videoPlayer.getDuration());
       }
     };
   }

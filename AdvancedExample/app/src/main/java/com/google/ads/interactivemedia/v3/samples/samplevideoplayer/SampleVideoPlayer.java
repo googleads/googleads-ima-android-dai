@@ -267,30 +267,27 @@ public class SampleVideoPlayer {
    * @return current offset position of the playhead in milliseconds for DASH and HLS stream.
    */
   public long getCurrentOffsetPositionMs() {
-    long positionMs = simpleExoPlayer.getCurrentPosition();
-    if (currentlyPlayingStreamType == C.TYPE_OTHER) {
-      return positionMs;
-    }
     Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
     if (currentTimeline.isEmpty()) {
-      return positionMs;
+      return simpleExoPlayer.getCurrentPosition();
     }
     Timeline.Window window = new Timeline.Window();
     simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
     if (window.isLive && currentlyPlayingStreamType == C.TYPE_DASH) {
+      // This case is when the dash stream has a format of non-sliding window.
       if (window.presentationStartTimeMs == C.TIME_UNSET
           || window.windowStartTimeMs == C.TIME_UNSET) {
-        return positionMs;
+        return simpleExoPlayer.getCurrentPosition();
       }
-      positionMs += window.windowStartTimeMs - window.presentationStartTimeMs;
+      return simpleExoPlayer.getCurrentPosition()
+          + window.windowStartTimeMs - window.presentationStartTimeMs;
     } else {
       // Adjust position to be relative to start of period rather than window, to account for DVR
       // window.
       Timeline.Period period =
           currentTimeline.getPeriod(simpleExoPlayer.getCurrentPeriodIndex(), new Period());
-      positionMs -= period.getPositionInWindowMs();
+      return simpleExoPlayer.getCurrentPosition() - period.getPositionInWindowMs();
     }
-    return positionMs;
   }
 
   public long getDuration() {

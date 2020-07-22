@@ -62,13 +62,13 @@ public class SampleVideoPlayer {
     void onSeek(int windowIndex, long positionMs);
   }
 
-  private Context context;
+  private final Context context;
 
   private SimpleExoPlayer simpleExoPlayer;
-  private PlayerView playerView;
+  private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
-  private int currentlyPlayingStreamType = C.TYPE_OTHER;
+  @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
 
   private String streamUrl;
   private Boolean streamRequested;
@@ -167,45 +167,44 @@ public class SampleVideoPlayer {
       case C.TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-                    .createMediaSource(Uri.parse(streamUrl));
+                    new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
+                .createMediaSource(Uri.parse(streamUrl));
         break;
       default:
         throw new UnsupportedOperationException("Unknown stream type.");
     }
 
+    simpleExoPlayer.prepare(mediaSource);
+
     // Register for ID3 events.
-    simpleExoPlayer
-        .getMetadataComponent()
-        .addMetadataOutput(
-            new MetadataOutput() {
-              @Override
-              public void onMetadata(Metadata metadata) {
-                for (int i = 0; i < metadata.length(); i++) {
-                  Metadata.Entry entry = metadata.get(i);
-                  if (entry instanceof TextInformationFrame) {
-                    TextInformationFrame textFrame = (TextInformationFrame) entry;
-                    if ("TXXX".equals(textFrame.id)) {
-                      Log.d(LOG_TAG, "Received user text: " + textFrame.value);
-                      if (playerCallback != null) {
-                        playerCallback.onUserTextReceived(textFrame.value);
-                      }
-                    }
-                  } else if (entry instanceof EventMessage) {
-                    EventMessage eventMessage = (EventMessage) entry;
-                    String eventMessageValue = new String(eventMessage.messageData);
-                    Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
-                    if (playerCallback != null) {
-                      playerCallback.onUserTextReceived(eventMessageValue);
-                    }
+    simpleExoPlayer.addMetadataOutput(
+        new MetadataOutput() {
+          @Override
+          public void onMetadata(Metadata metadata) {
+            for (int i = 0; i < metadata.length(); i++) {
+              Metadata.Entry entry = metadata.get(i);
+              if (entry instanceof TextInformationFrame) {
+                TextInformationFrame textFrame = (TextInformationFrame) entry;
+                if ("TXXX".equals(textFrame.id)) {
+                  Log.d(LOG_TAG, "Received user text: " + textFrame.value);
+                  if (playerCallback != null) {
+                    playerCallback.onUserTextReceived(textFrame.value);
                   }
                 }
+              } else if (entry instanceof EventMessage) {
+                EventMessage eventMessage = (EventMessage) entry;
+                String eventMessageValue = new String(eventMessage.messageData);
+                Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
+                if (playerCallback != null) {
+                  playerCallback.onUserTextReceived(eventMessageValue);
+                }
               }
-            });
+            }
+          }
+        });
 
     simpleExoPlayer.setPlayWhenReady(true);
     streamRequested = true;
-    simpleExoPlayer.prepare(mediaSource);
   }
 
   public void pause() {
@@ -220,7 +219,7 @@ public class SampleVideoPlayer {
     simpleExoPlayer.seekTo(windowIndex, positionMs);
   }
 
-  public void release() {
+  private void release() {
     if (simpleExoPlayer != null) {
       simpleExoPlayer.release();
       simpleExoPlayer = null;
@@ -263,9 +262,7 @@ public class SampleVideoPlayer {
     playerCallback = callback;
   }
 
-  /**
-   * @return current offset position of the playhead in milliseconds for DASH and HLS stream.
-   */
+  /** Returns current offset position of the playhead in milliseconds for DASH and HLS stream. */
   public long getCurrentOffsetPositionMs() {
     Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
     if (currentTimeline.isEmpty()) {

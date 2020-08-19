@@ -16,6 +16,7 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.app.UiModeManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -85,7 +86,11 @@ public class MyActivity extends AppCompatActivity {
         .commit();
     videoListFragment.setOnVideoSelectedListener(mVideoSelectedListener);
 
-    castApplication = new CastApplication(this);
+    UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+    if (uiModeManager.getCurrentModeType() != Configuration.UI_MODE_TYPE_TELEVISION) {
+      // Only create a cast application on devices that support cast.
+      castApplication = new CastApplication(this);
+    }
   }
 
   @Override
@@ -130,7 +135,10 @@ public class MyActivity extends AppCompatActivity {
     if (videoPlayer != null && videoPlayer.isPlaying()) {
       videoPlayer.pause();
     }
-    castApplication.onPause();
+
+    if (castApplication != null) {
+      castApplication.onPause();
+    }
   }
 
   @Override
@@ -139,7 +147,10 @@ public class MyActivity extends AppCompatActivity {
     if (videoPlayer != null && videoPlayer.isStreamRequested() && !videoPlayer.isPlaying()) {
       videoPlayer.play();
     }
-    castApplication.onResume();
+
+    if (castApplication != null) {
+      castApplication.onResume();
+    }
   }
 
   public SampleVideoPlayer getVideoPlayer() {
@@ -178,7 +189,10 @@ public class MyActivity extends AppCompatActivity {
               .commit();
           videoFragment.setVideoFragmentListener(mVideoFragmentListener);
           videoListItem = videoItem;
-          castApplication.setVideoListItem(videoListItem);
+
+          if (castApplication != null) {
+            castApplication.setVideoListItem(videoListItem);
+          }
         }
       };
 
@@ -246,7 +260,10 @@ public class MyActivity extends AppCompatActivity {
 
           orientVideoDescription(getResources().getConfiguration().orientation);
           seekBar = (SeekBar) rootView.findViewById(R.id.cast_seekbar);
-          castApplication.autoplayOnCast();
+
+          if (castApplication != null) {
+            castApplication.autoplayOnCast();
+          }
         }
 
         @Override

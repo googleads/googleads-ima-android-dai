@@ -13,7 +13,7 @@ COMMON_DEPS = [
     "//third_party/java/android_libs/guava_jdk5:collect",
     "//third_party/java/androidx/annotation",
     "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v4",
-    "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v7/appcompat",
+    "//third_party/java/androidx/appcompat",
     "//third_party/java/androidx/constraintlayout",
     "//java/com/google/android/gmscore/integ/client/base",
     "//java/com/google/android/gmscore/integ/client/cast/framework",

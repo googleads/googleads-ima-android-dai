@@ -219,7 +219,7 @@ public class SampleVideoPlayer {
     simpleExoPlayer.seekTo(windowIndex, positionMs);
   }
 
-  private void release() {
+  public void release() {
     if (simpleExoPlayer != null) {
       simpleExoPlayer.release();
       simpleExoPlayer = null;

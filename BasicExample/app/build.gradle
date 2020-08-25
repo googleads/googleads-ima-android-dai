@@ -30,8 +30,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.browser:browser:1.2.0'
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.19.4'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.11.7'
 }

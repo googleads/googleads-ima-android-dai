@@ -38,6 +38,8 @@ public class MyActivity extends Activity {
   protected SampleVideoPlayer sampleVideoPlayer;
   protected ImageButton playButton;
 
+  private boolean contentHasStarted = false;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -47,9 +49,13 @@ public class MyActivity extends Activity {
         new SampleVideoPlayer(
             rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
     sampleVideoPlayer.enableControls(false);
+    playButton = (ImageButton) rootView.findViewById(R.id.playButton);
     final SampleAdsWrapper sampleAdsWrapper =
         new SampleAdsWrapper(
-            this, sampleVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
+            this,
+            sampleVideoPlayer,
+            (ViewGroup) rootView.findViewById(R.id.adUiContainer),
+            playButton);
     sampleAdsWrapper.setFallbackUrl(DEFAULT_STREAM_URL);
 
     final ScrollView scrollView = (ScrollView) findViewById(R.id.logScroll);
@@ -75,14 +81,18 @@ public class MyActivity extends Activity {
           }
         });
 
-    playButton = (ImageButton) rootView.findViewById(R.id.playButton);
     // Set up play button listener to play video then hide play button.
     playButton.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            sampleVideoPlayer.enableControls(true);
-            sampleAdsWrapper.requestAndPlayAds();
+            if (contentHasStarted) {
+              sampleVideoPlayer.play();
+            } else {
+              contentHasStarted = true;
+              sampleVideoPlayer.enableControls(true);
+              sampleAdsWrapper.requestAndPlayAds();
+            }
             playButton.setVisibility(View.GONE);
           }
         });

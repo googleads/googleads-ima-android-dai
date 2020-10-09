@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_action_play_over_video"
-                android:background="@null" />
+                android:background="@color/black" />
         </RelativeLayout>
         <LinearLayout
             android:id="@+id/descriptionLayout"

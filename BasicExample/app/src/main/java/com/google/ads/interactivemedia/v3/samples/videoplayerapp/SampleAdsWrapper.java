@@ -19,8 +19,10 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.ImageButton;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -81,6 +83,7 @@ public class SampleAdsWrapper
   private final SampleVideoPlayer videoPlayer;
   private final Context context;
   private final ViewGroup adUiContainer;
+  private final ImageButton playButton;
 
   private String fallbackUrl;
   private Logger logger;
@@ -92,10 +95,15 @@ public class SampleAdsWrapper
    * @param videoPlayer underlying HLS video player.
    * @param adUiContainer ViewGroup in which to display the ad's UI.
    */
-  public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer, ViewGroup adUiContainer) {
+  public SampleAdsWrapper(
+      Context context,
+      SampleVideoPlayer videoPlayer,
+      ViewGroup adUiContainer,
+      ImageButton playButton) {
     this.videoPlayer = videoPlayer;
     this.context = context;
     this.adUiContainer = adUiContainer;
+    this.playButton = playButton;
     sdkFactory = ImaSdkFactory.getInstance();
     playerCallbacks = new ArrayList<>();
     createAdsLoader();
@@ -186,12 +194,14 @@ public class SampleAdsWrapper
       public void pause() {
         // Pause player.
         videoPlayer.pause();
+        playButton.setVisibility(View.VISIBLE);
       }
 
       @Override
       public void resume() {
         // Resume player.
         videoPlayer.play();
+        playButton.setVisibility(View.INVISIBLE);
       }
 
       @Override
@@ -220,7 +230,9 @@ public class SampleAdsWrapper
       @Override
       public void onAdBreakEnded() {
         // Re-enable player controls.
-        videoPlayer.enableControls(true);
+        if (videoPlayer != null) {
+          videoPlayer.enableControls(true);
+        }
         log("Ad Break Ended\n");
       }
 

@@ -57,6 +57,7 @@ public class MyActivity extends AppCompatActivity {
 
   private HashMap<String, Double> bookmarks = new HashMap<>();
   private VideoListFragment.VideoListItem videoListItem;
+  private boolean contentHasStarted = false;
 
   private CastApplication castApplication;
   private SeekBar seekBar;
@@ -164,7 +165,7 @@ public class MyActivity extends AppCompatActivity {
   public void hidePlayButton() {
     ImageButton button = (ImageButton) findViewById(R.id.playButton);
     if (button != null) {
-      button.setVisibility(View.GONE);
+      button.setVisibility(View.INVISIBLE);
     }
   }
 
@@ -200,14 +201,20 @@ public class MyActivity extends AppCompatActivity {
       new VideoFragmentListener() {
         @Override
         public void onVideoFragmentCreated(View rootView) {
+          // Boolean 'contentHasStarted' is set to false by default, but it also needs
+          // to be set to false here, in the case where multiple test cases are watched in
+          // single session.
+          contentHasStarted = false;
           PlayerView videoView = rootView.findViewById(R.id.videoView);
+          playButton = (ImageButton) rootView.findViewById(R.id.playButton);
           videoPlayer = new SampleVideoPlayer(rootView.getContext(), videoView);
           videoPlayer.enableControls(false);
           sampleAdsWrapper =
               new SampleAdsWrapper(
                   rootView.getContext(),
                   videoPlayer,
-                  (ViewGroup) rootView.findViewById(R.id.adUiContainer));
+                  (ViewGroup) rootView.findViewById(R.id.adUiContainer),
+                  playButton);
           sampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
 
           final TextView descTextView = rootView.findViewById(R.id.playerDescription);
@@ -241,12 +248,17 @@ public class MyActivity extends AppCompatActivity {
                 }
               });
 
-          playButton = (ImageButton) rootView.findViewById(R.id.playButton);
           // Set up play button listener to play video then hide play button.
           playButton.setOnClickListener(
               new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                  hidePlayButton();
+                  if (contentHasStarted) {
+                    videoPlayer.play();
+                    return;
+                  }
+                  contentHasStarted = true;
                   double bookMarkTime = 0;
                   if (bookmarks.containsKey(videoListItem.getId())) {
                     bookMarkTime = bookmarks.get(videoListItem.getId());
@@ -254,7 +266,6 @@ public class MyActivity extends AppCompatActivity {
                   videoPlayer.enableControls(true);
                   videoPlayer.setCanSeek(true);
                   sampleAdsWrapper.requestAndPlayAds(videoListItem, bookMarkTime);
-                  playButton.setVisibility(View.GONE);
                 }
               });
 

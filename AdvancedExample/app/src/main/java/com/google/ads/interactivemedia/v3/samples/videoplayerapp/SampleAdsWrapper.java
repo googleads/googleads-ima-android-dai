@@ -18,7 +18,9 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -56,6 +58,7 @@ public class SampleAdsWrapper
   private SampleVideoPlayer videoPlayer;
   private Context context;
   private ViewGroup adUiContainer;
+  private ImageButton playButton;
 
   private double bookMarkContentTime; // Bookmarked content time, in seconds.
   private double snapBackTime; // Stream time to snap back to, in seconds.
@@ -70,10 +73,15 @@ public class SampleAdsWrapper
    * @param videoPlayer underlying HLS video player.
    * @param adUiContainer ViewGroup in which to display the ad's UI.
    */
-  public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer, ViewGroup adUiContainer) {
+  public SampleAdsWrapper(
+      Context context,
+      SampleVideoPlayer videoPlayer,
+      ViewGroup adUiContainer,
+      ImageButton playButton) {
     this.videoPlayer = videoPlayer;
     this.context = context;
     this.adUiContainer = adUiContainer;
+    this.playButton = playButton;
     sdkFactory = ImaSdkFactory.getInstance();
     playerCallbacks = new ArrayList<>();
     createAdsLoader();
@@ -173,12 +181,14 @@ public class SampleAdsWrapper
       public void pause() {
         // Pause player.
         videoPlayer.pause();
+        playButton.setVisibility(View.VISIBLE);
       }
 
       @Override
       public void resume() {
         // Resume player.
         videoPlayer.play();
+        playButton.setVisibility(View.INVISIBLE);
       }
 
       @Override
@@ -208,11 +218,13 @@ public class SampleAdsWrapper
       @Override
       public void onAdBreakEnded() {
         // Re-enable player controls.
-        videoPlayer.setCanSeek(true);
-        videoPlayer.enableControls(true);
-        if (snapBackTime > 0) {
-          Log.i("IMA", "SampleAdsWrapper seeking " + snapBackTime);
-          videoPlayer.seekTo(Math.round(snapBackTime * 1000));
+        if (videoPlayer != null) {
+          videoPlayer.setCanSeek(true);
+          videoPlayer.enableControls(true);
+          if (snapBackTime > 0) {
+            Log.i("IMA", "SampleAdsWrapper seeking " + snapBackTime);
+            videoPlayer.seekTo(Math.round(snapBackTime * 1000));
+          }
         }
         snapBackTime = 0;
         log("Ad Break Ended\n");

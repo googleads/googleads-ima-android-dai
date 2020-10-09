@@ -7,5 +7,6 @@
     <string name="suggested_videos">Sample Videos</string>
     <string name="app_id">8EE292C4</string>
     <string name="media_route_menu_title">Menu</string>
+    <color name="black">#000000</color>
 
 </resources>

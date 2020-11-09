@@ -79,6 +79,12 @@ public class SampleVideoPlayer {
     playerView.setPlayer(simpleExoPlayer);
     playerView.setControlDispatcher(
         new ControlDispatcher() {
+
+          @Override
+          public boolean dispatchPrepare(Player player) {
+            return false;
+          }
+
           @Override
           public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
             player.setPlayWhenReady(playWhenReady);

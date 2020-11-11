@@ -50,7 +50,7 @@ public class SampleAdsWrapper
   }
 
   private ImaSdkFactory sdkFactory;
-  private AdsLoader adsLoader;
+  private final AdsLoader adsLoader;
   private StreamManager streamManager;
   private StreamDisplayContainer displayContainer;
   private List<VideoStreamPlayer.VideoStreamPlayerCallback> playerCallbacks;
@@ -339,10 +339,7 @@ public class SampleAdsWrapper
       videoPlayer = null;
     }
 
-    if (displayContainer != null) {
-      displayContainer.destroy();
-      displayContainer = null;
-    }
+    adsLoader.release();
 
     adsRequested = false;
   }

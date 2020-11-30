@@ -22,6 +22,7 @@ import android.os.Build;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
@@ -81,36 +83,37 @@ public class SampleVideoPlayer {
         new ControlDispatcher() {
 
           @Override
-          public boolean dispatchPrepare(Player player) {
-            return false;
-          }
-
-          @Override
           public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
             player.setPlayWhenReady(playWhenReady);
             return true;
           }
 
+          @Override
           public boolean isRewindEnabled() {
             return false;
           }
 
+          @Override
           public boolean isFastForwardEnabled() {
             return false;
           }
 
+          @Override
           public boolean dispatchFastForward(Player p) {
             return false;
           }
 
+          @Override
           public boolean dispatchRewind(Player p) {
             return false;
           }
 
+          @Override
           public boolean dispatchNext(Player p) {
             return false;
           }
 
+          @Override
           public boolean dispatchPrevious(Player p) {
             return false;
           }
@@ -153,24 +156,32 @@ public class SampleVideoPlayer {
     initPlayer();
 
     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context, USER_AGENT);
+    DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
+    mediaSourceFactory.setAdViewProvider(playerView);
+
+    // Create the MediaItem to play, specifying the content URI.
+    Uri contentUri = Uri.parse(streamUrl);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(contentUri).build();
+
     MediaSource mediaSource;
     currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
     switch (currentlyPlayingStreamType) {
       case C.TYPE_HLS:
         mediaSource =
-            new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(streamUrl));
+            new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         break;
       case C.TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
                     new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-                .createMediaSource(Uri.parse(streamUrl));
+                .createMediaSource(mediaItem);
         break;
       default:
         throw new UnsupportedOperationException("Unknown stream type.");
     }
 
-    simpleExoPlayer.prepare(mediaSource);
+    simpleExoPlayer.setMediaSource(mediaSource);
+    simpleExoPlayer.prepare();
 
     // Register for ID3 events.
     simpleExoPlayer.addMetadataOutput(

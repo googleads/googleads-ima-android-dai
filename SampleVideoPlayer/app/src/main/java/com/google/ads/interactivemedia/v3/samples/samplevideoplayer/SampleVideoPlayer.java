@@ -97,6 +97,26 @@ public class SampleVideoPlayer {
           }
 
           @Override
+          public boolean dispatchPrevious(Player player) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchNext(Player player) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchRewind(Player player) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchFastForward(Player player) {
+            return false;
+          }
+
+          @Override
           public boolean dispatchSetRepeatMode(Player player, int repeatMode) {
             return false;
           }
@@ -108,6 +128,16 @@ public class SampleVideoPlayer {
 
           @Override
           public boolean dispatchStop(Player player, boolean reset) {
+            return false;
+          }
+
+          @Override
+          public boolean isRewindEnabled() {
+            return false;
+          }
+
+          @Override
+          public boolean isFastForwardEnabled() {
             return false;
           }
         });

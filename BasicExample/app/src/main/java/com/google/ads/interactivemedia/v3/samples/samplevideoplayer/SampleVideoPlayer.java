@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -142,6 +143,12 @@ public class SampleVideoPlayer {
 
           @Override
           public boolean dispatchStop(Player player, boolean reset) {
+            return false;
+          }
+
+          @Override
+          public boolean dispatchSetPlaybackParameters(
+              Player player, PlaybackParameters playbackParameters) {
             return false;
           }
         });

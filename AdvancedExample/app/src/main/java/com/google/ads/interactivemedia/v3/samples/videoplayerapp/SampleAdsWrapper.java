@@ -253,15 +253,14 @@ public class SampleAdsWrapper
           return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
         }
         return new VideoProgressUpdate(
-            videoPlayer.getCurrentOffsetPositionMs(), videoPlayer.getDuration());
+            videoPlayer.getCurrentPositionMs(), videoPlayer.getDuration());
       }
     };
   }
 
   public double getContentTime() {
     if (streamManager != null) {
-      return streamManager.getContentTimeForStreamTime(
-          videoPlayer.getCurrentOffsetPositionMs() / 1000.0);
+      return streamManager.getContentTimeForStreamTime(videoPlayer.getCurrentPositionMs() / 1000.0);
     }
     return 0.0;
   }

@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
@@ -264,28 +263,18 @@ public class SampleVideoPlayer {
     playerCallback = callback;
   }
 
-  /** Returns current offset position of the playhead in milliseconds for DASH and HLS stream. */
-  public long getCurrentOffsetPositionMs() {
+  /** Returns current position of the playhead in milliseconds for DASH and HLS stream. */
+  public long getCurrentPositionMs() {
     Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
     if (currentTimeline.isEmpty()) {
       return simpleExoPlayer.getCurrentPosition();
     }
     Timeline.Window window = new Timeline.Window();
     simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
-    if (window.isLive && currentlyPlayingStreamType == C.TYPE_DASH) {
-      // This case is when the dash stream has a format of non-sliding window.
-      if (window.presentationStartTimeMs == C.TIME_UNSET
-          || window.windowStartTimeMs == C.TIME_UNSET) {
-        return simpleExoPlayer.getCurrentPosition();
-      }
-      return simpleExoPlayer.getCurrentPosition()
-          + window.windowStartTimeMs - window.presentationStartTimeMs;
+    if (window.isLive) {
+      return simpleExoPlayer.getCurrentPosition() + window.windowStartTimeMs;
     } else {
-      // Adjust position to be relative to start of period rather than window, to account for DVR
-      // window.
-      Timeline.Period period =
-          currentTimeline.getPeriod(simpleExoPlayer.getCurrentPeriodIndex(), new Period());
-      return simpleExoPlayer.getCurrentPosition() - period.getPositionInWindowMs();
+      return simpleExoPlayer.getCurrentPosition();
     }
   }
 

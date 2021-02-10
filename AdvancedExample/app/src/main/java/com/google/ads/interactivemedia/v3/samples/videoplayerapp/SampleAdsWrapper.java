@@ -50,7 +50,7 @@ public class SampleAdsWrapper
   }
 
   private ImaSdkFactory sdkFactory;
-  private final AdsLoader adsLoader;
+  private AdsLoader adsLoader;
   private StreamManager streamManager;
   private StreamDisplayContainer displayContainer;
   private List<VideoStreamPlayer.VideoStreamPlayerCallback> playerCallbacks;
@@ -252,6 +252,7 @@ public class SampleAdsWrapper
         if (videoPlayer == null) {
           return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
         }
+
         return new VideoProgressUpdate(
             videoPlayer.getCurrentPositionMs(), videoPlayer.getDuration());
       }

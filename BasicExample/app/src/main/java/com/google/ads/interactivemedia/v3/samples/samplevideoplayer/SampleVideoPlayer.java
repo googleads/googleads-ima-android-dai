@@ -263,8 +263,11 @@ public class SampleVideoPlayer {
     playerCallback = callback;
   }
 
-  /** Returns current position of the playhead in milliseconds for DASH and HLS stream. */
+  /** Returns current offset position of the playhead in milliseconds for DASH and HLS stream. */
   public long getCurrentPositionMs() {
+    if (simpleExoPlayer == null) {
+      return 0;
+    }
     Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
     if (currentTimeline.isEmpty()) {
       return simpleExoPlayer.getCurrentPosition();
@@ -279,6 +282,9 @@ public class SampleVideoPlayer {
   }
 
   public long getDuration() {
+    if (simpleExoPlayer == null) {
+      return 0;
+    }
     return simpleExoPlayer.getDuration();
   }
 }

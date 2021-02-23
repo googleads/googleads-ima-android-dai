@@ -25,7 +25,7 @@ DEBUG_DEPS = COMMON_DEPS + [
 ]
 
 COMPILED_DEPS = COMMON_DEPS + [
-    "//java/com/google/ads/interactivemedia/v3:sdk_lib",
+    "//java/com/google/ads/interactivemedia/v3:sdk_lib_compiled",
     "//java/com/google/android/gmscore/integ/client/ads_identifier",
 ]
 

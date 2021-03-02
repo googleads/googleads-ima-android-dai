@@ -48,7 +48,7 @@ public class VideoListFragment extends Fragment {
           null),
       new VideoListItem(
           "Live DASH Video - Tears of Steel",
-          "_lDu24IaSYaYAMEfixipNQ",
+          "PSzZMzAkSXCmlJOWDmRj8Q",
           null,
           null,
           null,

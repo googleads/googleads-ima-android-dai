@@ -15,11 +15,12 @@ COMMON_DEPS = [
 ]
 
 DEBUG_DEPS = COMMON_DEPS + [
-    "//java/com/google/ads/interactivemedia/v3:sdk_1p_lib",
+    "//java/com/google/ads/interactivemedia/v3:sdk_lib_debug",
 ]
 
 COMPILED_DEPS = COMMON_DEPS + [
-    "//java/com/google/ads/interactivemedia/v3:sdk_1p_lib",
+    "//java/com/google/ads/interactivemedia/v3:sdk_lib_compiled",
+    "//java/com/google/android/gmscore/integ/client/ads_identifier",
 ]
 
 def basic_example_package():

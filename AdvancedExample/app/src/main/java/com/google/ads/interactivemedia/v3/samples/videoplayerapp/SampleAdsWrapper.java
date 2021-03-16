@@ -107,8 +107,7 @@ public class SampleAdsWrapper
           public void onSeek(int windowIndex, long positionMs) {
             double timeToSeek = positionMs;
             if (streamManager != null) {
-              CuePoint cuePoint =
-                  streamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
+              CuePoint cuePoint = streamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
               double bookMarkStreamTime =
                   streamManager.getStreamTimeForContentTime(bookMarkContentTime);
               if (cuePoint != null
@@ -125,6 +124,34 @@ public class SampleAdsWrapper
               }
             }
             videoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
+          }
+
+          @Override
+          public void onContentComplete() {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onContentComplete();
+            }
+          }
+
+          @Override
+          public void onPause() {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onPause();
+            }
+          }
+
+          @Override
+          public void onResume() {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onResume();
+            }
+          }
+
+          @Override
+          public void onVolumeChanged(int percentage) {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onVolumeChanged(percentage);
+            }
           }
         });
     adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);

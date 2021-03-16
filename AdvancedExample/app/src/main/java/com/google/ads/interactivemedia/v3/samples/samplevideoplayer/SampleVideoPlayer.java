@@ -20,8 +20,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -40,7 +42,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.util.UUID;
 
@@ -54,10 +56,11 @@ public class SampleVideoPlayer {
   // The UUID uniquely identifying the Widevine DRM scheme.
   private static final String WIDEVINE_UUID = "edef8ba9-79d6-4ace-a3c8-27dcd51d21ed";
 
-  /** Video player callback to be called when TXXX ID3 tag is received or seeking occurs. */
-  public interface SampleVideoPlayerCallback {
-    void onUserTextReceived(String userText);
-
+  /**
+   * Video player callback interface that extends IMA's VideoStreamPlayerCallback by adding
+   * the onSeek() callback to support ad snapback.
+   */
+  public interface SampleVideoPlayerCallback extends VideoStreamPlayer.VideoStreamPlayerCallback {
     void onSeek(int windowIndex, long positionMs);
   }
 
@@ -87,64 +90,19 @@ public class SampleVideoPlayer {
     simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
     playerView.setPlayer(simpleExoPlayer);
     playerView.setControlDispatcher(
-        new ControlDispatcher() {
-          @Override
-          public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
-            player.setPlayWhenReady(playWhenReady);
-            return true;
-          }
-
-          public boolean isRewindEnabled() {
-            return false;
-          }
-
-          public boolean isFastForwardEnabled() {
-            return false;
-          }
-
-          public boolean dispatchFastForward(Player p) {
-            return false;
-          }
-
-          public boolean dispatchRewind(Player p) {
-            return false;
-          }
-
-          public boolean dispatchNext(Player p) {
-            return false;
-          }
-
-          public boolean dispatchPrevious(Player p) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
-            if (canSeek) {
-              if (playerCallback != null) {
-                playerCallback.onSeek(windowIndex, positionMs);
-              } else {
-                player.seekTo(windowIndex, positionMs);
-              }
+      new DefaultControlDispatcher() {
+        @Override
+        public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
+          if (canSeek) {
+            if (playerCallback != null) {
+              playerCallback.onSeek(windowIndex, positionMs);
+            } else {
+              player.seekTo(windowIndex, positionMs);
             }
-            return true;
           }
-
-          @Override
-          public boolean dispatchSetRepeatMode(Player player, int repeatMode) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchStop(Player player, boolean reset) {
-            return false;
-          }
-        });
+          return true;
+        }
+      });
   }
 
   public void play() {
@@ -158,22 +116,24 @@ public class SampleVideoPlayer {
     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context, USER_AGENT);
     MediaSource mediaSource;
     currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
+    Uri streamUri = Uri.parse(streamUrl);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(streamUri).build();
     switch (currentlyPlayingStreamType) {
       case C.TYPE_HLS:
-        mediaSource =
-            new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(streamUrl));
+        mediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         break;
       case C.TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
                     new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-                .createMediaSource(Uri.parse(streamUrl));
+                .createMediaSource(mediaItem);
         break;
       default:
         throw new UnsupportedOperationException("Unknown stream type.");
     }
 
-    simpleExoPlayer.prepare(mediaSource);
+    simpleExoPlayer.setMediaSource(mediaSource);
+    simpleExoPlayer.prepare();
 
     // Register for ID3 events.
     simpleExoPlayer.addMetadataOutput(
@@ -273,7 +233,7 @@ public class SampleVideoPlayer {
     }
     Timeline.Window window = new Timeline.Window();
     simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
-    if (window.isLive) {
+    if (window.isLive()) {
       return simpleExoPlayer.getCurrentPosition() + window.windowStartTimeMs;
     } else {
       return simpleExoPlayer.getCurrentPosition();
@@ -303,7 +263,8 @@ public class SampleVideoPlayer {
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(
               licenseUrl,
-              new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "SampleVideoPlayer")));
+              new DefaultHttpDataSource.Factory()
+                  .setUserAgent(Util.getUserAgent(context, "SampleVideoPlayer")));
       UUID uuid = UUID.fromString(WIDEVINE_UUID);
       drmSessionManager =
           new DefaultDrmSessionManager.Builder()

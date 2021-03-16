@@ -20,10 +20,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -48,10 +48,9 @@ public class SampleVideoPlayer {
   private static final String USER_AGENT =
       "ImaSamplePlayer (Linux;Android " + Build.VERSION.RELEASE + ") ImaSample/1.0";
 
-  /** Video player callback to be called when TXXX ID3 tag is received or seeking occurs. */
-  public interface SampleVideoPlayerCallback {
-    void onUserTextReceived(String userText);
-
+  /** Video player callback interface that extends IMA's VideoStreamPlayerCallback by adding
+   * the onSeek() callback to support ad snapback. */
+  public interface SampleVideoPlayerCallback extends VideoStreamPlayer.VideoStreamPlayerCallback {
     void onSeek(int windowIndex, long positionMs);
   }
 
@@ -80,77 +79,19 @@ public class SampleVideoPlayer {
     simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
     playerView.setPlayer(simpleExoPlayer);
     playerView.setControlDispatcher(
-        new ControlDispatcher() {
-
-          @Override
-          public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
-            player.setPlayWhenReady(playWhenReady);
-            return true;
-          }
-
-          @Override
-          public boolean isRewindEnabled() {
-            return false;
-          }
-
-          @Override
-          public boolean isFastForwardEnabled() {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchFastForward(Player p) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchRewind(Player p) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchNext(Player p) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchPrevious(Player p) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
-            if (canSeek) {
-              if (playerCallback != null) {
-                playerCallback.onSeek(windowIndex, positionMs);
-              } else {
-                player.seekTo(windowIndex, positionMs);
-              }
+      new DefaultControlDispatcher() {
+        @Override
+        public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
+          if (canSeek) {
+            if (playerCallback != null) {
+              playerCallback.onSeek(windowIndex, positionMs);
+            } else {
+              player.seekTo(windowIndex, positionMs);
             }
-            return true;
           }
-
-          @Override
-          public boolean dispatchSetRepeatMode(Player player, int repeatMode) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchStop(Player player, boolean reset) {
-            return false;
-          }
-
-          @Override
-          public boolean dispatchSetPlaybackParameters(
-              Player player, PlaybackParameters playbackParameters) {
-            return false;
-          }
-        });
+          return true;
+        }
+      });
   }
 
   public void play() {
@@ -274,7 +215,7 @@ public class SampleVideoPlayer {
     }
     Timeline.Window window = new Timeline.Window();
     simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
-    if (window.isLive) {
+    if (window.isLive()) {
       return simpleExoPlayer.getCurrentPosition() + window.windowStartTimeMs;
     } else {
       return simpleExoPlayer.getCurrentPosition();
@@ -286,5 +227,9 @@ public class SampleVideoPlayer {
       return 0;
     }
     return simpleExoPlayer.getDuration();
+  }
+
+  public void setVolume(int percentage) {
+    simpleExoPlayer.setVolume(percentage);
   }
 }

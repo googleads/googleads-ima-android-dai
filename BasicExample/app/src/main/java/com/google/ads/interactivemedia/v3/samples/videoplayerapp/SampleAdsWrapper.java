@@ -146,6 +146,34 @@ public class SampleAdsWrapper
             }
             videoPlayer.seekTo(windowIndex, newSeekPositionMs);
           }
+
+          @Override
+          public void onContentComplete() {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onContentComplete();
+            }
+          }
+
+          @Override
+          public void onPause() {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onPause();
+            }
+          }
+
+          @Override
+          public void onResume() {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onResume();
+            }
+          }
+
+          @Override
+          public void onVolumeChanged(int percentage) {
+            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+              callback.onVolumeChanged(percentage);
+            }
+          }
         });
     adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);
   }

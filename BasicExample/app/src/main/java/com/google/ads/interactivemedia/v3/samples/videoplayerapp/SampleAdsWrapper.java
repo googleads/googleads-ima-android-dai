@@ -54,8 +54,8 @@ public class SampleAdsWrapper
   private static final String TEST_HLS_VIDEO_ID = "tears-of-steel";
 
   // VOD DASH content source and video IDs.
-  private static final String TEST_DASH_CONTENT_SOURCE_ID = "2474148";
-  private static final String TEST_DASH_VIDEO_ID = "bbb-clear";
+  private static final String TEST_DASH_CONTENT_SOURCE_ID = "2559737";
+  private static final String TEST_DASH_VIDEO_ID = "tos-dash";
 
   private static final String PLAYER_TYPE = "DAISamplePlayer";
 

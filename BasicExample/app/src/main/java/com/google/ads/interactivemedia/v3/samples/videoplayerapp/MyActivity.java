@@ -127,7 +127,7 @@ public class MyActivity extends Activity {
   public void onResume() {
     super.onResume();
     if (sampleVideoPlayer != null && sampleVideoPlayer.isStreamRequested()) {
-      sampleVideoPlayer.play();
+      // Add logic to be called when coming back to the player's app.
     }
   }
 }

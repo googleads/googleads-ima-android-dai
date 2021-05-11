@@ -146,7 +146,7 @@ public class MyActivity extends AppCompatActivity {
   public void onResume() {
     super.onResume();
     if (videoPlayer != null && videoPlayer.isStreamRequested() && !videoPlayer.isPlaying()) {
-      videoPlayer.play();
+      // Add logic to be called when coming back to the player's app.
     }
 
     if (castApplication != null) {

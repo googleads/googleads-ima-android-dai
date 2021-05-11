@@ -141,7 +141,7 @@ public class SampleAdsWrapper
               CuePoint prevCuePoint =
                   streamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
               if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
-                newSeekPositionMs = prevCuePoint.getStartTimeMs();
+                newSeekPositionMs = (long) (prevCuePoint.getStartTime() * 1000);
               }
             }
             videoPlayer.seekTo(windowIndex, newSeekPositionMs);

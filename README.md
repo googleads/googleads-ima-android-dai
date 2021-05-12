@@ -1,6 +1,8 @@
 Google Ads Android IMA SDK for DAI
 --------------------------
 
+![Build status](https://github.com/googleads/googleads-ima-android/workflows/Build%20Status/badge.svg?branch=master)
+
 This project hosts samples for the [Android IMA SDK for DAI](/interactive-media-ads/docs/sdks/android/dai-quickstart/).
 
 ### Requirements

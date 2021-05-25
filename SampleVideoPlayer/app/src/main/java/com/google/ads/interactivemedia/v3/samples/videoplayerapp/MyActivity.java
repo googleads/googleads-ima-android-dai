@@ -21,8 +21,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-import com.google.android.exoplayer2.ui.PlayerView;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
 public class MyActivity extends AppCompatActivity {

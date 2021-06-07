@@ -60,8 +60,8 @@ public class SampleAdsWrapper
   private ViewGroup adUiContainer;
   private ImageButton playButton;
 
-  private double bookMarkContentTime; // Bookmarked content time, in seconds.
-  private double snapBackTime; // Stream time to snap back to, in seconds.
+  private long bookMarkContentTimeMs; // Bookmarked content time, in milliseconds.
+  private long snapBackTimeMs; // Stream time to snap back to, in milliseconds.
   private boolean adsRequested;
   private String fallbackUrl;
   private Logger logger;
@@ -105,18 +105,18 @@ public class SampleAdsWrapper
 
           @Override
           public void onSeek(int windowIndex, long positionMs) {
-            double timeToSeek = positionMs;
+            long timeToSeek = positionMs;
             if (streamManager != null) {
-              CuePoint cuePoint = streamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
-              double bookMarkStreamTime =
-                  streamManager.getStreamTimeForContentTime(bookMarkContentTime);
+              CuePoint cuePoint = streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
+              long bookMarkStreamTimeMs =
+                  streamManager.getStreamTimeMsForContentTimeMs(bookMarkContentTimeMs);
               if (cuePoint != null
                   && !cuePoint.isPlayed()
-                  && cuePoint.getEndTime() > bookMarkStreamTime) {
-                snapBackTime = timeToSeek / 1000.0; // Update snap back time.
+                  && cuePoint.getEndTimeMs() > bookMarkStreamTimeMs) {
+                snapBackTimeMs = timeToSeek; // Update snap back time.
                 // Missed cue point, so snap back to the beginning of cue point.
-                timeToSeek = cuePoint.getStartTime() * 1000;
-                Log.i("IMA", "SnapBack to " + timeToSeek);
+                timeToSeek = cuePoint.getStartTimeMs();
+                Log.i("IMA", "SnapBack to " + timeToSeek + " ms.");
                 videoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
                 videoPlayer.setCanSeek(false);
 
@@ -158,9 +158,9 @@ public class SampleAdsWrapper
   }
 
   public void requestAndPlayAds(
-      VideoListFragment.VideoListItem videoListItem, double bookMarkTime) {
+      VideoListFragment.VideoListItem videoListItem, long bookMarkTimeMs) {
 
-    bookMarkContentTime = bookMarkTime;
+    bookMarkContentTimeMs = bookMarkTimeMs;
     adsLoader.addAdErrorListener(this);
     adsLoader.addAdsLoadedListener(this);
     adsLoader.requestStream(buildStreamRequest(videoListItem));
@@ -198,9 +198,9 @@ public class SampleAdsWrapper
         videoPlayer.play();
 
         // Bookmarking
-        if (bookMarkContentTime > 0) {
-          double streamTime = streamManager.getStreamTimeForContentTime(bookMarkContentTime);
-          videoPlayer.seekTo((long) (streamTime * 1000.0)); // s to ms.
+        if (bookMarkContentTimeMs > 0) {
+          long streamTimeMs = streamManager.getStreamTimeMsForContentTimeMs(bookMarkContentTimeMs);
+          videoPlayer.seekTo(streamTimeMs);
         }
       }
 
@@ -248,12 +248,12 @@ public class SampleAdsWrapper
         if (videoPlayer != null) {
           videoPlayer.setCanSeek(true);
           videoPlayer.enableControls(true);
-          if (snapBackTime > 0) {
-            Log.i("IMA", "SampleAdsWrapper seeking " + snapBackTime);
-            videoPlayer.seekTo(Math.round(snapBackTime * 1000));
+          if (snapBackTimeMs > 0) {
+            Log.i("IMA", "SampleAdsWrapper seeking " + snapBackTimeMs + " ms.");
+            videoPlayer.seekTo(Math.round(snapBackTimeMs));
           }
         }
-        snapBackTime = 0;
+        snapBackTimeMs = 0;
         log("Ad Break Ended\n");
       }
 
@@ -286,22 +286,22 @@ public class SampleAdsWrapper
     };
   }
 
-  public double getContentTime() {
+  public long getContentTimeMs() {
     if (streamManager != null) {
-      return streamManager.getContentTimeForStreamTime(videoPlayer.getCurrentPositionMs() / 1000.0);
+      return streamManager.getContentTimeMsForStreamTimeMs(videoPlayer.getCurrentPositionMs());
     }
-    return 0.0;
+    return 0;
   }
 
-  public double getStreamTimeForContentTime(double contentTime) {
+  public long getStreamTimeMsForContentTimeMs(long contentTimeMs) {
     if (streamManager != null) {
-      return streamManager.getStreamTimeForContentTime(contentTime);
+      return streamManager.getStreamTimeMsForContentTimeMs(contentTimeMs);
     }
-    return 0.0;
+    return 0;
   }
 
-  public void setSnapBackTime(double snapBackTime) {
-    this.snapBackTime = snapBackTime;
+  public void setSnapBackTime(long snapBackTimeMs) {
+    this.snapBackTimeMs = snapBackTimeMs;
   }
 
   public boolean getAdsRequested() {

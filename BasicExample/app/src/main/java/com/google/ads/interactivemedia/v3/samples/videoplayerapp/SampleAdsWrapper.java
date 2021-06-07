@@ -46,8 +46,11 @@ import java.util.List;
 public class SampleAdsWrapper
     implements AdEvent.AdEventListener, AdErrorEvent.AdErrorListener, AdsLoader.AdsLoadedListener {
 
-  // Live stream asset key.
-  private static final String TEST_ASSET_KEY = "sN_IYUG8STe1ZzhIIE_ksA";
+  // Live HLS stream asset key.
+  private static final String TEST_HLS_ASSET_KEY = "sN_IYUG8STe1ZzhIIE_ksA";
+
+  // Live DASH stream asset key.
+  private static final String TEST_DASH_ASSET_KEY = "PSzZMzAkSXCmlJOWDmRj8Q";
 
   // VOD HLS content source and video IDs.
   private static final String TEST_HLS_CONTENT_SOURCE_ID = "2528370";
@@ -61,13 +64,13 @@ public class SampleAdsWrapper
 
   private enum ContentType {
     LIVE_HLS,
+    LIVE_DASH,
     VOD_HLS,
     VOD_DASH,
   }
 
-  // Select a LIVE HLS stream. To play a VOD HLS stream or a VOD DASH stream, set CONTENT_TYPE to
-  // the associated enum.
-  private static final ContentType CONTENT_TYPE = ContentType.LIVE_HLS;
+  // Set CONTENT_TYPE to the associated enum for the stream type you would like to test.
+  private static final ContentType CONTENT_TYPE = ContentType.VOD_HLS;
 
   /** Log interface, so we can output the log commands to the UI or similar. */
   public interface Logger {
@@ -139,9 +142,9 @@ public class SampleAdsWrapper
             long newSeekPositionMs = positionMs;
             if (streamManager != null) {
               CuePoint prevCuePoint =
-                  streamManager.getPreviousCuePointForStreamTime(positionMs / 1000);
+                  streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
               if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
-                newSeekPositionMs = (long) (prevCuePoint.getStartTime() * 1000);
+                newSeekPositionMs = prevCuePoint.getStartTimeMs();
               }
             }
             videoPlayer.seekTo(windowIndex, newSeekPositionMs);
@@ -189,7 +192,10 @@ public class SampleAdsWrapper
     switch (CONTENT_TYPE) {
       case LIVE_HLS:
         // Live HLS stream request.
-        return sdkFactory.createLiveStreamRequest(TEST_ASSET_KEY, null);
+        return sdkFactory.createLiveStreamRequest(TEST_HLS_ASSET_KEY, null);
+      case LIVE_DASH:
+        // Live DASH stream request.
+        return sdkFactory.createLiveStreamRequest(TEST_DASH_ASSET_KEY, null);
       case VOD_HLS:
         // VOD HLS request.
         request =
@@ -204,10 +210,9 @@ public class SampleAdsWrapper
                 TEST_DASH_CONTENT_SOURCE_ID, TEST_DASH_VIDEO_ID, null); // apiKey
         request.setFormat(StreamFormat.DASH);
         return request;
-      default:
-        // Content type not selected.
-        return null;
     }
+    // Content type not selected.
+    return null;
   }
 
   private VideoStreamPlayer createVideoStreamPlayer() {

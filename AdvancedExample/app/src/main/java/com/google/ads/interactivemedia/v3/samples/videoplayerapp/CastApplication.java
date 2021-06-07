@@ -39,7 +39,7 @@ public class CastApplication
   private VideoListItem videoListItem;
   private MyActivity activity;
 
-  private double position; // content time in secs.
+  private long position; // content time in milliseconds.
 
   private static final String NAMESPACE = "urn:x-cast:com.google.ads.interactivemedia.dai.cast";
   private static final String TAG = "IMA Cast Example";
@@ -101,7 +101,7 @@ public class CastApplication
             }
             if (videoListItem != null) {
               try {
-                loadMedia((long) activity.getAdsWrapper().getContentTime());
+                loadMedia(activity.getAdsWrapper().getContentTimeMs());
 
                 activity.getVideoPlayer().pause();
                 activity.hidePlayButton();
@@ -122,11 +122,11 @@ public class CastApplication
               adsWrapper.requestAndPlayAds(videoListItem, position);
               activity.hidePlayButton();
             } else {
-              double streamTime = adsWrapper.getStreamTimeForContentTime(position);
+              long streamTimeMs = adsWrapper.getStreamTimeMsForContentTimeMs(position);
               if (videoPlayer.getCanSeek()) {
-                videoPlayer.seekTo(Math.round(streamTime * 1000));
+                videoPlayer.seekTo(Math.round(streamTimeMs));
               } else {
-                adsWrapper.setSnapBackTime(streamTime);
+                adsWrapper.setSnapBackTime(streamTimeMs);
               }
               videoPlayer.play();
               activity.invalidateOptionsMenu();
@@ -237,7 +237,7 @@ public class CastApplication
     if (message.startsWith("contentTime,")) {
       String timeString = message.substring("contentTime,".length());
       try {
-        position = Double.parseDouble(timeString);
+        position = Long.parseLong(timeString) * 1000;
       } catch (NumberFormatException e) {
         Log.e(TAG, "can't parse content time" + e);
       }

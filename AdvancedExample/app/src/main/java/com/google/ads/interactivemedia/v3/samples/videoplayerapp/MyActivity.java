@@ -55,14 +55,14 @@ public class MyActivity extends AppCompatActivity {
   private SampleAdsWrapper sampleAdsWrapper;
   private ImageButton playButton;
 
-  private HashMap<String, Double> bookmarks = new HashMap<>();
+  private HashMap<String, Long> bookmarks = new HashMap<>();
   private VideoListFragment.VideoListItem videoListItem;
   private boolean contentHasStarted = false;
 
   private CastApplication castApplication;
   private SeekBar seekBar;
 
-  // Set up a default CookieManager to handle streams that requir cookies to be passed along to
+  // Set up a default CookieManager to handle streams that require cookies to be passed along to
   // subsequent requests.
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
 
@@ -146,7 +146,7 @@ public class MyActivity extends AppCompatActivity {
   public void onResume() {
     super.onResume();
     if (videoPlayer != null && videoPlayer.isStreamRequested() && !videoPlayer.isPlaying()) {
-      // Add logic to be called when coming back to the player's app.
+      videoPlayer.play();
     }
 
     if (castApplication != null) {
@@ -259,7 +259,7 @@ public class MyActivity extends AppCompatActivity {
                     return;
                   }
                   contentHasStarted = true;
-                  double bookMarkTime = 0;
+                  long bookMarkTime = 0;
                   if (bookmarks.containsKey(videoListItem.getId())) {
                     bookMarkTime = bookmarks.get(videoListItem.getId());
                   }
@@ -292,7 +292,7 @@ public class MyActivity extends AppCompatActivity {
         public void onVideoFragmentPaused() {
           // Store content time for bookmarking feature.
           if (sampleAdsWrapper != null) {
-            bookmarks.put(videoListItem.getId(), sampleAdsWrapper.getContentTime());
+            bookmarks.put(videoListItem.getId(), sampleAdsWrapper.getContentTimeMs());
           }
         }
       };

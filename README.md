@@ -1,9 +1,9 @@
-Google Ads Android IMA SDK for DAI
---------------------------
+## Google Ads Android IMA SDK for DAI
 
-![Build status](https://github.com/googleads/googleads-ima-android-dai/workflows/Build%20Status/badge.svg?branch=master)
+![Build status](//github.com/googleads/googleads-ima-android-dai/workflows/Build%20Status/badge.svg?branch=master)
 
-This project hosts samples for the [Android IMA SDK for DAI](/interactive-media-ads/docs/sdks/android/dai-quickstart/).
+This project hosts samples for the
+[Android IMA SDK for DAI](//developers.google.com/interactive-media-ads/docs/sdks/android/dai).
 
 ### Requirements
 
@@ -12,7 +12,9 @@ This project hosts samples for the [Android IMA SDK for DAI](/interactive-media-
     [Download page](//developers.google.com/interactive-media-ads/docs/sdks/android/dai/download))
 
 ### Installation Instructions
-Installation instructions can be found in our [online documentation](/interactive-media-ads/docs/sdks/android/dai-quickstart).
+
+Guides and tutorials for IMA Android DAI can be found in our
+[online documentation](//developers.google.com/interactive-media-ads/docs/sdks/android/dai).
 
 ### Downloads
 
@@ -21,10 +23,14 @@ Check out the
 for downloadable zips of the source.
 
 ### More Info
-For more information, see the [get started guide](/interactive-media-ads/docs/sdks/android/dai-quickstart).
+
+For more information, see the
+[get started guide](//developers.google.com/interactive-media-ads/docs/sdks/android/dai).
 
 ### Announcements and Updates
-For API and client library updates and news, please follow our [Google+ Ads Developers page](//plus.google.com/+GoogleAdsDevelopers/posts) and our [Google Ads Developers blog](//ads-developers.googleblog.com)
+
+For API and client library updates and news, please follow our
+[Google Ads Developers blog](//ads-developers.googleblog.com)
 
 Copyright 2018 Google LLC
 

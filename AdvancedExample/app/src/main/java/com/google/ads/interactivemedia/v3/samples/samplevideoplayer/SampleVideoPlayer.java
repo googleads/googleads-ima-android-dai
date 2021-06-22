@@ -57,8 +57,8 @@ public class SampleVideoPlayer {
   private static final String WIDEVINE_UUID = "edef8ba9-79d6-4ace-a3c8-27dcd51d21ed";
 
   /**
-   * Video player callback interface that extends IMA's VideoStreamPlayerCallback by adding
-   * the onSeek() callback to support ad snapback.
+   * Video player callback interface that extends IMA's VideoStreamPlayerCallback by adding the
+   * onSeek() callback to support ad snapback.
    */
   public interface SampleVideoPlayerCallback extends VideoStreamPlayer.VideoStreamPlayerCallback {
     void onSeek(int windowIndex, long positionMs);
@@ -90,19 +90,19 @@ public class SampleVideoPlayer {
     simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
     playerView.setPlayer(simpleExoPlayer);
     playerView.setControlDispatcher(
-      new DefaultControlDispatcher() {
-        @Override
-        public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
-          if (canSeek) {
-            if (playerCallback != null) {
-              playerCallback.onSeek(windowIndex, positionMs);
-            } else {
-              player.seekTo(windowIndex, positionMs);
+        new DefaultControlDispatcher() {
+          @Override
+          public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
+            if (canSeek) {
+              if (playerCallback != null) {
+                playerCallback.onSeek(windowIndex, positionMs);
+              } else {
+                player.seekTo(windowIndex, positionMs);
+              }
             }
+            return true;
           }
-          return true;
-        }
-      });
+        });
   }
 
   public void play() {

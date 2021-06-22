@@ -125,8 +125,7 @@ public class SampleAdsWrapper
     settings.setPlayerType(PLAYER_TYPE);
     enableWebViewDebugging();
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-    displayContainer =
-        ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
+    displayContainer = ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
     videoPlayer.setSampleVideoPlayerCallback(
         new SampleVideoPlayerCallback() {
           @Override
@@ -141,8 +140,7 @@ public class SampleAdsWrapper
             // See if we would seek past an ad, and if so, jump back to it.
             long newSeekPositionMs = positionMs;
             if (streamManager != null) {
-              CuePoint prevCuePoint =
-                  streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
+              CuePoint prevCuePoint = streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
               if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
                 newSeekPositionMs = prevCuePoint.getStartTimeMs();
               }

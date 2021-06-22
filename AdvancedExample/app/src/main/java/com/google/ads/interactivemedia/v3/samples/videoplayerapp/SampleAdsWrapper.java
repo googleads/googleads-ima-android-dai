@@ -92,8 +92,7 @@ public class SampleAdsWrapper
     // Change any settings as necessary here.
     settings.setPlayerType(PLAYER_TYPE);
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-    displayContainer =
-        ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
+    displayContainer = ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
     videoPlayer.setSampleVideoPlayerCallback(
         new SampleVideoPlayer.SampleVideoPlayerCallback() {
           @Override

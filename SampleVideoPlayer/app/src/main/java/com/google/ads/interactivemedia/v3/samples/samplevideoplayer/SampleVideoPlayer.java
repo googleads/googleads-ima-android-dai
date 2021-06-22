@@ -79,19 +79,19 @@ public class SampleVideoPlayer {
     simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
     playerView.setPlayer(simpleExoPlayer);
     playerView.setControlDispatcher(
-      new DefaultControlDispatcher() {
-        @Override
-        public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
-          if (canSeek) {
-            if (playerCallback != null) {
-              playerCallback.onSeek(windowIndex, positionMs);
-            } else {
-              player.seekTo(windowIndex, positionMs);
+        new DefaultControlDispatcher() {
+          @Override
+          public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
+            if (canSeek) {
+              if (playerCallback != null) {
+                playerCallback.onSeek(windowIndex, positionMs);
+              } else {
+                player.seekTo(windowIndex, positionMs);
+              }
             }
+            return true;
           }
-          return true;
-        }
-      });
+        });
   }
 
   public void play() {

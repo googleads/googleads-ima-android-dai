@@ -52,10 +52,7 @@ public class MyActivity extends Activity {
     playButton = (ImageButton) rootView.findViewById(R.id.playButton);
     final SampleAdsWrapper sampleAdsWrapper =
         new SampleAdsWrapper(
-            this,
-            sampleVideoPlayer,
-            (ViewGroup) rootView.findViewById(R.id.adUiContainer),
-            playButton);
+            this, sampleVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
     sampleAdsWrapper.setFallbackUrl(DEFAULT_STREAM_URL);
 
     final ScrollView scrollView = (ScrollView) findViewById(R.id.logScroll);

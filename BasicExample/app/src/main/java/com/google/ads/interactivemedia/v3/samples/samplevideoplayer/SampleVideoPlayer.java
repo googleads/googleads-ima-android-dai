@@ -100,6 +100,9 @@ public class SampleVideoPlayer {
     if (streamRequested) {
       // Stream requested, just resume.
       simpleExoPlayer.setPlayWhenReady(true);
+      if (playerCallback != null) {
+        playerCallback.onResume();
+      }
       return;
     }
     initPlayer();
@@ -164,6 +167,9 @@ public class SampleVideoPlayer {
 
   public void pause() {
     simpleExoPlayer.setPlayWhenReady(false);
+    if (playerCallback != null) {
+      playerCallback.onPause();
+    }
   }
 
   public void seekTo(long positionMs) {

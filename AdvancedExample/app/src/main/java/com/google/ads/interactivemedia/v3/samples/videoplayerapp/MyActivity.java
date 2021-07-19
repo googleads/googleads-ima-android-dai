@@ -213,8 +213,7 @@ public class MyActivity extends AppCompatActivity {
               new SampleAdsWrapper(
                   rootView.getContext(),
                   videoPlayer,
-                  (ViewGroup) rootView.findViewById(R.id.adUiContainer),
-                  playButton);
+                  (ViewGroup) rootView.findViewById(R.id.adUiContainer));
           sampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
 
           final TextView descTextView = rootView.findViewById(R.id.playerDescription);

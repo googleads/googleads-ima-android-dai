@@ -18,9 +18,7 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -58,7 +56,6 @@ public class SampleAdsWrapper
   private SampleVideoPlayer videoPlayer;
   private Context context;
   private ViewGroup adUiContainer;
-  private ImageButton playButton;
 
   private long bookMarkContentTimeMs; // Bookmarked content time, in milliseconds.
   private long snapBackTimeMs; // Stream time to snap back to, in milliseconds.
@@ -73,15 +70,10 @@ public class SampleAdsWrapper
    * @param videoPlayer underlying HLS video player.
    * @param adUiContainer ViewGroup in which to display the ad's UI.
    */
-  public SampleAdsWrapper(
-      Context context,
-      SampleVideoPlayer videoPlayer,
-      ViewGroup adUiContainer,
-      ImageButton playButton) {
+  public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer, ViewGroup adUiContainer) {
     this.videoPlayer = videoPlayer;
     this.context = context;
     this.adUiContainer = adUiContainer;
-    this.playButton = playButton;
     sdkFactory = ImaSdkFactory.getInstance();
     playerCallbacks = new ArrayList<>();
     createAdsLoader();
@@ -207,14 +199,12 @@ public class SampleAdsWrapper
       public void pause() {
         // Pause player.
         videoPlayer.pause();
-        playButton.setVisibility(View.VISIBLE);
       }
 
       @Override
       public void resume() {
         // Resume player.
         videoPlayer.play();
-        playButton.setVisibility(View.INVISIBLE);
       }
 
       @Override

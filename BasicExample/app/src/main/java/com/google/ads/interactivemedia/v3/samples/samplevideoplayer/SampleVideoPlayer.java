@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -77,7 +78,7 @@ public class SampleVideoPlayer {
   private void initPlayer() {
     release();
 
-    simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
+    simpleExoPlayer = new ExoPlayer.Builder(context).build();
     playerView.setPlayer(simpleExoPlayer);
     playerView.setControlDispatcher(
         new DefaultControlDispatcher() {

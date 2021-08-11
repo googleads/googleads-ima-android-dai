@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -135,8 +134,8 @@ public class SampleVideoPlayer {
     simpleExoPlayer.prepare();
 
     // Register for ID3 events.
-    simpleExoPlayer.addMetadataOutput(
-        new MetadataOutput() {
+    simpleExoPlayer.addListener(
+        new Player.Listener() {
           @Override
           public void onMetadata(Metadata metadata) {
             for (int i = 0; i < metadata.length(); i++) {

@@ -22,7 +22,7 @@ import android.os.Build;
 import android.util.Log;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -78,19 +78,32 @@ public class SampleVideoPlayer {
     release();
 
     simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
-    playerView.setPlayer(simpleExoPlayer);
-    playerView.setControlDispatcher(
-        new DefaultControlDispatcher() {
+    playerView.setPlayer(
+        new ForwardingPlayer(simpleExoPlayer) {
           @Override
-          public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
+          public void seekToDefaultPosition() {
+            seekToDefaultPosition(getCurrentWindowIndex());
+          }
+
+          @Override
+          public void seekToDefaultPosition(int windowIndex) {
+            seekTo(windowIndex, /* positionMs= */ C.TIME_UNSET);
+          }
+
+          @Override
+          public void seekTo(long positionMs) {
+            seekTo(getCurrentWindowIndex(), positionMs);
+          }
+
+          @Override
+          public void seekTo(int windowIndex, long positionMs) {
             if (canSeek) {
               if (playerCallback != null) {
                 playerCallback.onSeek(windowIndex, positionMs);
               } else {
-                player.seekTo(windowIndex, positionMs);
+                super.seekTo(windowIndex, positionMs);
               }
             }
-            return true;
           }
         });
   }

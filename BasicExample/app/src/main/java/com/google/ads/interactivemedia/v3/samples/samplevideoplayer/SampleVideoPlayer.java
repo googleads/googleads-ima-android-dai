@@ -22,6 +22,7 @@ import android.os.Build;
 import android.util.Log;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -77,7 +78,7 @@ public class SampleVideoPlayer {
   private void initPlayer() {
     release();
 
-    simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
+    simpleExoPlayer = new ExoPlayer.Builder(context).build();
     playerView.setPlayer(
         new ForwardingPlayer(simpleExoPlayer) {
           @Override

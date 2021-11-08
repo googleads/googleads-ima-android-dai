@@ -23,6 +23,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -101,6 +102,17 @@ public class MyActivity extends AppCompatActivity {
     CastButtonFactory.setUpMediaRouteButton(
         getApplicationContext(), menu, R.id.media_route_menu_item);
     return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    if (id == R.id.action_settings) {
+      SampleVideoPlayer player = getVideoPlayer();
+      player.enableClosedCaptioning();
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
   }
 
   @Override

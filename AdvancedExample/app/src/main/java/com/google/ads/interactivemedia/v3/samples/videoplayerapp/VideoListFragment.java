@@ -40,7 +40,7 @@ public class VideoListFragment extends Fragment {
     return new VideoListItem[] {
       new VideoListItem(
           "Live HLS Video - Big Buck Bunny",
-          "sN_IYUG8STe1ZzhIIE_ksA",
+          "slDkEpYpQCGczGfRXCrE9w",
           null,
           null,
           null,

@@ -35,9 +35,14 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -76,6 +81,8 @@ public class SampleVideoPlayer {
   private boolean canSeek;
   private String licenseUrl;
 
+  private DefaultTrackSelector mTrackSelector;
+
   public SampleVideoPlayer(Context context, PlayerView playerView) {
     this.context = context;
     this.playerView = playerView;
@@ -83,10 +90,30 @@ public class SampleVideoPlayer {
     canSeek = true;
   }
 
+  public void enableClosedCaptioning() {
+    MappingTrackSelector.MappedTrackInfo trackInfo = mTrackSelector.getCurrentMappedTrackInfo();
+    if (trackInfo == null) {
+      return;
+    }
+    for (int rendererIndex = 0; rendererIndex < trackInfo.getRendererCount(); rendererIndex++) {
+      int rendererType = trackInfo.getRendererType(rendererIndex);
+      TrackGroupArray trackGroups = trackInfo.getTrackGroups(rendererIndex);
+      if (trackGroups.length == 0) {
+        // The length of the trackGroups for "rendererType" 3 (C.TRACK_TYPE_TEXT)
+        // is "0" in our Horseshoe app
+      } else if (rendererType == C.TRACK_TYPE_TEXT) {
+        mTrackSelector.setParameters(mTrackSelector
+                .getParameters().buildUpon().setSelectUndeterminedTextLanguage(true).build());
+      }
+    }
+  }
+
   private void initPlayer() {
     release();
 
-    simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
+    ExoTrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
+    mTrackSelector = new DefaultTrackSelector(context, videoTrackSelectionFactory);
+    simpleExoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(mTrackSelector).build();
     playerView.setPlayer(
         new ForwardingPlayer(simpleExoPlayer) {
           @Override

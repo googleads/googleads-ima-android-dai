@@ -70,10 +70,6 @@
               android:layout_height="wrap_content"
               android:visibility="gone"
               android:orientation="vertical" >
-                <SeekBar
-                  android:id="@+id/cast_seekbar"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content" />
                 <RelativeLayout
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"

@@ -16,7 +16,6 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
-import android.app.UiModeManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -27,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -35,7 +33,6 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.gms.cast.framework.CastButtonFactory;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -58,9 +55,6 @@ public class MyActivity extends AppCompatActivity {
   private HashMap<String, Long> bookmarks = new HashMap<>();
   private VideoListFragment.VideoListItem videoListItem;
   private boolean contentHasStarted = false;
-
-  private CastApplication castApplication;
-  private SeekBar seekBar;
 
   // Set up a default CookieManager to handle streams that require cookies to be passed along to
   // subsequent requests.
@@ -86,20 +80,12 @@ public class MyActivity extends AppCompatActivity {
         .add(R.id.video_example_container, videoListFragment, PLAYLIST_FRAGMENT_TAG)
         .commit();
     videoListFragment.setOnVideoSelectedListener(mVideoSelectedListener);
-
-    UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
-    if (uiModeManager.getCurrentModeType() != Configuration.UI_MODE_TYPE_TELEVISION) {
-      // Only create a cast application on devices that support cast.
-      castApplication = new CastApplication(this);
-    }
   }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
     getMenuInflater().inflate(R.menu.menu_main, menu);
-    CastButtonFactory.setUpMediaRouteButton(
-        getApplicationContext(), menu, R.id.media_route_menu_item);
     return true;
   }
 
@@ -136,10 +122,6 @@ public class MyActivity extends AppCompatActivity {
     if (videoPlayer != null && videoPlayer.isPlaying()) {
       videoPlayer.pause();
     }
-
-    if (castApplication != null) {
-      castApplication.onPause();
-    }
   }
 
   @Override
@@ -148,18 +130,6 @@ public class MyActivity extends AppCompatActivity {
     if (videoPlayer != null && videoPlayer.isStreamRequested() && !videoPlayer.isPlaying()) {
       videoPlayer.play();
     }
-
-    if (castApplication != null) {
-      castApplication.onResume();
-    }
-  }
-
-  public SampleVideoPlayer getVideoPlayer() {
-    return videoPlayer;
-  }
-
-  public SampleAdsWrapper getAdsWrapper() {
-    return sampleAdsWrapper;
   }
 
   public void hidePlayButton() {
@@ -167,10 +137,6 @@ public class MyActivity extends AppCompatActivity {
     if (button != null) {
       button.setVisibility(View.INVISIBLE);
     }
-  }
-
-  public SeekBar getSeekBar() {
-    return seekBar;
   }
 
   private final VideoListFragment.OnVideoSelectedListener mVideoSelectedListener =
@@ -190,10 +156,6 @@ public class MyActivity extends AppCompatActivity {
               .commit();
           videoFragment.setVideoFragmentListener(mVideoFragmentListener);
           videoListItem = videoItem;
-
-          if (castApplication != null) {
-            castApplication.setVideoListItem(videoListItem);
-          }
         }
       };
 
@@ -269,22 +231,13 @@ public class MyActivity extends AppCompatActivity {
               });
 
           orientVideoDescription(getResources().getConfiguration().orientation);
-          seekBar = (SeekBar) rootView.findViewById(R.id.cast_seekbar);
-
-          if (castApplication != null) {
-            castApplication.autoplayOnCast();
-          }
         }
 
         @Override
         public void onVideoFragmentDestroyed() {
-          if (castApplication != null) {
-            castApplication.setVideoListItem(null);
-          }
           sampleAdsWrapper.release();
           sampleAdsWrapper = null;
           videoPlayer = null;
-          seekBar = null;
         }
 
         @Override

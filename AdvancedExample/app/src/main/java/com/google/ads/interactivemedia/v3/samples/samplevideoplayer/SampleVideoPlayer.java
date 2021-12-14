@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.LegacyPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -66,7 +66,7 @@ public class SampleVideoPlayer {
   private final Context context;
 
   private SimpleExoPlayer simpleExoPlayer;
-  private final PlayerView playerView;
+  private final LegacyPlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
   @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
@@ -76,7 +76,7 @@ public class SampleVideoPlayer {
   private boolean canSeek;
   private String licenseUrl;
 
-  public SampleVideoPlayer(Context context, PlayerView playerView) {
+  public SampleVideoPlayer(Context context, LegacyPlayerView playerView) {
     this.context = context;
     this.playerView = playerView;
     streamRequested = false;

@@ -26,7 +26,7 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.LegacyPlayerView;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
 public class MyActivity extends Activity {
@@ -47,7 +47,7 @@ public class MyActivity extends Activity {
     View rootView = findViewById(R.id.videoLayout);
     sampleVideoPlayer =
         new SampleVideoPlayer(
-            rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
+            rootView.getContext(), (LegacyPlayerView) rootView.findViewById(R.id.playerView));
     sampleVideoPlayer.enableControls(false);
     playButton = (ImageButton) rootView.findViewById(R.id.playButton);
     final SampleAdsWrapper sampleAdsWrapper =

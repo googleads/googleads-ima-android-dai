@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="16:9">
-            <com.google.android.exoplayer2.ui.PlayerView
+            <com.google.android.exoplayer2.ui.LegacyPlayerView
                 android:id="@+id/videoView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

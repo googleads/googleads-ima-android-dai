@@ -22,7 +22,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.LegacyPlayerView;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
 public class MyActivity extends AppCompatActivity {
@@ -41,7 +41,7 @@ public class MyActivity extends AppCompatActivity {
     View rootView = findViewById(R.id.videoLayout);
     sampleVideoPlayer =
         new SampleVideoPlayer(
-            rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
+            rootView.getContext(), (LegacyPlayerView) rootView.findViewById(R.id.playerView));
     sampleVideoPlayer.enableControls(false);
     sampleVideoPlayer.setStreamUrl(DEFAULT_STREAM_URL);
 

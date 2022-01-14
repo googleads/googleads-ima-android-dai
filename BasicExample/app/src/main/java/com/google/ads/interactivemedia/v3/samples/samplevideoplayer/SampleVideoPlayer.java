@@ -18,14 +18,13 @@ package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
@@ -35,17 +34,15 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 /** A video player that plays HLS or DASH streams using ExoPlayer. */
 public class SampleVideoPlayer {
 
   private static final String LOG_TAG = "SampleVideoPlayer";
-  private static final String USER_AGENT =
-      "ImaSamplePlayer (Linux;Android " + Build.VERSION.RELEASE + ") ImaSample/1.0";
 
   /**
    * Video player callback interface that extends IMA's VideoStreamPlayerCallback by adding the
@@ -57,8 +54,8 @@ public class SampleVideoPlayer {
 
   private final Context context;
 
-  private SimpleExoPlayer simpleExoPlayer;
-  private final PlayerView playerView;
+  private ExoPlayer player;
+  private final StyledPlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
   @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
@@ -67,7 +64,7 @@ public class SampleVideoPlayer {
   private Boolean streamRequested;
   private boolean canSeek;
 
-  public SampleVideoPlayer(Context context, PlayerView playerView) {
+  public SampleVideoPlayer(Context context, StyledPlayerView playerView) {
     this.context = context;
     this.playerView = playerView;
     streamRequested = false;
@@ -77,12 +74,12 @@ public class SampleVideoPlayer {
   private void initPlayer() {
     release();
 
-    simpleExoPlayer = new SimpleExoPlayer.Builder(context).build();
+    player = new ExoPlayer.Builder(context).build();
     playerView.setPlayer(
-        new ForwardingPlayer(simpleExoPlayer) {
+        new ForwardingPlayer(player) {
           @Override
           public void seekToDefaultPosition() {
-            seekToDefaultPosition(getCurrentWindowIndex());
+            seekToDefaultPosition(getCurrentMediaItemIndex());
           }
 
           @Override
@@ -92,7 +89,7 @@ public class SampleVideoPlayer {
 
           @Override
           public void seekTo(long positionMs) {
-            seekTo(getCurrentWindowIndex(), positionMs);
+            seekTo(getCurrentMediaItemIndex(), positionMs);
           }
 
           @Override
@@ -111,7 +108,7 @@ public class SampleVideoPlayer {
   public void play() {
     if (streamRequested) {
       // Stream requested, just resume.
-      simpleExoPlayer.setPlayWhenReady(true);
+      player.setPlayWhenReady(true);
       if (playerCallback != null) {
         playerCallback.onResume();
       }
@@ -119,7 +116,7 @@ public class SampleVideoPlayer {
     }
     initPlayer();
 
-    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context, USER_AGENT);
+    DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
     DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
     mediaSourceFactory.setAdViewProvider(playerView);
 
@@ -143,11 +140,11 @@ public class SampleVideoPlayer {
         throw new UnsupportedOperationException("Unknown stream type.");
     }
 
-    simpleExoPlayer.setMediaSource(mediaSource);
-    simpleExoPlayer.prepare();
+    player.setMediaSource(mediaSource);
+    player.prepare();
 
     // Register for ID3 events.
-    simpleExoPlayer.addListener(
+    player.addListener(
         new Player.Listener() {
           @Override
           public void onMetadata(Metadata metadata) {
@@ -173,29 +170,29 @@ public class SampleVideoPlayer {
           }
         });
 
-    simpleExoPlayer.setPlayWhenReady(true);
+    player.setPlayWhenReady(true);
     streamRequested = true;
   }
 
   public void pause() {
-    simpleExoPlayer.setPlayWhenReady(false);
+    player.setPlayWhenReady(false);
     if (playerCallback != null) {
       playerCallback.onPause();
     }
   }
 
   public void seekTo(long positionMs) {
-    simpleExoPlayer.seekTo(positionMs);
+    player.seekTo(positionMs);
   }
 
   public void seekTo(int windowIndex, long positionMs) {
-    simpleExoPlayer.seekTo(windowIndex, positionMs);
+    player.seekTo(windowIndex, positionMs);
   }
 
   private void release() {
-    if (simpleExoPlayer != null) {
-      simpleExoPlayer.release();
-      simpleExoPlayer = null;
+    if (player != null) {
+      player.release();
+      player = null;
       streamRequested = false;
     }
   }
@@ -225,30 +222,30 @@ public class SampleVideoPlayer {
 
   /** Returns current offset position of the playhead in milliseconds for DASH and HLS stream. */
   public long getCurrentPositionMs() {
-    if (simpleExoPlayer == null) {
+    if (player == null) {
       return 0;
     }
-    Timeline currentTimeline = simpleExoPlayer.getCurrentTimeline();
+    Timeline currentTimeline = player.getCurrentTimeline();
     if (currentTimeline.isEmpty()) {
-      return simpleExoPlayer.getCurrentPosition();
+      return player.getCurrentPosition();
     }
     Timeline.Window window = new Timeline.Window();
-    simpleExoPlayer.getCurrentTimeline().getWindow(simpleExoPlayer.getCurrentWindowIndex(), window);
+    player.getCurrentTimeline().getWindow(player.getCurrentMediaItemIndex(), window);
     if (window.isLive()) {
-      return simpleExoPlayer.getCurrentPosition() + window.windowStartTimeMs;
+      return player.getCurrentPosition() + window.windowStartTimeMs;
     } else {
-      return simpleExoPlayer.getCurrentPosition();
+      return player.getCurrentPosition();
     }
   }
 
   public long getDuration() {
-    if (simpleExoPlayer == null) {
+    if (player == null) {
       return 0;
     }
-    return simpleExoPlayer.getDuration();
+    return player.getDuration();
   }
 
   public void setVolume(int percentage) {
-    simpleExoPlayer.setVolume(percentage);
+    player.setVolume(percentage);
   }
 }

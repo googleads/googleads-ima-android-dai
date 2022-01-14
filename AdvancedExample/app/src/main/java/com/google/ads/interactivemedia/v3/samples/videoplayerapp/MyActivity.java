@@ -249,7 +249,7 @@ public class MyActivity extends AppCompatActivity {
         }
       };
 
-  /** Interface for Activity to respond to Fragment lifecyle events. */
+  /** Interface for Activity to respond to Fragment lifecycle events. */
   public interface VideoFragmentListener {
     void onVideoFragmentCreated(View rootView);
 

@@ -55,7 +55,13 @@ public class VideoListFragment extends Fragment {
           StreamFormat.DASH,
           null),
       new VideoListItem(
-          "VOD - Tears of Steel", null, null, "2528370", "tears-of-steel", StreamFormat.HLS, null),
+          "VOD - HLS - Tears of Steel",
+          null,
+          null,
+          "2528370",
+          "tears-of-steel",
+          StreamFormat.HLS,
+          null),
       new VideoListItem("VOD - DASH", null, null, "2559737", "tos-dash", StreamFormat.DASH, null),
       new VideoListItem(
           "BBB-widevine",

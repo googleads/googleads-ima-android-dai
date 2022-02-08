@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Build;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import androidx.annotation.Nullable;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -177,6 +178,7 @@ public class SampleAdsWrapper
     adsLoader.requestStream(buildStreamRequest());
   }
 
+  @Nullable
   private StreamRequest buildStreamRequest() {
     StreamRequest request;
     switch (CONTENT_TYPE) {

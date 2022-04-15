@@ -46,13 +46,13 @@ public class SampleAdsWrapper
     implements AdEvent.AdEventListener, AdErrorEvent.AdErrorListener, AdsLoader.AdsLoadedListener {
 
   // Live HLS stream asset key.
-  private static final String TEST_HLS_ASSET_KEY = "sN_IYUG8STe1ZzhIIE_ksA";
+  private static final String TEST_HLS_ASSET_KEY = "c-rArva4ShKVIAkNfy6HUQ";
 
   // Live DASH stream asset key.
   private static final String TEST_DASH_ASSET_KEY = "PSzZMzAkSXCmlJOWDmRj8Q";
 
   // VOD HLS content source and video IDs.
-  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2528370";
+  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2548831";
   private static final String TEST_HLS_VIDEO_ID = "tears-of-steel";
 
   // VOD DASH content source and video IDs.

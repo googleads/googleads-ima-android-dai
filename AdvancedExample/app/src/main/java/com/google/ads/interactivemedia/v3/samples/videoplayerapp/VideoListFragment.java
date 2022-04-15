@@ -40,7 +40,7 @@ public class VideoListFragment extends Fragment {
     return new VideoListItem[] {
       new VideoListItem(
           "Live HLS Video - Big Buck Bunny",
-          "sN_IYUG8STe1ZzhIIE_ksA",
+          "c-rArva4ShKVIAkNfy6HUQ",
           null,
           null,
           null,
@@ -58,7 +58,7 @@ public class VideoListFragment extends Fragment {
           "VOD - HLS - Tears of Steel",
           null,
           null,
-          "2528370",
+          "2548831",
           "tears-of-steel",
           StreamFormat.HLS,
           null),

@@ -20,6 +20,7 @@ jobs:
         regex:
         - "AdvancedExample"
         - "BasicExample"
+        - "ExoPlayerExample"
         - "SampleVideoPlayer"
     steps:
       - name: Set up JDK 11

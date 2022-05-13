@@ -4,29 +4,32 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionMediaSource;
+import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.util.EventLogger;
+import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.ext.ima.ImaServerSideAdInsertionMediaSource;
-import com.google.android.exoplayer2.ext.ima.ImaServerSideAdInsertionUriBuilder;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.util.EventLogger;
-import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
 /** Main Activity. */
+@OptIn(markerClass = UnstableApi.class)
 public class MyActivity extends Activity {
 
   private static final String KEY_ADS_LOADER_STATE = "ads_loader_state";
 
-  private StyledPlayerView playerView;
+  private PlayerView playerView;
   private ExoPlayer player;
   private ImaServerSideAdInsertionMediaSource.AdsLoader adsLoader;
   private ImaServerSideAdInsertionMediaSource.AdsLoader.State adsLoaderState;

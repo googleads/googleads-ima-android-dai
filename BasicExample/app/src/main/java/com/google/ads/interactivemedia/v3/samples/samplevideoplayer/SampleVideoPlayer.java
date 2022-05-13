@@ -19,27 +19,30 @@ package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import androidx.annotation.OptIn;
+import androidx.media3.common.C;
+import androidx.media3.common.ForwardingPlayer;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Metadata;
+import androidx.media3.common.Player;
+import androidx.media3.common.Timeline;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.dash.DashMediaSource;
+import androidx.media3.exoplayer.dash.DefaultDashChunkSource;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.extractor.metadata.emsg.EventMessage;
+import androidx.media3.extractor.metadata.id3.TextInformationFrame;
+import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ForwardingPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.emsg.EventMessage;
-import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.util.Util;
 
 /** A video player that plays HLS or DASH streams using ExoPlayer. */
+@OptIn(markerClass = UnstableApi.class)
 public class SampleVideoPlayer {
 
   private static final String LOG_TAG = "SampleVideoPlayer";
@@ -55,7 +58,7 @@ public class SampleVideoPlayer {
   private final Context context;
 
   private ExoPlayer player;
-  private final StyledPlayerView playerView;
+  private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
   @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
@@ -64,7 +67,7 @@ public class SampleVideoPlayer {
   private Boolean streamRequested;
   private boolean canSeek;
 
-  public SampleVideoPlayer(Context context, StyledPlayerView playerView) {
+  public SampleVideoPlayer(Context context, PlayerView playerView) {
     this.context = context;
     this.playerView = playerView;
     streamRequested = false;

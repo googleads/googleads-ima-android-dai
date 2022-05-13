@@ -32,7 +32,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -167,9 +166,9 @@ public class MyActivity extends AppCompatActivity {
           // to be set to false here, in the case where multiple test cases are watched in
           // single session.
           contentHasStarted = false;
-          StyledPlayerView videoView = rootView.findViewById(R.id.videoView);
           playButton = (ImageButton) rootView.findViewById(R.id.playButton);
-          videoPlayer = new SampleVideoPlayer(rootView.getContext(), videoView);
+          videoPlayer =
+              new SampleVideoPlayer(rootView.getContext(), rootView.findViewById(R.id.videoView));
           videoPlayer.enableControls(false);
           sampleAdsWrapper =
               new SampleAdsWrapper(

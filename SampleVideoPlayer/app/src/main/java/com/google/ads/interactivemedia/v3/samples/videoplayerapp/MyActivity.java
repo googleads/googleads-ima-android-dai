@@ -20,11 +20,14 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
+@OptIn(markerClass = UnstableApi.class)
 public class MyActivity extends AppCompatActivity {
 
   private static final String DEFAULT_STREAM_URL =
@@ -41,7 +44,7 @@ public class MyActivity extends AppCompatActivity {
     View rootView = findViewById(R.id.videoLayout);
     sampleVideoPlayer =
         new SampleVideoPlayer(
-            rootView.getContext(), (StyledPlayerView) rootView.findViewById(R.id.playerView));
+            rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
     sampleVideoPlayer.enableControls(false);
     sampleVideoPlayer.setStreamUrl(DEFAULT_STREAM_URL);
 

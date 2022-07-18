@@ -29,7 +29,7 @@ For more information, see the
 
 ### Announcements and Updates
 
-For API and client library updates and news, please follow our
+For API and client library updates and news, follow our
 [Google Ads Developers blog](//ads-developers.googleblog.com)
 
 Copyright 2018 Google LLC

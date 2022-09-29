@@ -11,23 +11,19 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionMediaSource;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
-import androidx.media3.exoplayer.util.EventLogger;
 import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 
 /** Main Activity. */
 @OptIn(markerClass = UnstableApi.class)
 public class MyActivity extends Activity {
 
   private static final String KEY_ADS_LOADER_STATE = "ads_loader_state";
+  private static final String SAMPLE_ASSET_KEY = "c-rArva4ShKVIAkNfy6HUQ";
 
   private PlayerView playerView;
   private ExoPlayer player;
@@ -106,32 +102,33 @@ public class MyActivity extends Activity {
   }
 
   private void releasePlayer() {
-    adsLoader.setPlayer(null);
+    // Set the player references to null and release the player's resources.
     playerView.setPlayer(null);
-    adsLoaderState = adsLoader.release();
     player.release();
     player = null;
+
+    // Release the adsLoader state so that it can be initiated again.
+    adsLoaderState = adsLoader.release();
   }
 
-  private void initializePlayer() {
-    CookieManager cookieManager = new CookieManager();
-    cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
-    CookieHandler.setDefault(cookieManager);
-    DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory();
-
-    // Set up the factory for media sources, passing the ads loader and ad view providers.
-    DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
-
-    // Create an SSAI AdsLoader.
+  // Create a server side ad insertion (SSAI) AdsLoader.
+  private ImaServerSideAdInsertionMediaSource.AdsLoader createAdsLoader() {
     ImaServerSideAdInsertionMediaSource.AdsLoader.Builder adsLoaderBuilder =
-        new ImaServerSideAdInsertionMediaSource.AdsLoader.Builder(/* context=*/ this, playerView);
+        new ImaServerSideAdInsertionMediaSource.AdsLoader.Builder(this, playerView);
 
     // Attempts to set the AdsLoader state if available from a previous session.
     if (adsLoaderState != null) {
       adsLoaderBuilder.setAdsLoaderState(adsLoaderState);
     }
 
-    adsLoader = adsLoaderBuilder.build();
+    return adsLoaderBuilder.build();
+  }
+
+  private void initializePlayer() {
+    adsLoader = createAdsLoader();
+
+    // Set up the factory for media sources, passing the ads loader and ad view providers.
+    DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
 
     DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
 
@@ -139,19 +136,21 @@ public class MyActivity extends Activity {
     ImaServerSideAdInsertionMediaSource.Factory adsMediaSourceFactory =
         new ImaServerSideAdInsertionMediaSource.Factory(adsLoader, mediaSourceFactory);
 
+    // 'mediaSourceFactory' is an ExoPlayer component for the DefaultMediaSourceFactory.
+    // 'adsMediaSourceFactory' is an ExoPlayer component for a MediaSource factory for IMA server
+    // side inserted ad streams.
     mediaSourceFactory.setServerSideAdInsertionMediaSourceFactory(adsMediaSourceFactory);
 
     // Create a SimpleExoPlayer and set it as the player for content and ads.
     player = new ExoPlayer.Builder(this).setMediaSourceFactory(mediaSourceFactory).build();
-    player.addAnalyticsListener(new EventLogger(/* trackSelector= */ null));
     playerView.setPlayer(player);
     adsLoader.setPlayer(player);
 
     // Build an IMA SSAI media item to prepare the player with.
     Uri ssaiLiveUri =
         new ImaServerSideAdInsertionUriBuilder()
-            .setAssetKey(getString(R.string.asset_key))
-            .setFormat(C.TYPE_HLS)
+            .setAssetKey(SAMPLE_ASSET_KEY)
+            .setFormat(C.TYPE_HLS) // Use C.TYPE_DASH for dash streams.
             .build();
 
     // Create the MediaItem to play, specifying the stream URI.

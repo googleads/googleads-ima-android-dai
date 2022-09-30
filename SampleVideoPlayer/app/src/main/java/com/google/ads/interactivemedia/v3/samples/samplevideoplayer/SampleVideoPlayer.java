@@ -53,7 +53,7 @@ public class SampleVideoPlayer {
   private ExoPlayer player;
   private SampleVideoPlayerCallback playerCallback;
 
-  @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
+  @C.ContentType private int currentlyPlayingStreamType = C.CONTENT_TYPE_OTHER;
 
   private String streamUrl;
   private Boolean streamRequested;

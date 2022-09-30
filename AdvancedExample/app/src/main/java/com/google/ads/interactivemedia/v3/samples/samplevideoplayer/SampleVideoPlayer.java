@@ -63,7 +63,7 @@ public class SampleVideoPlayer {
   private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
-  @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
+  @C.ContentType private int currentlyPlayingStreamType = C.CONTENT_TYPE_OTHER;
 
   private String streamUrl;
   private Boolean streamRequested;
@@ -125,10 +125,10 @@ public class SampleVideoPlayer {
     Uri streamUri = Uri.parse(streamUrl);
     MediaItem mediaItem = new MediaItem.Builder().setUri(streamUri).build();
     switch (currentlyPlayingStreamType) {
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         mediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         break;
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
                     new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)

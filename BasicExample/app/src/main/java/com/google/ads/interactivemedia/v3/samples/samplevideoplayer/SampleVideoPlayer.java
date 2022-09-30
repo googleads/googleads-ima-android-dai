@@ -16,17 +16,20 @@
 
 package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 
+import static androidx.media3.common.C.CONTENT_TYPE_DASH;
+import static androidx.media3.common.C.CONTENT_TYPE_HLS;
+import static androidx.media3.common.C.CONTENT_TYPE_OTHER;
+import static androidx.media3.common.C.TIME_UNSET;
+
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import androidx.annotation.OptIn;
-import androidx.media3.common.C;
+import androidx.media3.common.C.ContentType;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
@@ -34,7 +37,6 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.dash.DefaultDashChunkSource;
 import androidx.media3.exoplayer.hls.HlsMediaSource;
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.emsg.EventMessage;
 import androidx.media3.extractor.metadata.id3.TextInformationFrame;
@@ -42,7 +44,6 @@ import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 
 /** A video player that plays HLS or DASH streams using ExoPlayer. */
-@OptIn(markerClass = UnstableApi.class)
 public class SampleVideoPlayer {
 
   private static final String LOG_TAG = "SampleVideoPlayer";
@@ -61,7 +62,7 @@ public class SampleVideoPlayer {
   private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
 
-  @C.ContentType private int currentlyPlayingStreamType = C.TYPE_OTHER;
+  @ContentType private int currentlyPlayingStreamType = CONTENT_TYPE_OTHER;
 
   private String streamUrl;
   private Boolean streamRequested;
@@ -87,7 +88,7 @@ public class SampleVideoPlayer {
 
           @Override
           public void seekToDefaultPosition(int windowIndex) {
-            seekTo(windowIndex, /* positionMs= */ C.TIME_UNSET);
+            seekTo(windowIndex, /* positionMs= */ TIME_UNSET);
           }
 
           @Override
@@ -120,8 +121,6 @@ public class SampleVideoPlayer {
     initPlayer();
 
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
-    DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
-    mediaSourceFactory.setAdViewProvider(playerView);
 
     // Create the MediaItem to play, specifying the content URI.
     Uri contentUri = Uri.parse(streamUrl);
@@ -130,10 +129,10 @@ public class SampleVideoPlayer {
     MediaSource mediaSource;
     currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
     switch (currentlyPlayingStreamType) {
-      case C.TYPE_HLS:
+      case CONTENT_TYPE_HLS:
         mediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         break;
-      case C.TYPE_DASH:
+      case CONTENT_TYPE_DASH:
         mediaSource =
             new DashMediaSource.Factory(
                     new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)

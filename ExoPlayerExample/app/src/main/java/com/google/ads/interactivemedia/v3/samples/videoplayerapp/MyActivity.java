@@ -3,7 +3,6 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -17,6 +16,7 @@ import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
+import org.jspecify.nullness.Nullable;
 
 /** Main Activity. */
 @OptIn(markerClass = UnstableApi.class)

@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.Build;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import androidx.annotation.Nullable;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -40,6 +39,7 @@ import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoP
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.jspecify.nullness.Nullable;
 
 /** This class adds ad-serving support to Sample HlsVideoPlayer */
 public class SampleAdsWrapper

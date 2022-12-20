@@ -1,11 +1,12 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import static androidx.media3.common.C.CONTENT_TYPE_HLS;
+
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -127,7 +128,7 @@ public class MyActivity extends Activity {
   private void initializePlayer() {
     adsLoader = createAdsLoader();
 
-    // Set up the factory for media sources, passing the ads loader and ad view providers.
+    // Set up the factory for media sources, passing the ads loader.
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
 
     DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
@@ -150,7 +151,7 @@ public class MyActivity extends Activity {
     Uri ssaiLiveUri =
         new ImaServerSideAdInsertionUriBuilder()
             .setAssetKey(SAMPLE_ASSET_KEY)
-            .setFormat(C.TYPE_HLS) // Use C.TYPE_DASH for dash streams.
+            .setFormat(CONTENT_TYPE_HLS) // Use CONTENT_TYPE_DASH for dash streams.
             .build();
 
     // Create the MediaItem to play, specifying the stream URI.

@@ -5,6 +5,9 @@ import static androidx.media3.common.C.CONTENT_TYPE_HLS;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.media3.common.MediaItem;
@@ -18,6 +21,7 @@ import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 
 /** Main Activity. */
 @OptIn(markerClass = UnstableApi.class)
@@ -25,8 +29,10 @@ public class MyActivity extends Activity {
 
   private static final String KEY_ADS_LOADER_STATE = "ads_loader_state";
   private static final String SAMPLE_ASSET_KEY = "c-rArva4ShKVIAkNfy6HUQ";
+  private static final String LOG_TAG = "ImaExoPlayerExample";
 
   private PlayerView playerView;
+  private TextView logText;
   private ExoPlayer player;
   private ImaServerSideAdInsertionMediaSource.AdsLoader adsLoader;
   private ImaServerSideAdInsertionMediaSource.AdsLoader.State adsLoaderState;
@@ -122,7 +128,27 @@ public class MyActivity extends Activity {
       adsLoaderBuilder.setAdsLoaderState(adsLoaderState);
     }
 
-    return adsLoaderBuilder.build();
+    return adsLoaderBuilder.setAdEventListener(buildAdEventListener()).build();
+  }
+
+  public AdEvent.AdEventListener buildAdEventListener() {
+    logText = findViewById(R.id.logText);
+    logText.setMovementMethod(new ScrollingMovementMethod());
+
+    AdEvent.AdEventListener imaAdEventListener =
+        event -> {
+          AdEvent.AdEventType eventType = event.getType();
+          if (eventType == AdEvent.AdEventType.AD_PROGRESS) {
+            return;
+          }
+          String log = "IMA event: " + eventType;
+          if (logText != null) {
+            logText.append(log + "\n");
+          }
+          Log.i(LOG_TAG, log);
+        };
+
+    return imaAdEventListener;
   }
 
   private void initializePlayer() {

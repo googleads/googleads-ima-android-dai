@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">IMA ExoPlayer Example</string>
+    <string name="app_name">IMA DAI ExoPlayer Example</string>
     <string name="action_settings">Settings</string>
     <string name="video_description">Android Promotional Video (with video ad)</string>
 

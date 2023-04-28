@@ -25,17 +25,16 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.annotation.OptIn;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
-@OptIn(markerClass = UnstableApi.class)
+@UnstableApi
 public class MyActivity extends Activity {
 
   private static final String DEFAULT_STREAM_URL =
-      "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
+      "https://storage.googleapis.com/interactive-media-ads/media/bbb.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
 
   protected SampleVideoPlayer sampleVideoPlayer;

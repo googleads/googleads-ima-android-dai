@@ -71,7 +71,6 @@ public class SampleVideoPlayer {
 
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
     DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
-    mediaSourceFactory.setAdViewProvider(playerView);
     player = new ExoPlayer.Builder(context).setMediaSourceFactory(mediaSourceFactory).build();
     playerView.setPlayer(
         new ForwardingPlayer(player) {

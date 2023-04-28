@@ -16,12 +16,12 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.UnstableApi;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /** This class adds ad-serving support to Sample HlsVideoPlayer */
+@UnstableApi
 public class SampleAdsWrapper
     implements AdEvent.AdEventListener, AdErrorEvent.AdErrorListener, AdsLoader.AdsLoadedListener {
 
@@ -105,7 +106,6 @@ public class SampleAdsWrapper
     createAdsLoader();
   }
 
-  @TargetApi(19)
   private void enableWebViewDebugging() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       WebView.setWebContentsDebuggingEnabled(true);

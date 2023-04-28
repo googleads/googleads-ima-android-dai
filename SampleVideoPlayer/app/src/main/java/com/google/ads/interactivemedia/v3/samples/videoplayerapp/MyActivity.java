@@ -24,6 +24,7 @@ import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.ui.PlayerView;
+import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
@@ -31,7 +32,7 @@ import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoP
 public class MyActivity extends AppCompatActivity {
 
   private static final String DEFAULT_STREAM_URL =
-      "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
+      "https://storage.googleapis.com/interactive-media-ads/media/bbb.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
 
   protected SampleVideoPlayer sampleVideoPlayer;
@@ -42,6 +43,8 @@ public class MyActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
     View rootView = findViewById(R.id.videoLayout);
+    MultiDex.install(rootView.getContext());
+
     sampleVideoPlayer =
         new SampleVideoPlayer(
             rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));

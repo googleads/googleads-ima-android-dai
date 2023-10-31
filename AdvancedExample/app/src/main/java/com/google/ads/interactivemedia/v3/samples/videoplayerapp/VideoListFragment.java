@@ -58,7 +58,7 @@ public class VideoListFragment extends Fragment {
           "VOD - HLS - Tears of Steel",
           null,
           null,
-          "2548831",
+          "2528370",
           "tears-of-steel",
           StreamFormat.HLS,
           null),

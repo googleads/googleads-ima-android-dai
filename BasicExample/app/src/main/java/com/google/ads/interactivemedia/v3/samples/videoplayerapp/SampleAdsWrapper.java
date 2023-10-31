@@ -53,7 +53,7 @@ public class SampleAdsWrapper
   private static final String TEST_DASH_ASSET_KEY = "PSzZMzAkSXCmlJOWDmRj8Q";
 
   // VOD HLS content source and video IDs.
-  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2548831";
+  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2528370";
   private static final String TEST_HLS_VIDEO_ID = "tears-of-steel";
 
   // VOD DASH content source and video IDs.

@@ -2,18 +2,18 @@ apply plugin: 'com.android.application'
 
 android {
     namespace 'com.google.ads.interactivemedia.v3.samples.videoplayerapp'
-    compileSdkVersion 33
+    compileSdk 34
 
-    // Java 11 required by Gradle 7.0.2
+    // Java 17 required by Gradle 8+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     defaultConfig {
         applicationId "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
         minSdkVersion 19
-        targetSdkVersion 33
+        targetSdkVersion 34
         multiDexEnabled true
         versionCode 1
         versionName "1.0"
@@ -32,13 +32,15 @@ repositories {
 }
 
 dependencies {
+    def media3_version = "1.1.1"
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.media3:media3-ui:1.0.1'
-    implementation 'androidx.media3:media3-exoplayer:1.0.1'
-    implementation 'androidx.media3:media3-exoplayer-hls:1.0.1'
-    implementation 'androidx.media3:media3-exoplayer-dash:1.0.1'
+    implementation "androidx.media3:media3-ui:$media3_version"
+    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
+    implementation "androidx.media3:media3-exoplayer-dash:$media3_version"
 
     // The library adds the IMA ExoPlayer integration for ads.
-    implementation 'androidx.media3:media3-exoplayer-ima:1.0.1'
+    implementation "androidx.media3:media3-exoplayer-ima:$media3_version"
 }

@@ -3,18 +3,18 @@
 ![Build status](//github.com/googleads/googleads-ima-android-dai/workflows/Build%20Status/badge.svg?branch=main)
 
 This project hosts samples for the
-[Android IMA SDK for DAI](//developers.google.com/interactive-media-ads/docs/sdks/android/dai).
+[Android IMA SDK for DAI](//developers.google.com/ad-manager/dynamic-ad-insertion/sdk/android).
 
 ### Requirements
 
 *   Android Studio 1.0 or newer
 *   IMA Android SDK .jar (see our
-    [Download page](//developers.google.com/interactive-media-ads/docs/sdks/android/dai/download))
+    [Download page](//developers.google.com/ad-manager/dynamic-ad-insertion/sdk/android/download))
 
 ### Installation Instructions
 
 Guides and tutorials for IMA Android DAI can be found in our
-[online documentation](//developers.google.com/interactive-media-ads/docs/sdks/android/dai).
+[online documentation](//developers.google.com/ad-manager/dynamic-ad-insertion/sdk/android).
 
 ### Downloads
 
@@ -25,7 +25,7 @@ for downloadable zips of the source.
 ### More Info
 
 For more information, see the
-[get started guide](//developers.google.com/interactive-media-ads/docs/sdks/android/dai).
+[get started guide](//developers.google.com/ad-manager/dynamic-ad-insertion/sdk/android).
 
 ### Announcements and Updates
 

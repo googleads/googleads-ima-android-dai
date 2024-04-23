@@ -2,6 +2,7 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import static androidx.media3.common.C.CONTENT_TYPE_HLS;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,9 +10,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
@@ -24,7 +23,8 @@ import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 
 /** Main Activity. */
-@OptIn(markerClass = UnstableApi.class)
+@SuppressLint("UnsafeOptInUsageError")
+/* @SuppressLint is needed for new media3 APIs. */
 public class MyActivity extends Activity {
 
   private static final String KEY_ADS_LOADER_STATE = "ads_loader_state";

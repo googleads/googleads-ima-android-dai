@@ -16,16 +16,15 @@
 
 package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
-import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -35,7 +34,8 @@ import androidx.media3.extractor.metadata.id3.TextInformationFrame;
 import androidx.media3.ui.PlayerView;
 
 /** A video player that plays HLS or DASH streams using ExoPlayer. */
-@OptIn(markerClass = UnstableApi.class)
+@SuppressLint("UnsafeOptInUsageError")
+/* @SuppressLint is needed for new media3 APIs. */
 public class SampleVideoPlayer {
 
   private static final String LOG_TAG = "SampleVideoPlayer";

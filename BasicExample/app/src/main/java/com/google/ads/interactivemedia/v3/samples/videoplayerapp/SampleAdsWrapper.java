@@ -16,12 +16,12 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.UnstableApi;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -42,7 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /** This class adds ad-serving support to Sample HlsVideoPlayer */
-@UnstableApi
+@SuppressLint("UnsafeOptInUsageError")
+/* @SuppressLint is needed for new media3 APIs. */
 public class SampleAdsWrapper
     implements AdEvent.AdEventListener, AdErrorEvent.AdErrorListener, AdsLoader.AdsLoadedListener {
 
@@ -53,7 +54,7 @@ public class SampleAdsWrapper
   private static final String TEST_DASH_ASSET_KEY = "PSzZMzAkSXCmlJOWDmRj8Q";
 
   // VOD HLS content source and video IDs.
-  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2528370";
+  private static final String TEST_HLS_CONTENT_SOURCE_ID = "2548831";
   private static final String TEST_HLS_VIDEO_ID = "tears-of-steel";
 
   // VOD DASH content source and video IDs.

@@ -16,6 +16,7 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -25,12 +26,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
-@UnstableApi
+@SuppressLint("UnsafeOptInUsageError")
+/* @SuppressLint is needed for new media3 APIs. */
 public class MyActivity extends Activity {
 
   private static final String DEFAULT_STREAM_URL =

@@ -16,19 +16,19 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
-@OptIn(markerClass = UnstableApi.class)
+@SuppressLint("UnsafeOptInUsageError")
+/* @SuppressLint is needed for new media3 APIs. */
 public class MyActivity extends AppCompatActivity {
 
   private static final String DEFAULT_STREAM_URL =

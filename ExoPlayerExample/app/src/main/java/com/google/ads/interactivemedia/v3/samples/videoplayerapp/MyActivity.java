@@ -50,8 +50,7 @@ public class MyActivity extends Activity {
       Bundle adsLoaderStateBundle = savedInstanceState.getBundle(KEY_ADS_LOADER_STATE);
       if (adsLoaderStateBundle != null) {
         adsLoaderState =
-            ImaServerSideAdInsertionMediaSource.AdsLoader.State.CREATOR.fromBundle(
-                adsLoaderStateBundle);
+            ImaServerSideAdInsertionMediaSource.AdsLoader.State.fromBundle(adsLoaderStateBundle);
       }
     }
   }

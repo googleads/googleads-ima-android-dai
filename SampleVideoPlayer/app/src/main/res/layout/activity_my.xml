@@ -8,8 +8,7 @@
     tools:ignore="MergeRootFrame">
 
     <RelativeLayout
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="#000000"
         android:id="@+id/videoLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -32,13 +31,12 @@
             android:background="@null" />
     </RelativeLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                 xmlns:tools="http://schemas.android.com/tools"
-                 android:id="@+id/descriptionLayout"
-                 android:orientation="vertical"
-                 android:layout_width="match_parent"
-                 android:layout_height="0dp"
-                 android:layout_weight="0.6">
+    <LinearLayout
+        android:id="@+id/descriptionLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.6">
 
         <TextView
             android:id="@+id/playerDescription"

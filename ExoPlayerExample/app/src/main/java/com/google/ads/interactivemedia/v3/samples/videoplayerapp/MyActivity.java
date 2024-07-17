@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
@@ -100,7 +101,7 @@ public class MyActivity extends Activity {
   }
 
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     // Attempts to save the AdsLoader state to handle app backgrounding.
     if (adsLoaderState != null) {
       outState.putBundle(KEY_ADS_LOADER_STATE, adsLoaderState.toBundle());

@@ -20,6 +20,7 @@ jobs:
         regex:
         - "AdvancedExample"
         - "BasicExample"
+        - "CloudVideoStitcherExample"
         - "ExoPlayerExample"
         - "SampleVideoPlayer"
         - "PodServingExample"

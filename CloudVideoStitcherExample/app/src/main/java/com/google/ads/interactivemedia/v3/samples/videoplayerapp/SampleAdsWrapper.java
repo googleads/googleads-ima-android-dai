@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google, Inc.
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,78 +16,101 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
+import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.CuePoint;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.StreamDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
+import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer.SampleVideoPlayerCallback;
+import com.google.ads.interactivemedia.v3.samples.videoplayerapp.MyActivity.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/** This class adds ad-serving support to Sample HlsVideoPlayer */
+/** This class implements IMA to add Cloud Video Stitcher support to SampleVideoPlayer */
+@SuppressLint("UnsafeOptInUsageError")
+/* @SuppressLint is needed for new media3 APIs. */
 public class SampleAdsWrapper
     implements AdEvent.AdEventListener, AdErrorEvent.AdErrorListener, AdsLoader.AdsLoadedListener {
 
-  private static final String PLAYER_TYPE = "DAISamplePlayer";
+  // Set up the Cloud Video Stitcher variables.
+  private static final String NETWORK_CODE = "";
+  private static final String LOCATION = "";
+  private static final String PROJECT_NUMBER = "";
+  private static final String OAUTH_TOKEN = "";
+  private static final StreamFormat STREAM_FORMAT = StreamFormat.HLS;
 
-  /** Log interface, so we can output the log commands to the UI or similar. */
-  public interface Logger {
-    void log(String logMessage);
+  // Livestream variables.
+  private static final String ASSET_KEY = "";
+  private static final String LIVE_CONFIG_ID = "";
+
+  // VOD variables.
+  private static final String VOD_CONFIG_ID = "";
+
+  private enum StreamType {
+    LIVESTREAM,
+    VOD,
   }
 
+  // Change this enum to make either a live or VOD stream request.
+  private static final StreamType CONTENT_STREAM_TYPE = StreamType.LIVESTREAM;
+
   private final ImaSdkFactory sdkFactory;
-  private AdsLoader adsLoader;
+  private final AdsLoader adsLoader;
   private StreamManager streamManager;
   private final List<VideoStreamPlayer.VideoStreamPlayerCallback> playerCallbacks;
 
-  private SampleVideoPlayer videoPlayer;
+  private final SampleVideoPlayer videoPlayer;
   private final Context context;
   private final ViewGroup adUiContainer;
-
-  private long bookMarkContentTimeMs; // Bookmarked content time, in milliseconds.
-  private long snapBackTimeMs; // Stream time to snap back to, in milliseconds.
-  private boolean adsRequested;
+  private final Logger logger;
   private String fallbackUrl;
-  private Logger logger;
 
   /**
-   * Creates a new SampleAdsWrapper that implements IMA direct-ad-insertion.
+   * Creates a new SampleAdsWrapper that implements IMA Dynamic Ad Insertion.
    *
    * @param context the app's context.
-   * @param videoPlayer underlying HLS video player.
-   * @param adUiContainer ViewGroup in which to display the ad's UI.
+   * @param videoPlayer underlying ExoPlayer wrapped by the SampleVideoPlayer.
+   * @param adUiContainer ViewGroup that displays the ad UI (ad timer, skip button, adChoices icon).
+   * @param logger Logger to log messages to.
    */
-  public SampleAdsWrapper(Context context, SampleVideoPlayer videoPlayer, ViewGroup adUiContainer) {
-    this.videoPlayer = videoPlayer;
+  public SampleAdsWrapper(
+      @NonNull Context context,
+      @NonNull SampleVideoPlayer videoPlayer,
+      @NonNull ViewGroup adUiContainer,
+      @NonNull Logger logger) {
     this.context = context;
+    this.videoPlayer = videoPlayer;
     this.adUiContainer = adUiContainer;
-    sdkFactory = ImaSdkFactory.getInstance();
+    this.logger = logger;
     playerCallbacks = new ArrayList<>();
-    createAdsLoader();
+    sdkFactory = ImaSdkFactory.getInstance();
+    adsLoader = createAdsLoader();
   }
 
-  private void createAdsLoader() {
+  private AdsLoader createAdsLoader() {
     ImaSdkSettings settings = sdkFactory.createImaSdkSettings();
     // Change any settings as necessary here.
-    settings.setPlayerType(PLAYER_TYPE);
+    settings.setDebugMode(true);
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
     StreamDisplayContainer displayContainer =
         ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
     videoPlayer.setSampleVideoPlayerCallback(
-        new SampleVideoPlayer.SampleVideoPlayerCallback() {
+        new SampleVideoPlayerCallback() {
           @Override
           public void onUserTextReceived(@NonNull String userText) {
             for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
@@ -97,25 +120,15 @@ public class SampleAdsWrapper
 
           @Override
           public void onSeek(int windowIndex, long positionMs) {
-            long timeToSeek = positionMs;
+            // See if we would seek past an ad, and if so, jump back to it.
+            long newSeekPositionMs = positionMs;
             if (streamManager != null) {
-              CuePoint cuePoint = streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
-              long bookMarkStreamTimeMs =
-                  streamManager.getStreamTimeMsForContentTimeMs(bookMarkContentTimeMs);
-              if (cuePoint != null
-                  && !cuePoint.isPlayed()
-                  && cuePoint.getEndTimeMs() > bookMarkStreamTimeMs) {
-                snapBackTimeMs = timeToSeek; // Update snap back time.
-                // Missed cue point, so snap back to the beginning of cue point.
-                timeToSeek = cuePoint.getStartTimeMs();
-                Log.i("IMA", "SnapBack to " + timeToSeek + " ms.");
-                videoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
-                videoPlayer.setCanSeek(false);
-
-                return;
+              CuePoint prevCuePoint = streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
+              if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
+                newSeekPositionMs = prevCuePoint.getStartTimeMs();
               }
             }
-            videoPlayer.seekTo(windowIndex, Math.round(timeToSeek));
+            videoPlayer.seekTo(windowIndex, newSeekPositionMs);
           }
 
           @Override
@@ -146,54 +159,41 @@ public class SampleAdsWrapper
             }
           }
         });
-    adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);
+    AdsLoader adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);
+    adsLoader.addAdErrorListener(SampleAdsWrapper.this);
+    adsLoader.addAdsLoadedListener(SampleAdsWrapper.this);
+    return adsLoader;
   }
 
-  public void requestAndPlayAds(
-      VideoListFragment.VideoListItem videoListItem, long bookMarkTimeMs) {
-
-    bookMarkContentTimeMs = bookMarkTimeMs;
-    adsLoader.addAdErrorListener(this);
-    adsLoader.addAdsLoadedListener(this);
-    adsLoader.requestStream(buildStreamRequest(videoListItem));
-    adsRequested = true;
-  }
-
-  private StreamRequest buildStreamRequest(VideoListFragment.VideoListItem videoListItem) {
-    // Set the license URL.
-    videoPlayer.setLicenseUrl(videoListItem.getLicenseUrl());
-
+  public void requestAndPlayAds() {
     StreamRequest request;
-    // Live stream request.
-    if (videoListItem.getAssetKey() != null) {
-      request =
-          sdkFactory.createLiveStreamRequest(
-              videoListItem.getAssetKey(), videoListItem.getApiKey());
-    } else { // VOD request.
-      request =
-          sdkFactory.createVodStreamRequest(
-              videoListItem.getContentSourceId(),
-              videoListItem.getVideoId(),
-              videoListItem.getApiKey());
+    switch (CONTENT_STREAM_TYPE) {
+      case LIVESTREAM:
+        // Livestream Cloud Video Stitcher stream request.
+        request =
+            sdkFactory.createVideoStitcherLiveStreamRequest(
+                NETWORK_CODE, ASSET_KEY, LIVE_CONFIG_ID, LOCATION, PROJECT_NUMBER, OAUTH_TOKEN);
+        break;
+      case VOD:
+        // VOD Cloud Video Stitcher stream request.
+        request =
+            sdkFactory.createVideoStitcherVodStreamRequest(
+                NETWORK_CODE, LOCATION, PROJECT_NUMBER, OAUTH_TOKEN, VOD_CONFIG_ID);
+        break;
+      default:
+        throw new IllegalStateException("Unexpected value: " + CONTENT_STREAM_TYPE);
     }
-    // Set the stream format (HLS or DASH).
-    request.setFormat(videoListItem.getStreamFormat());
-
-    return request;
+    request.setFormat(STREAM_FORMAT);
+    adsLoader.requestStream(request);
   }
 
   private VideoStreamPlayer createVideoStreamPlayer() {
     return new VideoStreamPlayer() {
       @Override
-      public void loadUrl(@NonNull String url, @NonNull List<HashMap<String, String>> subtitles) {
-        videoPlayer.setStreamUrl(url);
+      public void loadUrl(
+          @NonNull String streamUrl, @NonNull List<HashMap<String, String>> subtitles) {
+        videoPlayer.setStreamUrl(streamUrl);
         videoPlayer.play();
-
-        // Bookmarking
-        if (bookMarkContentTimeMs > 0) {
-          long streamTimeMs = streamManager.getStreamTimeMsForContentTimeMs(bookMarkContentTimeMs);
-          videoPlayer.seekTo(streamTimeMs);
-        }
       }
 
       @Override
@@ -227,138 +227,84 @@ public class SampleAdsWrapper
       @Override
       public void onAdBreakStarted() {
         // Disable player controls.
-        videoPlayer.setCanSeek(false);
         videoPlayer.enableControls(false);
-        log("Ad Break Started\n");
+        logger.log("Ad Break Started\n");
       }
 
       @Override
       public void onAdBreakEnded() {
         // Re-enable player controls.
         if (videoPlayer != null) {
-          videoPlayer.setCanSeek(true);
           videoPlayer.enableControls(true);
-          if (snapBackTimeMs > 0) {
-            Log.i("IMA", "SampleAdsWrapper seeking " + snapBackTimeMs + " ms.");
-            videoPlayer.seekTo(Math.round(snapBackTimeMs));
-          }
         }
-        snapBackTimeMs = 0;
-        log("Ad Break Ended\n");
+        logger.log("Ad Break Ended\n");
       }
 
       @Override
       public void onAdPeriodStarted() {
-        log("Ad Period Started\n");
+        logger.log("Ad Period Started\n");
       }
 
       @Override
       public void onAdPeriodEnded() {
-        log("Ad Period Ended\n");
+        logger.log("Ad Period Ended\n");
       }
 
       @Override
-      public void seek(long timeMs) {
+      public void seek(@NonNull long timeMs) {
         // An ad was skipped. Skip to the content time.
-        log("Seek\n");
         videoPlayer.seekTo(timeMs);
+        logger.log("seek\n");
       }
 
       @NonNull
       @Override
       public VideoProgressUpdate getContentProgress() {
-        if (videoPlayer == null) {
-          return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
-        }
-
         return new VideoProgressUpdate(
             videoPlayer.getCurrentPositionMs(), videoPlayer.getDuration());
       }
     };
   }
 
-  public long getContentTimeMs() {
-    if (streamManager != null) {
-      return streamManager.getContentTimeMsForStreamTimeMs(videoPlayer.getCurrentPositionMs());
-    }
-    return 0;
-  }
-
-  public long getStreamTimeMsForContentTimeMs(long contentTimeMs) {
-    if (streamManager != null) {
-      return streamManager.getStreamTimeMsForContentTimeMs(contentTimeMs);
-    }
-    return 0;
-  }
-
-  public void setSnapBackTime(long snapBackTimeMs) {
-    this.snapBackTimeMs = snapBackTimeMs;
-  }
-
-  public boolean getAdsRequested() {
-    return adsRequested;
-  }
-
   /** AdErrorListener implementation */
   @Override
-  public void onAdError(AdErrorEvent event) {
-    log(String.format("Error: %s\n", event.getError().getMessage()));
+  public void onAdError(@NonNull AdErrorEvent event) {
+    logger.log(String.format("Error: %s\n", event.getError().getMessage()));
     // play fallback URL.
-    log("Playing fallback Url\n");
+    logger.log("Playing fallback Url\n");
     videoPlayer.setStreamUrl(fallbackUrl);
+    videoPlayer.enableControls(true);
     videoPlayer.play();
   }
 
   /** AdEventListener implementation */
   @Override
-  public void onAdEvent(AdEvent event) {
+  public void onAdEvent(@NonNull AdEvent event) {
     switch (event.getType()) {
       case AD_PROGRESS:
-        break; // Do nothing
+        // Do nothing or else log will be filled by these messages.
+        break;
       default:
-        log(String.format("Event: %s\n", event.getType()));
+        logger.log(String.format("Event: %s\n", event.getType()));
         break;
     }
   }
 
   /** AdsLoadedListener implementation */
   @Override
-  public void onAdsManagerLoaded(AdsManagerLoadedEvent event) {
+  public void onAdsManagerLoaded(@NonNull AdsManagerLoadedEvent event) {
     streamManager = event.getStreamManager();
     streamManager.addAdErrorListener(this);
     streamManager.addAdEventListener(this);
-    streamManager.init();
+
+    AdsRenderingSettings adsRenderingSettings = sdkFactory.createAdsRenderingSettings();
+    // Add any ads rendering settings here.
+    // This init() only loads the UI rendering settings locally.
+    streamManager.init(adsRenderingSettings);
   }
 
   /** Sets fallback URL in case ads stream fails. */
-  public void setFallbackUrl(String url) {
+  void setFallbackUrl(String url) {
     fallbackUrl = url;
-  }
-
-  /** Sets logger for displaying events to screen. Optional. */
-  public void setLogger(Logger logger) {
-    this.logger = logger;
-  }
-
-  private void log(String message) {
-    if (logger != null) {
-      logger.log(message);
-    }
-  }
-
-  public void release() {
-    if (streamManager != null) {
-      streamManager.destroy();
-      streamManager = null;
-    }
-
-    if (videoPlayer != null) {
-      videoPlayer.release();
-      videoPlayer = null;
-    }
-
-    adsLoader.release();
-
-    adsRequested = false;
   }
 }

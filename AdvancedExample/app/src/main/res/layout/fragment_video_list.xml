@@ -22,7 +22,6 @@
         android:layout_margin="5dp"
         android:numColumns="1"
         android:verticalSpacing="10dp"
-        android:layout_centerHorizontal="true"
         android:horizontalSpacing="10dp"
         android:stretchMode="columnWidth" />
 

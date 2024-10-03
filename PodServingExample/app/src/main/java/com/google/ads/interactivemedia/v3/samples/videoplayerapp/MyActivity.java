@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
@@ -88,7 +87,7 @@ public class MyActivity extends Activity {
   }
 
   @Override
-  public void onConfigurationChanged(@NonNull Configuration configuration) {
+  public void onConfigurationChanged(Configuration configuration) {
     super.onConfigurationChanged(configuration);
     // Hide the extra content when in landscape so the video is as large as possible.
     updateVideoDescriptionVisibility();

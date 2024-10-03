@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
@@ -101,7 +100,7 @@ public class MyActivity extends Activity {
   }
 
   @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
+  public void onSaveInstanceState(Bundle outState) {
     // Attempts to save the AdsLoader state to handle app backgrounding.
     if (adsLoaderState != null) {
       outState.putBundle(KEY_ADS_LOADER_STATE, adsLoaderState.toBundle());
@@ -135,20 +134,17 @@ public class MyActivity extends Activity {
     logText = findViewById(R.id.logText);
     logText.setMovementMethod(new ScrollingMovementMethod());
 
-    AdEvent.AdEventListener imaAdEventListener =
-        event -> {
-          AdEvent.AdEventType eventType = event.getType();
-          if (eventType == AdEvent.AdEventType.AD_PROGRESS) {
-            return;
-          }
-          String log = "IMA event: " + eventType;
-          if (logText != null) {
-            logText.append(log + "\n");
-          }
-          Log.i(LOG_TAG, log);
-        };
-
-    return imaAdEventListener;
+    return event -> {
+      AdEvent.AdEventType eventType = event.getType();
+      if (eventType == AdEvent.AdEventType.AD_PROGRESS) {
+        return;
+      }
+      String log = "IMA event: " + eventType;
+      if (logText != null) {
+        logText.append(log + "\n");
+      }
+      Log.i(LOG_TAG, log);
+    };
   }
 
   private void initializePlayer() {

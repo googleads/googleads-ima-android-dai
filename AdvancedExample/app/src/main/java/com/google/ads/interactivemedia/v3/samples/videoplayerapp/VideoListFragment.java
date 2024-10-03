@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -162,19 +161,16 @@ public class VideoListFragment extends Fragment {
       LayoutInflater layoutInflater, final ViewGroup viewGroup, Bundle bundle) {
     View rootView = layoutInflater.inflate(R.layout.fragment_video_list, viewGroup, false);
 
-    final ListView listView = (ListView) rootView.findViewById(R.id.videoListView);
+    final ListView listView = rootView.findViewById(R.id.videoListView);
     VideoListAdapter videoListAdapter =
         new VideoListAdapter(rootView.getContext(), R.layout.video_item, getVideoListItems());
     listView.setAdapter(videoListAdapter);
 
     listView.setOnItemClickListener(
-        new AdapterView.OnItemClickListener() {
-          @Override
-          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            VideoListItem item = (VideoListItem) listView.getItemAtPosition(position);
-            if (listener != null && item != null) {
-              listener.onVideoSelected(item);
-            }
+        (parent, view, position, id) -> {
+          VideoListItem item = (VideoListItem) listView.getItemAtPosition(position);
+          if (listener != null && item != null) {
+            listener.onVideoSelected(item);
           }
         });
 
@@ -197,7 +193,7 @@ public class VideoListFragment extends Fragment {
         convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
       }
       // Lookup view for data population
-      TextView titleText = (TextView) convertView.findViewById(R.id.videoItemText);
+      TextView titleText = convertView.findViewById(R.id.videoItemText);
 
       // Populate the data into the template view using the data object
       titleText.setText(videoListItem.title);

@@ -19,7 +19,6 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -83,10 +82,7 @@ public class SampleAdsWrapper
    * @param logger Logger to log messages to.
    */
   public SampleAdsWrapper(
-      @NonNull Context context,
-      @NonNull SampleVideoPlayer videoPlayer,
-      @NonNull ViewGroup adUiContainer,
-      @NonNull Logger logger) {
+      Context context, SampleVideoPlayer videoPlayer, ViewGroup adUiContainer, Logger logger) {
     this.context = context;
     this.videoPlayer = videoPlayer;
     this.adUiContainer = adUiContainer;
@@ -106,7 +102,7 @@ public class SampleAdsWrapper
     videoPlayer.setSampleVideoPlayerCallback(
         new SampleVideoPlayerCallback() {
           @Override
-          public void onUserTextReceived(@NonNull String userText) {
+          public void onUserTextReceived(String userText) {
             for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
               callback.onUserTextReceived(userText);
             }
@@ -180,12 +176,8 @@ public class SampleAdsWrapper
   private VideoStreamPlayer createVideoStreamPlayer() {
     return new VideoStreamPlayer() {
       @Override
-      public void loadUrl(
-          @NonNull String streamUrl, @NonNull List<HashMap<String, String>> subtitles) {
-        // For VOD stream only, the IMA DAI SDK calls loadUrl() when it completes
-        // loading the ad metadata.
-        videoPlayer.setStreamUrl(streamUrl);
-        videoPlayer.play();
+      public void loadUrl(String url, List<HashMap<String, String>> subtitles) {
+        // When pod serving is enabled, IMA doesn't make calls to VideoStreamPlayer.loadUrl().
       }
 
       @Override
@@ -207,12 +199,12 @@ public class SampleAdsWrapper
       }
 
       @Override
-      public void addCallback(@NonNull VideoStreamPlayerCallback videoStreamPlayerCallback) {
+      public void addCallback(VideoStreamPlayerCallback videoStreamPlayerCallback) {
         playerCallbacks.add(videoStreamPlayerCallback);
       }
 
       @Override
-      public void removeCallback(@NonNull VideoStreamPlayerCallback videoStreamPlayerCallback) {
+      public void removeCallback(VideoStreamPlayerCallback videoStreamPlayerCallback) {
         playerCallbacks.remove(videoStreamPlayerCallback);
       }
 
@@ -243,13 +235,12 @@ public class SampleAdsWrapper
       }
 
       @Override
-      public void seek(@NonNull long timeMs) {
+      public void seek(long timeMs) {
         // An ad was skipped. Skip to the content time.
         videoPlayer.seekTo(timeMs);
         logger.log("seek\n");
       }
 
-      @NonNull
       @Override
       public VideoProgressUpdate getContentProgress() {
         return new VideoProgressUpdate(
@@ -260,7 +251,7 @@ public class SampleAdsWrapper
 
   /** AdErrorListener implementation */
   @Override
-  public void onAdError(@NonNull AdErrorEvent event) {
+  public void onAdError(AdErrorEvent event) {
     logger.log(String.format("Error: %s\n", event.getError().getMessage()));
     // play fallback URL.
     logger.log("Playing fallback Url\n");
@@ -271,7 +262,7 @@ public class SampleAdsWrapper
 
   /** AdEventListener implementation */
   @Override
-  public void onAdEvent(@NonNull AdEvent event) {
+  public void onAdEvent(AdEvent event) {
     switch (event.getType()) {
       case AD_PROGRESS:
         // Do nothing or else log will be filled by these messages.
@@ -284,7 +275,7 @@ public class SampleAdsWrapper
 
   /** AdsLoadedListener implementation */
   @Override
-  public void onAdsManagerLoaded(@NonNull AdsManagerLoadedEvent event) {
+  public void onAdsManagerLoaded(AdsManagerLoadedEvent event) {
     streamManager = event.getStreamManager();
     streamManager.addAdErrorListener(this);
     streamManager.addAdEventListener(this);

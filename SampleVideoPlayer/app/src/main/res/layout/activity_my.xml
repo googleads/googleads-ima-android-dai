@@ -24,7 +24,7 @@
             android:layout_height="match_parent" />
         <ImageButton
             android:id="@+id/playButton"
-            android:contentDescription="Play Button"
+            android:contentDescription="@string/play_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/ic_action_play_over_video"

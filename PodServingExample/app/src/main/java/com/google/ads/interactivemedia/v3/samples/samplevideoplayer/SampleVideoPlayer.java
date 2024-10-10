@@ -18,14 +18,12 @@ package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 
 import static androidx.media3.common.C.CONTENT_TYPE_DASH;
 import static androidx.media3.common.C.CONTENT_TYPE_HLS;
-import static androidx.media3.common.C.CONTENT_TYPE_OTHER;
 import static androidx.media3.common.C.TIME_UNSET;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import androidx.media3.common.C.ContentType;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
@@ -64,9 +62,6 @@ public class SampleVideoPlayer {
   private ExoPlayer player;
   private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
-
-  @ContentType private int currentlyPlayingStreamType = CONTENT_TYPE_OTHER;
-
   private String streamUrl;
   private Boolean streamRequested;
   private boolean canSeek;
@@ -130,8 +125,7 @@ public class SampleVideoPlayer {
     MediaItem mediaItem = new MediaItem.Builder().setUri(contentUri).build();
 
     MediaSource mediaSource;
-    currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
-    switch (currentlyPlayingStreamType) {
+    switch (Util.inferContentType(Uri.parse(streamUrl))) {
       case CONTENT_TYPE_HLS:
         mediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         break;
@@ -155,16 +149,14 @@ public class SampleVideoPlayer {
           public void onMetadata(Metadata metadata) {
             for (int i = 0; i < metadata.length(); i++) {
               Metadata.Entry entry = metadata.get(i);
-              if (entry instanceof TextInformationFrame) {
-                TextInformationFrame textFrame = (TextInformationFrame) entry;
+              if (entry instanceof TextInformationFrame textFrame) {
                 if ("TXXX".equals(textFrame.id)) {
                   Log.d(LOG_TAG, "Received user text: " + textFrame.values.get(0));
                   if (playerCallback != null) {
                     playerCallback.onUserTextReceived(textFrame.values.get(0));
                   }
                 }
-              } else if (entry instanceof EventMessage) {
-                EventMessage eventMessage = (EventMessage) entry;
+              } else if (entry instanceof EventMessage eventMessage) {
                 String eventMessageValue = new String(eventMessage.messageData);
                 Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
                 if (playerCallback != null) {

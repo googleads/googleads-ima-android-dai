@@ -16,8 +16,12 @@
 
 package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
 
+import static androidx.media3.common.C.CONTENT_TYPE_DASH;
+import static androidx.media3.common.C.CONTENT_TYPE_HLS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import androidx.media3.common.C;
 import androidx.media3.common.ForwardingPlayer;
@@ -25,10 +29,15 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.dash.DashMediaSource;
+import androidx.media3.exoplayer.dash.DefaultDashChunkSource;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.emsg.EventMessage;
 import androidx.media3.extractor.metadata.id3.TextInformationFrame;
 import androidx.media3.ui.PlayerView;
@@ -52,8 +61,6 @@ public class SampleVideoPlayer {
 
   private ExoPlayer player;
   private SampleVideoPlayerCallback playerCallback;
-
-  @C.ContentType private int currentlyPlayingStreamType = C.CONTENT_TYPE_OTHER;
 
   private String streamUrl;
   private Boolean streamRequested;
@@ -100,33 +107,6 @@ public class SampleVideoPlayer {
             }
           }
         });
-
-    // Register for ID3 events.
-    player.addListener(
-        new Player.Listener() {
-          @Override
-          public void onMetadata(Metadata metadata) {
-            for (int i = 0; i < metadata.length(); i++) {
-              Metadata.Entry entry = metadata.get(i);
-              if (entry instanceof TextInformationFrame) {
-                TextInformationFrame textFrame = (TextInformationFrame) entry;
-                if ("TXXX".equals(textFrame.id)) {
-                  Log.d(LOG_TAG, "Received user text: " + textFrame.value);
-                  if (playerCallback != null) {
-                    playerCallback.onUserTextReceived(textFrame.value);
-                  }
-                }
-              } else if (entry instanceof EventMessage) {
-                EventMessage eventMessage = (EventMessage) entry;
-                String eventMessageValue = new String(eventMessage.messageData);
-                Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
-                if (playerCallback != null) {
-                  playerCallback.onUserTextReceived(eventMessageValue);
-                }
-              }
-            }
-          }
-        });
   }
 
   public void play() {
@@ -137,8 +117,55 @@ public class SampleVideoPlayer {
     }
     initPlayer();
 
-    player.setMediaItem(MediaItem.fromUri(streamUrl));
+    DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
+
+    // Create the MediaItem to play, specifying the content URI.
+    Uri contentUri = Uri.parse(streamUrl);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(contentUri).build();
+
+    MediaSource mediaSource;
+    switch (Util.inferContentType(contentUri)) {
+      case CONTENT_TYPE_HLS:
+        mediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
+        break;
+      case CONTENT_TYPE_DASH:
+        mediaSource =
+            new DashMediaSource.Factory(
+                    new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
+                .createMediaSource(mediaItem);
+        break;
+      default:
+        throw new UnsupportedOperationException("Unknown stream type.");
+    }
+
+    player.setMediaSource(mediaSource);
     player.prepare();
+
+    // Register for ID3 events.
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onMetadata(Metadata metadata) {
+            for (int i = 0; i < metadata.length(); i++) {
+              Metadata.Entry entry = metadata.get(i);
+              if (entry instanceof TextInformationFrame textFrame) {
+                if ("TXXX".equals(textFrame.id)) {
+                  Log.d(LOG_TAG, "Received user text: " + textFrame.values.get(0));
+                  if (playerCallback != null) {
+                    playerCallback.onUserTextReceived(textFrame.values.get(0));
+                  }
+                }
+              } else if (entry instanceof EventMessage eventMessage) {
+                String eventMessageValue = new String(eventMessage.messageData);
+                Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
+                if (playerCallback != null) {
+                  playerCallback.onUserTextReceived(eventMessageValue);
+                }
+              }
+            }
+          }
+        });
+
     player.setPlayWhenReady(true);
     streamRequested = true;
   }

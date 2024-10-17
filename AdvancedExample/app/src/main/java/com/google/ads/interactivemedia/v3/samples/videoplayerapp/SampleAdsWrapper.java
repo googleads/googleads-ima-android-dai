@@ -19,7 +19,6 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 import android.content.Context;
 import android.util.Log;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -89,7 +88,7 @@ public class SampleAdsWrapper
     videoPlayer.setSampleVideoPlayerCallback(
         new SampleVideoPlayer.SampleVideoPlayerCallback() {
           @Override
-          public void onUserTextReceived(@NonNull String userText) {
+          public void onUserTextReceived(String userText) {
             for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
               callback.onUserTextReceived(userText);
             }
@@ -185,7 +184,7 @@ public class SampleAdsWrapper
   private VideoStreamPlayer createVideoStreamPlayer() {
     return new VideoStreamPlayer() {
       @Override
-      public void loadUrl(@NonNull String url, @NonNull List<HashMap<String, String>> subtitles) {
+      public void loadUrl(String url, List<HashMap<String, String>> subtitles) {
         videoPlayer.setStreamUrl(url);
         videoPlayer.play();
 
@@ -215,12 +214,12 @@ public class SampleAdsWrapper
       }
 
       @Override
-      public void addCallback(@NonNull VideoStreamPlayerCallback videoStreamPlayerCallback) {
+      public void addCallback(VideoStreamPlayerCallback videoStreamPlayerCallback) {
         playerCallbacks.add(videoStreamPlayerCallback);
       }
 
       @Override
-      public void removeCallback(@NonNull VideoStreamPlayerCallback videoStreamPlayerCallback) {
+      public void removeCallback(VideoStreamPlayerCallback videoStreamPlayerCallback) {
         playerCallbacks.remove(videoStreamPlayerCallback);
       }
 
@@ -264,7 +263,6 @@ public class SampleAdsWrapper
         videoPlayer.seekTo(timeMs);
       }
 
-      @NonNull
       @Override
       public VideoProgressUpdate getContentProgress() {
         if (videoPlayer == null) {

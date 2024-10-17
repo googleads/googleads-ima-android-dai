@@ -44,14 +44,14 @@ public class MyActivity extends AppCompatActivity {
   private static final String VIDEO_FRAGMENT_TAG = "video_example_fragment_tag";
 
   private static final String FALLBACK_STREAM_URL =
-      "https://storage.googleapis.com/testtopbox-public/video_content/bbb/master.m3u8";
+      "https://storage.googleapis.com/interactive-media-ads/media/bbb.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
 
   private SampleVideoPlayer videoPlayer;
   private SampleAdsWrapper sampleAdsWrapper;
   private ImageButton playButton;
 
-  private HashMap<String, Long> bookmarks = new HashMap<>();
+  private final HashMap<String, Long> bookmarks = new HashMap<>();
   private VideoListFragment.VideoListItem videoListItem;
   private boolean contentHasStarted = false;
 
@@ -132,9 +132,8 @@ public class MyActivity extends AppCompatActivity {
   }
 
   public void hidePlayButton() {
-    ImageButton button = (ImageButton) findViewById(R.id.playButton);
-    if (button != null) {
-      button.setVisibility(View.INVISIBLE);
+    if (playButton != null) {
+      playButton.setVisibility(View.INVISIBLE);
     }
   }
 
@@ -158,7 +157,7 @@ public class MyActivity extends AppCompatActivity {
         }
       };
 
-  private VideoFragmentListener mVideoFragmentListener =
+  private final VideoFragmentListener mVideoFragmentListener =
       new VideoFragmentListener() {
         @Override
         public void onVideoFragmentCreated(View rootView) {
@@ -166,15 +165,13 @@ public class MyActivity extends AppCompatActivity {
           // to be set to false here, in the case where multiple test cases are watched in
           // single session.
           contentHasStarted = false;
-          playButton = (ImageButton) rootView.findViewById(R.id.playButton);
+          playButton = rootView.findViewById(R.id.playButton);
           videoPlayer =
               new SampleVideoPlayer(rootView.getContext(), rootView.findViewById(R.id.videoView));
           videoPlayer.enableControls(false);
           sampleAdsWrapper =
               new SampleAdsWrapper(
-                  rootView.getContext(),
-                  videoPlayer,
-                  (ViewGroup) rootView.findViewById(R.id.adUiContainer));
+                  rootView.getContext(), videoPlayer, rootView.findViewById(R.id.adUiContainer));
           sampleAdsWrapper.setFallbackUrl(FALLBACK_STREAM_URL);
 
           final TextView descTextView = rootView.findViewById(R.id.playerDescription);
@@ -198,35 +195,29 @@ public class MyActivity extends AppCompatActivity {
           forceHeight.applyTo(constraintLayout);
 
           sampleAdsWrapper.setLogger(
-              new SampleAdsWrapper.Logger() {
-                @Override
-                public void log(String logMessage) {
-                  Log.i(APP_LOG_TAG, logMessage);
-                  if (logTextView != null) {
-                    logTextView.append(logMessage);
-                  }
+              logMessage -> {
+                Log.i(APP_LOG_TAG, logMessage);
+                if (logTextView != null) {
+                  logTextView.append(logMessage);
                 }
               });
 
           // Set up play button listener to play video then hide play button.
           playButton.setOnClickListener(
-              new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                  hidePlayButton();
-                  if (contentHasStarted) {
-                    videoPlayer.play();
-                    return;
-                  }
-                  contentHasStarted = true;
-                  long bookMarkTime = 0;
-                  if (bookmarks.containsKey(videoListItem.getId())) {
-                    bookMarkTime = bookmarks.get(videoListItem.getId());
-                  }
-                  videoPlayer.enableControls(true);
-                  videoPlayer.setCanSeek(true);
-                  sampleAdsWrapper.requestAndPlayAds(videoListItem, bookMarkTime);
+              view -> {
+                hidePlayButton();
+                if (contentHasStarted) {
+                  videoPlayer.play();
+                  return;
                 }
+                contentHasStarted = true;
+                long bookMarkTime = 0;
+                if (bookmarks.containsKey(videoListItem.getId())) {
+                  bookMarkTime = bookmarks.get(videoListItem.getId());
+                }
+                videoPlayer.enableControls(true);
+                videoPlayer.setCanSeek(true);
+                sampleAdsWrapper.requestAndPlayAds(videoListItem, bookMarkTime);
               });
 
           orientVideoDescription(getResources().getConfiguration().orientation);

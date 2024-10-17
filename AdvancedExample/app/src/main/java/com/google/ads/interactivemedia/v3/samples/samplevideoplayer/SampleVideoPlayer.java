@@ -62,9 +62,6 @@ public class SampleVideoPlayer {
   private ExoPlayer player;
   private final PlayerView playerView;
   private SampleVideoPlayerCallback playerCallback;
-
-  @C.ContentType private int currentlyPlayingStreamType = C.CONTENT_TYPE_OTHER;
-
   private String streamUrl;
   private Boolean streamRequested;
   private boolean canSeek;
@@ -121,10 +118,9 @@ public class SampleVideoPlayer {
 
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
     MediaSource mediaSource;
-    currentlyPlayingStreamType = Util.inferContentType(Uri.parse(streamUrl));
     Uri streamUri = Uri.parse(streamUrl);
     MediaItem mediaItem = new MediaItem.Builder().setUri(streamUri).build();
-    switch (currentlyPlayingStreamType) {
+    switch (Util.inferContentType(Uri.parse(streamUrl))) {
       case C.CONTENT_TYPE_HLS:
         mediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         break;
@@ -148,16 +144,14 @@ public class SampleVideoPlayer {
           public void onMetadata(Metadata metadata) {
             for (int i = 0; i < metadata.length(); i++) {
               Metadata.Entry entry = metadata.get(i);
-              if (entry instanceof TextInformationFrame) {
-                TextInformationFrame textFrame = (TextInformationFrame) entry;
+              if (entry instanceof TextInformationFrame textFrame) {
                 if ("TXXX".equals(textFrame.id)) {
-                  Log.d(LOG_TAG, "Received user text: " + textFrame.value);
+                  Log.d(LOG_TAG, "Received user text: " + textFrame.values.get(0));
                   if (playerCallback != null) {
-                    playerCallback.onUserTextReceived(textFrame.value);
+                    playerCallback.onUserTextReceived(textFrame.values.get(0));
                   }
                 }
-              } else if (entry instanceof EventMessage) {
-                EventMessage eventMessage = (EventMessage) entry;
+              } else if (entry instanceof EventMessage eventMessage) {
                 String eventMessageValue = new String(eventMessage.messageData);
                 Log.d(LOG_TAG, "Received user text: " + eventMessageValue);
                 if (playerCallback != null) {

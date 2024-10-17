@@ -22,11 +22,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.media3.ui.PlayerView;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
@@ -49,52 +47,38 @@ public class MyActivity extends Activity {
     setContentView(R.layout.activity_my);
     View rootView = findViewById(R.id.videoLayout);
     sampleVideoPlayer =
-        new SampleVideoPlayer(
-            rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
+        new SampleVideoPlayer(rootView.getContext(), rootView.findViewById(R.id.playerView));
     sampleVideoPlayer.enableControls(false);
-    playButton = (ImageButton) rootView.findViewById(R.id.playButton);
+    playButton = rootView.findViewById(R.id.playButton);
     final SampleAdsWrapper sampleAdsWrapper =
-        new SampleAdsWrapper(
-            this, sampleVideoPlayer, (ViewGroup) rootView.findViewById(R.id.adUiContainer));
+        new SampleAdsWrapper(this, sampleVideoPlayer, rootView.findViewById(R.id.adUiContainer));
     sampleAdsWrapper.setFallbackUrl(DEFAULT_STREAM_URL);
 
-    final ScrollView scrollView = (ScrollView) findViewById(R.id.logScroll);
-    final TextView textView = (TextView) findViewById(R.id.logText);
+    final ScrollView scrollView = findViewById(R.id.logScroll);
+    final TextView textView = findViewById(R.id.logText);
 
     sampleAdsWrapper.setLogger(
-        new SampleAdsWrapper.Logger() {
-          @Override
-          public void log(String logMessage) {
-            Log.i(APP_LOG_TAG, logMessage);
-            if (textView != null) {
-              textView.append(logMessage);
-            }
-            if (scrollView != null) {
-              scrollView.post(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      scrollView.fullScroll(View.FOCUS_DOWN);
-                    }
-                  });
-            }
+        logMessage -> {
+          Log.i(APP_LOG_TAG, logMessage);
+          if (textView != null) {
+            textView.append(logMessage);
+          }
+          if (scrollView != null) {
+            scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
           }
         });
 
     // Set up play button listener to play video then hide play button.
     playButton.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-            if (contentHasStarted) {
-              sampleVideoPlayer.play();
-            } else {
-              contentHasStarted = true;
-              sampleVideoPlayer.enableControls(true);
-              sampleAdsWrapper.requestAndPlayAds();
-            }
-            playButton.setVisibility(View.GONE);
+        view -> {
+          if (contentHasStarted) {
+            sampleVideoPlayer.play();
+          } else {
+            contentHasStarted = true;
+            sampleVideoPlayer.enableControls(true);
+            sampleAdsWrapper.requestAndPlayAds();
           }
+          playButton.setVisibility(View.GONE);
         });
     orientVideoDescription(getResources().getConfiguration().orientation);
   }

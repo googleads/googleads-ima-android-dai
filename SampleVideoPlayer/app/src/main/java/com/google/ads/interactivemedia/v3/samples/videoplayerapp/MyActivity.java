@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
@@ -46,21 +45,17 @@ public class MyActivity extends AppCompatActivity {
     MultiDex.install(rootView.getContext());
 
     sampleVideoPlayer =
-        new SampleVideoPlayer(
-            rootView.getContext(), (PlayerView) rootView.findViewById(R.id.playerView));
+        new SampleVideoPlayer(rootView.getContext(), rootView.findViewById(R.id.playerView));
     sampleVideoPlayer.enableControls(false);
     sampleVideoPlayer.setStreamUrl(DEFAULT_STREAM_URL);
 
     playButton = rootView.findViewById(R.id.playButton);
     // Set up play button listener to play video then hide play button.
     playButton.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-            sampleVideoPlayer.enableControls(true);
-            sampleVideoPlayer.play();
-            playButton.setVisibility(View.GONE);
-          }
+        view -> {
+          sampleVideoPlayer.enableControls(true);
+          sampleVideoPlayer.play();
+          playButton.setVisibility(View.GONE);
         });
     orientVideoDescription(getResources().getConfiguration().orientation);
   }

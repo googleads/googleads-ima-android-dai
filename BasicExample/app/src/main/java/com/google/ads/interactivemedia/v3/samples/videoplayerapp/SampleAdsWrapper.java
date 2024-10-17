@@ -18,7 +18,6 @@ package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import androidx.annotation.Nullable;
@@ -80,7 +79,6 @@ public class SampleAdsWrapper
 
   private final ImaSdkFactory sdkFactory;
   private AdsLoader adsLoader;
-  private StreamDisplayContainer displayContainer;
   private StreamManager streamManager;
   private final List<VideoStreamPlayer.VideoStreamPlayerCallback> playerCallbacks;
 
@@ -108,9 +106,7 @@ public class SampleAdsWrapper
   }
 
   private void enableWebViewDebugging() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-      WebView.setWebContentsDebuggingEnabled(true);
-    }
+    WebView.setWebContentsDebuggingEnabled(true);
   }
 
   private void createAdsLoader() {
@@ -119,7 +115,8 @@ public class SampleAdsWrapper
     settings.setPlayerType(PLAYER_TYPE);
     enableWebViewDebugging();
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
-    displayContainer = ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
+    StreamDisplayContainer displayContainer =
+        ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
     videoPlayer.setSampleVideoPlayerCallback(
         new SampleVideoPlayerCallback() {
           @Override

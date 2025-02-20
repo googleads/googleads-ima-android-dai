@@ -60,6 +60,8 @@ public class SampleAdsWrapper
   private static final String TEST_DASH_CONTENT_SOURCE_ID = "2559737";
   private static final String TEST_DASH_VIDEO_ID = "tos-dash";
 
+  private static final String NETWORK_CODE = "21775744923";
+
   private static final String PLAYER_TYPE = "DAISamplePlayer";
 
   private enum ContentType {
@@ -182,22 +184,22 @@ public class SampleAdsWrapper
     switch (CONTENT_TYPE) {
       case LIVE_HLS:
         // Live HLS stream request.
-        return sdkFactory.createLiveStreamRequest(TEST_HLS_ASSET_KEY, null);
+        return sdkFactory.createLiveStreamRequest(TEST_HLS_ASSET_KEY, null, NETWORK_CODE);
       case LIVE_DASH:
         // Live DASH stream request.
-        return sdkFactory.createLiveStreamRequest(TEST_DASH_ASSET_KEY, null);
+        return sdkFactory.createLiveStreamRequest(TEST_DASH_ASSET_KEY, null, NETWORK_CODE);
       case VOD_HLS:
         // VOD HLS request.
         request =
             sdkFactory.createVodStreamRequest(
-                TEST_HLS_CONTENT_SOURCE_ID, TEST_HLS_VIDEO_ID, null); // apiKey
+                TEST_HLS_CONTENT_SOURCE_ID, TEST_HLS_VIDEO_ID, null, NETWORK_CODE);
         request.setFormat(StreamFormat.HLS);
         return request;
       case VOD_DASH:
         // VOD DASH request.
         request =
             sdkFactory.createVodStreamRequest(
-                TEST_DASH_CONTENT_SOURCE_ID, TEST_DASH_VIDEO_ID, null); // apiKey
+                TEST_DASH_CONTENT_SOURCE_ID, TEST_DASH_VIDEO_ID, null, NETWORK_CODE);
         request.setFormat(StreamFormat.DASH);
         return request;
     }

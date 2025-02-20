@@ -167,13 +167,16 @@ public class SampleAdsWrapper
     if (videoListItem.getAssetKey() != null) {
       request =
           sdkFactory.createLiveStreamRequest(
-              videoListItem.getAssetKey(), videoListItem.getApiKey());
+              videoListItem.getAssetKey(),
+              videoListItem.getApiKey(),
+              videoListItem.getNetworkCode());
     } else { // VOD request.
       request =
           sdkFactory.createVodStreamRequest(
               videoListItem.getContentSourceId(),
               videoListItem.getVideoId(),
-              videoListItem.getApiKey());
+              videoListItem.getApiKey(),
+              videoListItem.getNetworkCode());
     }
     // Set the stream format (HLS or DASH).
     request.setFormat(videoListItem.getStreamFormat());

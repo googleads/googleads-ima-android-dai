@@ -43,6 +43,7 @@ public class VideoListFragment extends Fragment {
           null,
           null,
           null,
+          "21775744923",
           StreamFormat.HLS,
           null),
       new VideoListItem(
@@ -51,6 +52,7 @@ public class VideoListFragment extends Fragment {
           null,
           null,
           null,
+          "21775744923",
           StreamFormat.DASH,
           null),
       new VideoListItem(
@@ -59,15 +61,18 @@ public class VideoListFragment extends Fragment {
           null,
           "2548831",
           "tears-of-steel",
+          "21775744923",
           StreamFormat.HLS,
           null),
-      new VideoListItem("VOD - DASH", null, null, "2559737", "tos-dash", StreamFormat.DASH, null),
+      new VideoListItem(
+          "VOD - DASH", null, null, "2559737", "tos-dash", "21775744923", StreamFormat.DASH, null),
       new VideoListItem(
           "BBB-widevine",
           null,
           null,
           "2474148",
           "bbb-widevine",
+          "21775744923",
           StreamFormat.DASH,
           "https://proxy.uat.widevine.com/proxy"),
     };
@@ -96,6 +101,7 @@ public class VideoListFragment extends Fragment {
     private final String apiKey;
     private final String contentSourceId;
     private final String videoId;
+    private final String networkCode;
     private final StreamFormat streamFormat;
     private final String licenseUrl;
 
@@ -121,6 +127,10 @@ public class VideoListFragment extends Fragment {
       return videoId;
     }
 
+    public String getNetworkCode() {
+      return networkCode;
+    }
+
     public String getId() {
       return id;
     }
@@ -143,6 +153,7 @@ public class VideoListFragment extends Fragment {
         String apiKey,
         String contentSourceId,
         String videoId,
+        String networkCode,
         StreamFormat streamFormat,
         String licenseUrl) {
       this.title = title;
@@ -150,6 +161,7 @@ public class VideoListFragment extends Fragment {
       this.apiKey = apiKey;
       this.contentSourceId = contentSourceId;
       this.videoId = videoId;
+      this.networkCode = networkCode;
       this.streamFormat = streamFormat;
       this.licenseUrl = licenseUrl;
       this.id = (assetKey == null) ? contentSourceId + videoId : assetKey;

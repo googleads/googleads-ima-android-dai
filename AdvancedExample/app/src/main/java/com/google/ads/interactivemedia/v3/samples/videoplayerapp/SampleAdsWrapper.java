@@ -25,7 +25,6 @@ import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.CuePoint;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
-import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.StreamDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
@@ -39,8 +38,6 @@ import java.util.List;
 /** This class adds ad-serving support to Sample HlsVideoPlayer */
 public class SampleAdsWrapper
     implements AdEvent.AdEventListener, AdErrorEvent.AdErrorListener, AdsLoader.AdsLoadedListener {
-
-  private static final String PLAYER_TYPE = "DAISamplePlayer";
 
   /** Log interface, so we can output the log commands to the UI or similar. */
   public interface Logger {
@@ -79,9 +76,6 @@ public class SampleAdsWrapper
   }
 
   private void createAdsLoader() {
-    ImaSdkSettings settings = sdkFactory.createImaSdkSettings();
-    // Change any settings as necessary here.
-    settings.setPlayerType(PLAYER_TYPE);
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
     StreamDisplayContainer displayContainer =
         ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
@@ -145,7 +139,8 @@ public class SampleAdsWrapper
             }
           }
         });
-    adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);
+    adsLoader =
+        sdkFactory.createAdsLoader(context, MyActivity.getImaSdkSettings(), displayContainer);
   }
 
   public void requestAndPlayAds(

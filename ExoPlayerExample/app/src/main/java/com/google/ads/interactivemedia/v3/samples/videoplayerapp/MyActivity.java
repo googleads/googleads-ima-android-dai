@@ -21,6 +21,8 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 
 /** Main Activity. */
 @SuppressLint("UnsafeOptInUsageError")
@@ -36,12 +38,18 @@ public class MyActivity extends Activity {
   private ExoPlayer player;
   private ImaServerSideAdInsertionMediaSource.AdsLoader adsLoader;
   private ImaServerSideAdInsertionMediaSource.AdsLoader.State adsLoaderState;
+  private ImaSdkSettings imaSdkSettings;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
     MultiDex.install(this);
+
+    // Initialize the IMA SDK as early as possible when the app starts. If your app already
+    // overrides Application.onCreate(), call this method inside the onCreate() method.
+    // https://developer.android.com/topic/performance/vitals/launch-time#app-creation
+    ImaSdkFactory.getInstance().initialize(this, getImaSdkSettings());
 
     playerView = findViewById(R.id.player_view);
 
@@ -127,7 +135,10 @@ public class MyActivity extends Activity {
       adsLoaderBuilder.setAdsLoaderState(adsLoaderState);
     }
 
-    return adsLoaderBuilder.setAdEventListener(buildAdEventListener()).build();
+    return adsLoaderBuilder
+        .setAdEventListener(buildAdEventListener())
+        .setImaSdkSettings(getImaSdkSettings())
+        .build();
   }
 
   public AdEvent.AdEventListener buildAdEventListener() {
@@ -185,5 +196,13 @@ public class MyActivity extends Activity {
 
     // Set PlayWhenReady. If true, content and ads will autoplay.
     player.setPlayWhenReady(false);
+  }
+
+  private ImaSdkSettings getImaSdkSettings() {
+    if (imaSdkSettings == null) {
+      imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
+      // Set any IMA SDK settings here.
+    }
+    return imaSdkSettings;
   }
 }

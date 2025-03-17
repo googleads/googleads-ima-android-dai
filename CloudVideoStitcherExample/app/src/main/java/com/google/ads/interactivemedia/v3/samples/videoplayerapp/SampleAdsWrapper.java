@@ -26,7 +26,6 @@ import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.CuePoint;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
-import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.StreamDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
@@ -99,9 +98,6 @@ public class SampleAdsWrapper
   }
 
   private AdsLoader createAdsLoader() {
-    ImaSdkSettings settings = sdkFactory.createImaSdkSettings();
-    // Change any settings as necessary here.
-    settings.setDebugMode(true);
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
     StreamDisplayContainer displayContainer =
         ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
@@ -155,7 +151,8 @@ public class SampleAdsWrapper
             }
           }
         });
-    AdsLoader adsLoader = sdkFactory.createAdsLoader(context, settings, displayContainer);
+    AdsLoader adsLoader =
+        sdkFactory.createAdsLoader(context, MyActivity.getImaSdkSettings(), displayContainer);
     adsLoader.addAdErrorListener(SampleAdsWrapper.this);
     adsLoader.addAdsLoadedListener(SampleAdsWrapper.this);
     return adsLoader;

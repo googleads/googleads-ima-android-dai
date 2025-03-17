@@ -25,6 +25,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
@@ -35,6 +37,8 @@ public class MyActivity extends Activity {
   private static final String DEFAULT_STREAM_URL =
       "https://storage.googleapis.com/interactive-media-ads/media/bbb.m3u8";
   private static final String APP_LOG_TAG = "ImaDaiExample";
+  private static final String PLAYER_TYPE = "DAISamplePlayer";
+  private static ImaSdkSettings imaSdkSettings;
 
   /** An interface defining how this class emits log messages. */
   public interface Logger {
@@ -67,6 +71,11 @@ public class MyActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
+
+    // Initialize the IMA SDK as early as possible when the app starts. If your app already
+    // overrides Application.onCreate(), call this method inside the onCreate() method.
+    // https://developer.android.com/topic/performance/vitals/launch-time#app-creation
+    ImaSdkFactory.getInstance().initialize(this, getImaSdkSettings());
 
     initializeLogger();
 
@@ -117,5 +126,15 @@ public class MyActivity extends Activity {
     if (sampleVideoPlayer != null && sampleVideoPlayer.isStreamRequested()) {
       sampleVideoPlayer.play();
     }
+  }
+
+  public static ImaSdkSettings getImaSdkSettings() {
+    if (imaSdkSettings == null) {
+      imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
+      imaSdkSettings.setPlayerType(PLAYER_TYPE);
+      imaSdkSettings.setDebugMode(true);
+      // Set any additional IMA SDK settings here.
+    }
+    return imaSdkSettings;
   }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// [START my_activity_on_create]
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.annotation.SuppressLint;
@@ -93,6 +94,8 @@ public class MyActivity extends Activity {
     orientVideoDescription(getResources().getConfiguration().orientation);
   }
 
+  // [END my_activity_on_create]
+
   @Override
   public void onConfigurationChanged(Configuration configuration) {
     super.onConfigurationChanged(configuration);
@@ -126,6 +129,7 @@ public class MyActivity extends Activity {
     }
   }
 
+  // [START get_ima_settings]
   public static ImaSdkSettings getImaSdkSettings() {
     if (imaSdkSettings == null) {
       imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
@@ -134,4 +138,5 @@ public class MyActivity extends Activity {
     }
     return imaSdkSettings;
   }
+  // [END get_ima_settings]
 }

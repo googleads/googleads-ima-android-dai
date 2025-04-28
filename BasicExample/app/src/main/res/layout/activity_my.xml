@@ -48,6 +48,7 @@
             android:layout_weight="0.1"
             android:textSize="@dimen/font_size" />
 
+        <!-- [START ad_ui_logging] -->
         <!-- UI element for viewing SDK event log -->
         <ScrollView
             android:id="@+id/logScroll"
@@ -63,6 +64,7 @@
                 android:layout_height="wrap_content">
             </TextView>
         </ScrollView>
+        <!-- [END ad_ui_logging] -->
     </LinearLayout>
 
 </LinearLayout>

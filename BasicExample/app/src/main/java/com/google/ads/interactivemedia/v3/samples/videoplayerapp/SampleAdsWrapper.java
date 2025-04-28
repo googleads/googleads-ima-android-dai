@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// [START sample_ads_wrapper_initialization]
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.annotation.SuppressLint;
@@ -115,56 +116,7 @@ public class SampleAdsWrapper
     VideoStreamPlayer videoStreamPlayer = createVideoStreamPlayer();
     StreamDisplayContainer displayContainer =
         ImaSdkFactory.createStreamDisplayContainer(adUiContainer, videoStreamPlayer);
-    videoPlayer.setSampleVideoPlayerCallback(
-        new SampleVideoPlayerCallback() {
-          @Override
-          public void onUserTextReceived(String userText) {
-            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
-              callback.onUserTextReceived(userText);
-            }
-          }
-
-          @Override
-          public void onSeek(int windowIndex, long positionMs) {
-            // See if we would seek past an ad, and if so, jump back to it.
-            long newSeekPositionMs = positionMs;
-            if (streamManager != null) {
-              CuePoint prevCuePoint = streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
-              if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
-                newSeekPositionMs = prevCuePoint.getStartTimeMs();
-              }
-            }
-            videoPlayer.seekTo(windowIndex, newSeekPositionMs);
-          }
-
-          @Override
-          public void onContentComplete() {
-            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
-              callback.onContentComplete();
-            }
-          }
-
-          @Override
-          public void onPause() {
-            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
-              callback.onPause();
-            }
-          }
-
-          @Override
-          public void onResume() {
-            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
-              callback.onResume();
-            }
-          }
-
-          @Override
-          public void onVolumeChanged(int percentage) {
-            for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
-              callback.onVolumeChanged(percentage);
-            }
-          }
-        });
+    videoPlayer.setSampleVideoPlayerCallback(createSampleVideoPlayerCallback());
     adsLoader =
         sdkFactory.createAdsLoader(context, MyActivity.getImaSdkSettings(), displayContainer);
   }
@@ -175,6 +127,64 @@ public class SampleAdsWrapper
     adsLoader.requestStream(buildStreamRequest());
   }
 
+  // [END sample_ads_wrapper_initialization]
+
+  // [START create_sample_video_player_callback]
+  private SampleVideoPlayerCallback createSampleVideoPlayerCallback() {
+    return new SampleVideoPlayerCallback() {
+      @Override
+      public void onUserTextReceived(String userText) {
+        for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+          callback.onUserTextReceived(userText);
+        }
+      }
+
+      @Override
+      public void onSeek(int windowIndex, long positionMs) {
+        // See if we would seek past an ad, and if so, jump back to it.
+        long newSeekPositionMs = positionMs;
+        if (streamManager != null) {
+          CuePoint prevCuePoint = streamManager.getPreviousCuePointForStreamTimeMs(positionMs);
+          if (prevCuePoint != null && !prevCuePoint.isPlayed()) {
+            newSeekPositionMs = prevCuePoint.getStartTimeMs();
+          }
+        }
+        videoPlayer.seekTo(windowIndex, newSeekPositionMs);
+      }
+
+      @Override
+      public void onContentComplete() {
+        for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+          callback.onContentComplete();
+        }
+      }
+
+      @Override
+      public void onPause() {
+        for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+          callback.onPause();
+        }
+      }
+
+      @Override
+      public void onResume() {
+        for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+          callback.onResume();
+        }
+      }
+
+      @Override
+      public void onVolumeChanged(int percentage) {
+        for (VideoStreamPlayer.VideoStreamPlayerCallback callback : playerCallbacks) {
+          callback.onVolumeChanged(percentage);
+        }
+      }
+    };
+  }
+
+  // [END create_sample_video_player_callback]
+
+  // [START build_stream_request]
   @Nullable
   private StreamRequest buildStreamRequest() {
     StreamRequest request;
@@ -204,6 +214,9 @@ public class SampleAdsWrapper
     return null;
   }
 
+  // [END build_stream_request]
+
+  // [START create_video_stream_player]
   private VideoStreamPlayer createVideoStreamPlayer() {
     return new VideoStreamPlayer() {
       @Override
@@ -281,6 +294,9 @@ public class SampleAdsWrapper
     };
   }
 
+  // [END create_video_stream_player]
+
+  // [START ad_listeners]
   /** AdErrorListener implementation */
   @Override
   public void onAdError(AdErrorEvent event) {
@@ -319,6 +335,9 @@ public class SampleAdsWrapper
     fallbackUrl = url;
   }
 
+  // [END ad_listeners]
+
+  // [START app_logging]
   /** Sets logger for displaying events to screen. Optional. */
   void setLogger(Logger logger) {
     this.logger = logger;
@@ -329,4 +348,5 @@ public class SampleAdsWrapper
       logger.log(message);
     }
   }
+  // [END app_logging]
 }

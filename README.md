@@ -1,6 +1,6 @@
 ## Google Ads Android IMA SDK for DAI
 
-![Build status](//github.com/googleads/googleads-ima-android-dai/workflows/Build%20Status/badge.svg?branch=main)
+![Build status](//github.com/googleads/googleads-ima-android-dai/actions/workflows/build.yaml/badge.svg)
 
 This project hosts samples for the
 [Android IMA SDK for DAI](//developers.google.com/ad-manager/dynamic-ad-insertion/sdk/android).

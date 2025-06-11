@@ -23,6 +23,8 @@ import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Main Activity. */
 @SuppressLint("UnsafeOptInUsageError")
@@ -134,6 +136,11 @@ public class MyActivity extends Activity {
     if (adsLoaderState != null) {
       adsLoaderBuilder.setAdsLoaderState(adsLoaderState);
     }
+
+    Map<String, String> adTagParams = new HashMap<String, String>();
+    // Update the adTagParams map with any parameters.
+    // For more information, see https://support.google.com/admanager/answer/7320899
+    adsLoader.replaceAdTagParameters(adTagParams);
 
     return adsLoaderBuilder
         .setAdEventListener(buildAdEventListener())

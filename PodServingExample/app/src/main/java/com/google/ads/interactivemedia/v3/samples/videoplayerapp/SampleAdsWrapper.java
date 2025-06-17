@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// [START sample_ads_wrapper_initialization]
 /** This class implements IMA to add pod ad-serving support to SampleVideoPlayer */
 @SuppressLint("UnsafeOptInUsageError")
 /* @SuppressLint is needed for new media3 APIs. */
@@ -52,6 +53,8 @@ public class SampleAdsWrapper
   private static final String API_KEY = "";
   private static final String STREAM_URL = "";
   private static final StreamFormat STREAM_FORMAT = StreamFormat.HLS;
+
+  // [END sample_ads_wrapper_initialization]
 
   private enum StreamType {
     LIVESTREAM,
@@ -156,26 +159,38 @@ public class SampleAdsWrapper
     StreamRequest request;
     switch (CONTENT_STREAM_TYPE) {
       case LIVESTREAM:
+        // [START live_stream_request]
         // Live pod stream request.
         request = sdkFactory.createPodStreamRequest(NETWORK_CODE, CUSTOM_ASSET_KEY, API_KEY);
+        // [END live_stream_request]
         break;
       case VOD:
+        // [START vod_stream_request]
         // VOD pod stream request.
         request = sdkFactory.createPodVodStreamRequest(NETWORK_CODE);
+        // [END vod_stream_request]
         break;
       default:
         throw new IllegalStateException("Unexpected value: " + CONTENT_STREAM_TYPE);
     }
+    // [START make_stream_request]
     request.setFormat(STREAM_FORMAT);
     adsLoader.requestStream(request);
+    // [END make_stream_request]
   }
 
+  // [START vod_on_load_url]
   private VideoStreamPlayer createVideoStreamPlayer() {
     return new VideoStreamPlayer() {
       @Override
       public void loadUrl(String url, List<HashMap<String, String>> subtitles) {
-        // When pod serving is enabled, IMA doesn't make calls to VideoStreamPlayer.loadUrl().
+        // IMA doesn't make calls to VideoStreamPlayer.loadUrl() for pod serving live streams.
+        // The following code is for VOD streams.
+        videoPlayer.setStreamUrl(url);
+        videoPlayer.play();
       }
+
+      // [END vod_on_load_url]
 
       @Override
       public void pause() {
@@ -282,21 +297,35 @@ public class SampleAdsWrapper
     // This init() only loads the UI rendering settings locally.
     streamManager.init(adsRenderingSettings);
 
+    // [START play_stream]
     // To enable ad pod streams
-    String streamID = streamManager.getStreamId();
-    String streamUrl = STREAM_URL.replace("[[STREAMID]]", streamID);
+    String streamID = "";
     switch (CONTENT_STREAM_TYPE) {
       case LIVESTREAM:
+        // [START live_stream_play]
         // Play the live pod stream.
-        videoPlayer.setStreamUrl(streamUrl);
+        streamID = streamManager.getStreamId();
+        String liveStreamUrl = STREAM_URL.replace("[[STREAMID]]", streamID);
+        // Call videoPlayer.play() here, because IMA doesn't call the VideoStreamPlayer.loadUrl()
+        // function for livestreams.
+        videoPlayer.setStreamUrl(liveStreamUrl);
         videoPlayer.play();
-        // The SDK doesn't call the loadUrl() function for livestream.
+        // [END live_stream_play]
         break;
       case VOD:
+        // [START vod_stream_play]
+        // Play the VOD pod stream.
+        streamID = streamManager.getStreamId();
+        String vodStreamUrl = "";
         // Refer to your Video Tech Partner (VTP) or video stitching guide to fetch the stream URL
         // and the subtitles for a the ad stitched VOD stream.
+
+        // In the following commented out code, 'vtpInterface' is a place holder
+        // for your own video technology partner (VTP) API calls.
+        // vodStreamUrl = vtpInterface.requestStreamURL(streamID);
         List<Map<String, String>> subtitles = new ArrayList<>();
-        streamManager.loadThirdPartyStream(streamUrl, subtitles);
+        streamManager.loadThirdPartyStream(vodStreamUrl, subtitles);
+        // [END vod_stream_play]
         break;
     }
   }

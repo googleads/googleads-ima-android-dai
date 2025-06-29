@@ -9,15 +9,16 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.hls.HlsInterstitialsAdsLoader;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionMediaSource;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.ui.PlayerView;
 import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
@@ -33,6 +34,12 @@ public class MyActivity extends Activity {
 
   private static final String KEY_ADS_LOADER_STATE = "ads_loader_state";
   private static final String SAMPLE_ASSET_KEY = "c-rArva4ShKVIAkNfy6HUQ";
+  // private static final String SAMPLE_ASSET_KEY = "PSzZMzAkSXCmlJOWDmRj8Q"; //DASH
+  private static final String SAMPLE_CMS_ID = "2548831";
+  private static final String SAMPLE_VIDEO_ID = "tears-of-steel";
+  private static final int STEAM_FORMAT =
+      CONTENT_TYPE_HLS; // Use CONTENT_TYPE_DASH for dash streams.
+
   private static final String LOG_TAG = "ImaExoPlayerExample";
 
   private PlayerView playerView;
@@ -43,7 +50,7 @@ public class MyActivity extends Activity {
   private ImaSdkSettings imaSdkSettings;
 
   @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
     MultiDex.install(this);
@@ -167,6 +174,9 @@ public class MyActivity extends Activity {
 
   private void initializePlayer() {
     adsLoader = createAdsLoader();
+    Map<String, String> adTagParams = new HashMap<String, String>();
+    adTagParams.put("dai-hls-itstl", "1");
+    adsLoader.replaceAdTagParameters(adTagParams);
 
     // Set up the factory for media sources, passing the ads loader.
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
@@ -177,13 +187,19 @@ public class MyActivity extends Activity {
     ImaServerSideAdInsertionMediaSource.Factory adsMediaSourceFactory =
         new ImaServerSideAdInsertionMediaSource.Factory(adsLoader, mediaSourceFactory);
 
+    HlsInterstitialsAdsLoader hlsInterstitialsAdsLoader = new HlsInterstitialsAdsLoader();
+    // Create a MediaSource.Factory for HLS streams with interstitials.
+    MediaSource.Factory hlsMediaSourceFactory =
+        new HlsInterstitialsAdsLoader.AdsMediaSourceFactory(
+            hlsInterstitialsAdsLoader, playerView, adsMediaSourceFactory);
+
     // 'mediaSourceFactory' is an ExoPlayer component for the DefaultMediaSourceFactory.
     // 'adsMediaSourceFactory' is an ExoPlayer component for a MediaSource factory for IMA server
     // side inserted ad streams.
     mediaSourceFactory.setServerSideAdInsertionMediaSourceFactory(adsMediaSourceFactory);
 
     // Create a SimpleExoPlayer and set it as the player for content and ads.
-    player = new ExoPlayer.Builder(this).setMediaSourceFactory(mediaSourceFactory).build();
+    player = new ExoPlayer.Builder(this).setMediaSourceFactory(hlsMediaSourceFactory).build();
     playerView.setPlayer(player);
     adsLoader.setPlayer(player);
 
@@ -191,11 +207,18 @@ public class MyActivity extends Activity {
     Uri ssaiLiveUri =
         new ImaServerSideAdInsertionUriBuilder()
             .setAssetKey(SAMPLE_ASSET_KEY)
-            .setFormat(CONTENT_TYPE_HLS) // Use CONTENT_TYPE_DASH for dash streams.
+            .setFormat(STEAM_FORMAT)
+            .build();
+
+    Uri ssaiVodUri =
+        new ImaServerSideAdInsertionUriBuilder()
+            .setContentSourceId(SAMPLE_CMS_ID)
+            .setVideoId(SAMPLE_VIDEO_ID)
+            .setFormat(STEAM_FORMAT)
             .build();
 
     // Create the MediaItem to play, specifying the stream URI.
-    MediaItem ssaiMediaItem = MediaItem.fromUri(ssaiLiveUri);
+    MediaItem ssaiMediaItem = MediaItem.fromUri(ssaiVodUri);
 
     // Prepare the content and ad to be played with the ExoPlayer.
     player.setMediaItem(ssaiMediaItem);

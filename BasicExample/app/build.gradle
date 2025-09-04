@@ -29,6 +29,7 @@ android {
     }
 }
 
+// [START ima_dependencies]
 repositories {
     google()
     mavenCentral()
@@ -46,3 +47,4 @@ dependencies {
     implementation 'androidx.mediarouter:mediarouter:1.8.1'
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.37.0'
 }
+// [END ima_dependencies]

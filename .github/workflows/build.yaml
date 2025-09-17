@@ -22,8 +22,9 @@ jobs:
         - "BasicExample"
         - "CloudVideoStitcherExample"
         - "ExoPlayerExample"
-        - "SampleVideoPlayer"
         - "PodServingExample"
+        - "SampleVideoPlayer"
+        - "Snippets"
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v1

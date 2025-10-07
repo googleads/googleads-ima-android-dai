@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import androidx.annotation.Nullable;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
@@ -39,6 +38,7 @@ import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoP
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** This class adds ad-serving support to Sample HlsVideoPlayer */
 @SuppressLint("UnsafeOptInUsageError")
@@ -185,8 +185,7 @@ public class SampleAdsWrapper
   // [END create_sample_video_player_callback]
 
   // [START build_stream_request]
-  @Nullable
-  private StreamRequest buildStreamRequest() {
+  private @Nullable StreamRequest buildStreamRequest() {
     StreamRequest request;
     switch (CONTENT_TYPE) {
       case LIVE_HLS:

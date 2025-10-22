@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 36
         versionCode 1
         versionName "1.0"
@@ -43,5 +43,5 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
     implementation "androidx.media3:media3-exoplayer-dash:$media3_version"
     implementation 'androidx.mediarouter:mediarouter:1.8.1'
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.37.0'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.38.0'
 }

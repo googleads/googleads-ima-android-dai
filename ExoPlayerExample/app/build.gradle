@@ -14,7 +14,6 @@ android {
         applicationId "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
         minSdkVersion 23
         targetSdkVersion 36
-        multiDexEnabled true
         versionCode 1
         versionName "1.0"
     }
@@ -31,10 +30,10 @@ repositories {
     mavenCentral()
 }
 
+// [START ima_dependency]
 dependencies {
     def media3_version = "1.8.0"
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
-    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation "androidx.media3:media3-ui:$media3_version"
     implementation "androidx.media3:media3-exoplayer:$media3_version"
@@ -44,3 +43,4 @@ dependencies {
     // The library adds the IMA ExoPlayer integration for ads.
     implementation "androidx.media3:media3-exoplayer-ima:$media3_version"
 }
+// [END ima_dependency]

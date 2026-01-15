@@ -137,11 +137,6 @@ public class MyActivity extends Activity {
       adsLoaderBuilder.setAdsLoaderState(adsLoaderState);
     }
 
-    Map<String, String> adTagParams = new HashMap<String, String>();
-    // Update the adTagParams map with any parameters.
-    // For more information, see https://support.google.com/admanager/answer/7320899
-    adsLoader.replaceAdTagParameters(adTagParams);
-
     return adsLoaderBuilder
         .setAdEventListener(buildAdEventListener())
         .setImaSdkSettings(getImaSdkSettings())
@@ -187,11 +182,16 @@ public class MyActivity extends Activity {
     playerView.setPlayer(player);
     adsLoader.setPlayer(player);
 
+    Map<String, String> adTagParams = new HashMap<String, String>();
+    // Update the adTagParams map with any parameters.
+    // For more information, see https://support.google.com/admanager/answer/7320899
+
     // Build an IMA SSAI media item to prepare the player with.
     Uri ssaiLiveUri =
         new ImaServerSideAdInsertionUriBuilder()
             .setAssetKey(SAMPLE_ASSET_KEY)
             .setFormat(CONTENT_TYPE_HLS) // Use CONTENT_TYPE_DASH for dash streams.
+            .setAdTagParameters(adTagParams)
             .build();
 
     // Create the MediaItem to play, specifying the stream URI.

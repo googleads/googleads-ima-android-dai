@@ -137,15 +137,18 @@ public class MyActivity extends Activity {
       adsLoaderBuilder.setAdsLoaderState(adsLoaderState);
     }
 
+    ImaServerSideAdInsertionMediaSource.AdsLoader adsLoaderResult =
+        adsLoaderBuilder
+            .setAdEventListener(buildAdEventListener())
+            .setImaSdkSettings(getImaSdkSettings())
+            .build();
+
     Map<String, String> adTagParams = new HashMap<String, String>();
     // Update the adTagParams map with any parameters.
     // For more information, see https://support.google.com/admanager/answer/7320899
-    adsLoader.replaceAdTagParameters(adTagParams);
+    adsLoaderResult.replaceAdTagParameters(adTagParams);
 
-    return adsLoaderBuilder
-        .setAdEventListener(buildAdEventListener())
-        .setImaSdkSettings(getImaSdkSettings())
-        .build();
+    return adsLoaderResult;
   }
 
   public AdEvent.AdEventListener buildAdEventListener() {

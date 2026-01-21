@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="action_settings">Settings</string>
+    <string name="app_name">IMA Sample Video Player</string>
+    <color name="black">#000000</color>
+    <string name="play_button">Play button</string>
+    <string name="video_description">Sample Video Stream</string>
+
+</resources>

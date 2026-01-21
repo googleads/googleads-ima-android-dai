@@ -1,0 +1,70 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyActivity"
+    tools:ignore="MergeRootFrame">
+
+    <RelativeLayout
+        android:background="@color/black"
+        android:id="@+id/videoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4">
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true" />
+        <FrameLayout
+            android:id="@+id/adUiContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ImageButton
+            android:id="@+id/playButton"
+            android:contentDescription="@string/play_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_action_play_over_video"
+            android:background="@color/black" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/descriptionLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.6">
+
+        <TextView
+            android:id="@+id/playerDescription"
+            android:text="@string/video_description"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1"
+            android:textSize="@dimen/font_size" />
+
+        <!-- [START ad_ui_logging] -->
+        <!-- UI element for viewing SDK event log -->
+        <ScrollView
+            android:id="@+id/logScroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:padding="5dp"
+            android:background="#DDDDDD">
+
+            <TextView
+                android:id="@+id/logText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </TextView>
+        </ScrollView>
+        <!-- [END ad_ui_logging] -->
+    </LinearLayout>
+
+</LinearLayout>

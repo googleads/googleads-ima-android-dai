@@ -1,5 +1,6 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+// [START app_imports]
 import static androidx.media3.common.C.CONTENT_TYPE_HLS;
 
 import android.annotation.SuppressLint;
@@ -9,7 +10,6 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
@@ -19,13 +19,15 @@ import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionMediaSource;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionUriBuilder;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
-import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import java.util.HashMap;
 import java.util.Map;
 
+// [END app_imports]
+
+// [START app_variables]
 /** Main Activity. */
 @SuppressLint("UnsafeOptInUsageError")
 /* @SuppressLint is needed for new media3 APIs. */
@@ -42,11 +44,13 @@ public class MyActivity extends Activity {
   private ImaServerSideAdInsertionMediaSource.AdsLoader.State adsLoaderState;
   private ImaSdkSettings imaSdkSettings;
 
+  // [END app_variables]
+
+  // [START on_create]
   @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
-    MultiDex.install(this);
 
     // Initialize the IMA SDK as early as possible when the app starts. If your app already
     // overrides Application.onCreate(), call this method inside the onCreate() method.
@@ -65,6 +69,17 @@ public class MyActivity extends Activity {
     }
   }
 
+  private ImaSdkSettings getImaSdkSettings() {
+    if (imaSdkSettings == null) {
+      imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
+      // Set any IMA SDK settings here.
+    }
+    return imaSdkSettings;
+  }
+
+  // [END on_create]
+
+  // [START player_events]
   @Override
   public void onStart() {
     super.onStart();
@@ -117,6 +132,9 @@ public class MyActivity extends Activity {
     }
   }
 
+  // [END player_events]
+
+  // [START release_player]
   private void releasePlayer() {
     // Set the player references to null and release the player's resources.
     playerView.setPlayer(null);
@@ -127,6 +145,9 @@ public class MyActivity extends Activity {
     adsLoaderState = adsLoader.release();
   }
 
+  // [END release_player]
+
+  // [START initialize_player]
   // Create a server side ad insertion (SSAI) AdsLoader.
   private ImaServerSideAdInsertionMediaSource.AdsLoader createAdsLoader() {
     ImaServerSideAdInsertionMediaSource.AdsLoader.Builder adsLoaderBuilder =
@@ -141,23 +162,6 @@ public class MyActivity extends Activity {
         .setAdEventListener(buildAdEventListener())
         .setImaSdkSettings(getImaSdkSettings())
         .build();
-  }
-
-  public AdEvent.AdEventListener buildAdEventListener() {
-    logText = findViewById(R.id.logText);
-    logText.setMovementMethod(new ScrollingMovementMethod());
-
-    return event -> {
-      AdEvent.AdEventType eventType = event.getType();
-      if (eventType == AdEvent.AdEventType.AD_PROGRESS) {
-        return;
-      }
-      String log = "IMA event: " + eventType;
-      if (logText != null) {
-        logText.append(log + "\n");
-      }
-      Log.i(LOG_TAG, log);
-    };
   }
 
   private void initializePlayer() {
@@ -182,20 +186,9 @@ public class MyActivity extends Activity {
     playerView.setPlayer(player);
     adsLoader.setPlayer(player);
 
-    Map<String, String> adTagParams = new HashMap<String, String>();
-    // Update the adTagParams map with any parameters.
-    // For more information, see https://support.google.com/admanager/answer/7320899
-
-    // Build an IMA SSAI media item to prepare the player with.
-    Uri ssaiLiveUri =
-        new ImaServerSideAdInsertionUriBuilder()
-            .setAssetKey(SAMPLE_ASSET_KEY)
-            .setFormat(CONTENT_TYPE_HLS) // Use CONTENT_TYPE_DASH for dash streams.
-            .setAdTagParameters(adTagParams)
-            .build();
-
     // Create the MediaItem to play, specifying the stream URI.
-    MediaItem ssaiMediaItem = MediaItem.fromUri(ssaiLiveUri);
+    Uri ssaiUri = buildLiveStreamUri(SAMPLE_ASSET_KEY, CONTENT_TYPE_HLS);
+    MediaItem ssaiMediaItem = MediaItem.fromUri(ssaiUri);
 
     // Prepare the content and ad to be played with the ExoPlayer.
     player.setMediaItem(ssaiMediaItem);
@@ -205,11 +198,67 @@ public class MyActivity extends Activity {
     player.setPlayWhenReady(false);
   }
 
-  private ImaSdkSettings getImaSdkSettings() {
-    if (imaSdkSettings == null) {
-      imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
-      // Set any IMA SDK settings here.
-    }
-    return imaSdkSettings;
+  /**
+   * Builds an IMA SSAI live stream URI for the given asset key and format.
+   *
+   * @param assetKey The asset key of the live stream.
+   * @param format The format of the live stream request, either {@code CONTENT_TYPE_HLS} or {@code
+   *     CONTENT_TYPE_DASH}.
+   * @return The URI of the live stream.
+   */
+  public Uri buildLiveStreamUri(String assetKey, int format) {
+    Map<String, String> adTagParams = new HashMap<String, String>();
+    // Update the adTagParams map with any parameters.
+    // For more information, see https://support.google.com/admanager/answer/7320899
+
+    return new ImaServerSideAdInsertionUriBuilder()
+        .setAssetKey(assetKey)
+        .setFormat(format)
+        .setAdTagParameters(adTagParams)
+        .build();
+  }
+
+  // [END initialize_player]
+
+  // [START vod_stream_setup]
+  /**
+   * Builds an IMA SSAI VOD stream URI for the given CMS ID, video ID, and format.
+   *
+   * @param cmsId The CMS ID of the VOD stream.
+   * @param videoId The video ID of the VOD stream.
+   * @param format The format of the VOD stream request, either {@code CONTENT_TYPE_HLS} or {@code
+   *     CONTENT_TYPE_DASH}.
+   * @return The URI of the VOD stream.
+   */
+  public Uri buildVodStreamUri(String cmsId, String videoId, int format) {
+    Map<String, String> adTagParams = new HashMap<String, String>();
+    // Update the adTagParams map with any parameters.
+    // For more information, see https://support.google.com/admanager/answer/7320899
+
+    return new ImaServerSideAdInsertionUriBuilder()
+        .setContentSourceId(cmsId)
+        .setVideoId(videoId)
+        .setFormat(format)
+        .setAdTagParameters(adTagParams)
+        .build();
+  }
+
+  // [END vod_stream_setup]
+
+  public AdEvent.AdEventListener buildAdEventListener() {
+    logText = findViewById(R.id.logText);
+    logText.setMovementMethod(new ScrollingMovementMethod());
+
+    return event -> {
+      AdEvent.AdEventType eventType = event.getType();
+      if (eventType == AdEvent.AdEventType.AD_PROGRESS) {
+        return;
+      }
+      String log = "IMA event: " + eventType;
+      if (logText != null) {
+        logText.append(log + "\n");
+      }
+      Log.i(LOG_TAG, log);
+    };
   }
 }

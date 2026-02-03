@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.multidex.MultiDex;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 
 /** Main Activity that plays media using {@link SampleVideoPlayer}. */
@@ -42,7 +41,6 @@ public class MyActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_my);
     View rootView = findViewById(R.id.videoLayout);
-    MultiDex.install(rootView.getContext());
 
     sampleVideoPlayer =
         new SampleVideoPlayer(rootView.getContext(), rootView.findViewById(R.id.playerView));

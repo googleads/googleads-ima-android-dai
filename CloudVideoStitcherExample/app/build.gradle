@@ -1,29 +1,29 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 
 android {
-    namespace 'com.google.ads.interactivemedia.v3.samples.videoplayerapp'
-    compileSdk 36
+    namespace = "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
+    compileSdk = 36
 
     compileOptions {
         // Required by IMA SDK v3.37.0+
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
 
         // Java 17 required by Gradle 8+
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
-        applicationId "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
-        minSdkVersion 23
-        targetSdkVersion 36
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
+        minSdkVersion(23)
+        targetSdkVersion(36)
+        versionCode = 1
+        versionName = "1.0"
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -34,14 +34,14 @@ repositories {
 }
 
 dependencies {
-    def media3_version = "1.8.0"
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.8.0")
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation "androidx.media3:media3-ui:$media3_version"
-    implementation "androidx.media3:media3-exoplayer:$media3_version"
-    implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
-    implementation "androidx.media3:media3-exoplayer-dash:$media3_version"
-    implementation 'androidx.mediarouter:mediarouter:1.8.1'
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.38.0'
+    def media3_version = "1.9.1"
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:2.3.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.media3:media3-ui:$media3_version")
+    implementation("androidx.media3:media3-exoplayer:$media3_version")
+    implementation("androidx.media3:media3-exoplayer-hls:$media3_version")
+    implementation("androidx.media3:media3-exoplayer-dash:$media3_version")
+    implementation("androidx.mediarouter:mediarouter:1.8.1")
+    implementation("com.google.ads.interactivemedia.v3:interactivemedia:3.39.0")
 }

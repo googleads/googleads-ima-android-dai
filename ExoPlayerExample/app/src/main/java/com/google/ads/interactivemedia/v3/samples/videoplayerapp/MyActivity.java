@@ -36,6 +36,7 @@ public class MyActivity extends Activity {
   private static final String KEY_ADS_LOADER_STATE = "ads_loader_state";
   private static final String SAMPLE_ASSET_KEY = "c-rArva4ShKVIAkNfy6HUQ";
   private static final String LOG_TAG = "ImaExoPlayerExample";
+  private static final String NETWORK_CODE = "21775744923";
 
   private PlayerView playerView;
   private TextView logText;
@@ -214,6 +215,7 @@ public class MyActivity extends Activity {
     return new ImaServerSideAdInsertionUriBuilder()
         .setAssetKey(assetKey)
         .setFormat(format)
+        .setNetworkCode(NETWORK_CODE)
         .setAdTagParameters(adTagParams)
         .build();
   }
@@ -239,6 +241,7 @@ public class MyActivity extends Activity {
         .setContentSourceId(cmsId)
         .setVideoId(videoId)
         .setFormat(format)
+        .setNetworkCode(NETWORK_CODE)
         .setAdTagParameters(adTagParams)
         .build();
   }

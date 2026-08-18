@@ -11,7 +11,6 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -84,18 +83,16 @@ public class MyActivity extends Activity {
   @Override
   public void onStart() {
     super.onStart();
-    if (Util.SDK_INT > 23) {
-      initializePlayer();
-      if (playerView != null) {
-        playerView.onResume();
-      }
+    initializePlayer();
+    if (playerView != null) {
+      playerView.onResume();
     }
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    if (Util.SDK_INT <= 23 || player == null) {
+    if (player == null) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -106,23 +103,15 @@ public class MyActivity extends Activity {
   @Override
   public void onPause() {
     super.onPause();
-    if (Util.SDK_INT <= 23) {
-      if (playerView != null) {
-        playerView.onPause();
-      }
-      releasePlayer();
-    }
   }
 
   @Override
   public void onStop() {
     super.onStop();
-    if (Util.SDK_INT > 23) {
-      if (playerView != null) {
-        playerView.onPause();
-      }
-      releasePlayer();
+    if (playerView != null) {
+      playerView.onPause();
     }
+    releasePlayer();
   }
 
   @Override

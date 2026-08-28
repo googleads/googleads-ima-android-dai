@@ -31,9 +31,9 @@ repositories {
 }
 
 dependencies {
-    def media3_version = "1.9.1"
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.3.0"))
-    implementation("androidx.appcompat:appcompat:1.7.1")
+    def media3_version = "1.11.0"
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.3.21"))
+    implementation("androidx.appcompat:appcompat:1.8.0")
     implementation("androidx.media3:media3-ui:$media3_version")
     implementation("androidx.media3:media3-exoplayer:$media3_version")
     implementation("androidx.media3:media3-exoplayer-hls:$media3_version")
